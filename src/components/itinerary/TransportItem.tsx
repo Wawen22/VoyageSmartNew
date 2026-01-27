@@ -23,9 +23,9 @@ export function TransportItem({ transport }: TransportItemProps) {
   const arrivalDate = transport.arrival_datetime ? new Date(transport.arrival_datetime) : null;
 
   return (
-    <div className="flex gap-3 p-3 bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-950/30 dark:to-blue-950/30 rounded-lg border border-sky-200/50 dark:border-sky-800/50">
-      <div className="p-2 rounded-lg bg-sky-100 dark:bg-sky-900/50 h-fit">
-        <Icon className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+    <div className="flex gap-3 p-3 bg-card/80 rounded-2xl border border-border/60 hover:bg-card transition-all">
+      <div className="p-2 rounded-xl bg-sky-100 h-fit">
+        <Icon className="h-4 w-4 text-sky-600" />
       </div>
       
       <div className="flex-1 min-w-0">
@@ -44,7 +44,7 @@ export function TransportItem({ transport }: TransportItemProps) {
             </>
           )}
           {transport.carrier && (
-            <span className="text-sky-600 dark:text-sky-400">• {transport.carrier}</span>
+            <span className="text-sky-600">• {transport.carrier}</span>
           )}
         </div>
 
@@ -68,7 +68,7 @@ export function TransportItem({ transport }: TransportItemProps) {
       </div>
 
       {transport.price && (
-        <div className="text-sm font-medium text-sky-700 dark:text-sky-300">
+        <div className="app-pill bg-sky-100 text-sky-700 font-semibold">
           €{transport.price.toFixed(0)}
         </div>
       )}

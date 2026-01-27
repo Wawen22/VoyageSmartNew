@@ -65,11 +65,11 @@ export function DayCard({
   const isEmpty = totalItems === 0;
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="py-3 px-4 bg-muted/30">
+    <Card className="app-surface overflow-hidden">
+      <CardHeader className="py-3 px-4 bg-muted/30 border-b border-border/60">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+            <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-primary/10">
               <span className="text-lg font-bold text-primary">{dayNumber}</span>
             </div>
             <div>
@@ -91,8 +91,8 @@ export function DayCard({
 
       <CardContent className="p-4">
         {isEmpty ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="p-3 rounded-full bg-muted mb-3">
+          <div className="flex flex-col items-center justify-center py-8 text-center app-section">
+            <div className="p-3 rounded-full bg-muted/70 mb-3">
               <CalendarDays className="h-6 w-6 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground">

@@ -116,7 +116,7 @@ export function AddExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-card">
         <DialogHeader>
           <DialogTitle>Aggiungi Spesa</DialogTitle>
         </DialogHeader>
@@ -198,7 +198,7 @@ export function AddExpenseDialog({
 
           <div className="space-y-2">
             <Label>Dividi con</Label>
-            <div className="rounded-lg border border-border p-3 space-y-2 max-h-40 overflow-y-auto">
+            <div className="rounded-xl border border-border/60 bg-card/70 p-3 space-y-2 max-h-40 overflow-y-auto">
               {members.map((member) => (
                 <div key={member.user_id} className="flex items-center gap-3">
                   <Checkbox

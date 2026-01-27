@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { 
   Plus, 
@@ -31,10 +31,10 @@ interface Trip {
 }
 
 const statusConfig: Record<string, { label: string; class: string }> = {
-  planning: { label: "In Pianificazione", class: "bg-amber-500/10 text-amber-600" },
-  upcoming: { label: "In Arrivo", class: "bg-primary/10 text-primary" },
-  active: { label: "In Corso", class: "bg-forest/10 text-forest" },
-  completed: { label: "Completato", class: "bg-muted-foreground/10 text-muted-foreground" },
+  planning: { label: "In Pianificazione", class: "text-white" },
+  upcoming: { label: "In Arrivo", class: "text-white" },
+  active: { label: "In Corso", class: "text-white" },
+  completed: { label: "Completato", class: "text-white" },
 };
 
 const defaultImages = [
@@ -105,22 +105,24 @@ export default function Trips() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-primary animate-spin" />
-      </div>
+      <AppLayout>
+        <main className="pt-24 pb-16 relative z-10">
+          <div className="container mx-auto px-4 flex items-center justify-center min-h-[60vh]">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
+          </div>
+        </main>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <main className="pt-24 pb-16">
+    <AppLayout>
+      <main className="pt-24 pb-16 relative z-10">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              <h1 className="text-3xl lg:text-4xl font-semibold text-foreground mb-2">
                 I Miei Viaggi
               </h1>
               <p className="text-muted-foreground">
@@ -144,7 +146,7 @@ export default function Trips() {
                 placeholder="Cerca viaggi..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
             <Button variant="outline" size="lg" className="h-12">
@@ -176,7 +178,7 @@ export default function Trips() {
                   transition={{ delay: index * 0.1 }}
                 >
                   <Link to={`/trips/${trip.id}`}>
-                    <div className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-lg transition-all duration-300 border border-border hover:border-primary/20">
+                    <div className="group app-surface overflow-hidden transition-all duration-300 hover:shadow-[0_28px_60px_-38px_rgba(15,23,42,0.45)] hover:border-primary/20">
                       {/* Image */}
                       <div className="relative h-48 overflow-hidden">
                         <img
@@ -187,7 +189,7 @@ export default function Trips() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                         
                         {/* Status Badge */}
-                        <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-medium ${statusConfig[trip.status]?.class || statusConfig.planning.class}`}>
+                        <div className={`absolute top-4 left-4 app-pill bg-white/20 text-white backdrop-blur ${statusConfig[trip.status]?.class || statusConfig.planning.class}`}>
                           {statusConfig[trip.status]?.label || "In Pianificazione"}
                         </div>
 
@@ -259,6 +261,6 @@ export default function Trips() {
           )}
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 }

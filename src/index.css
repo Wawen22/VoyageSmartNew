@@ -122,6 +122,42 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* App-only theme overrides (keeps landing unchanged) */
+  .app-theme {
+    --background: 210 30% 98%;
+    --foreground: 222 28% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 28% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 28% 12%;
+
+    --primary: 212 78% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 35% 92%;
+    --secondary-foreground: 222 28% 16%;
+
+    --muted: 214 30% 94%;
+    --muted-foreground: 220 10% 42%;
+
+    --accent: 168 55% 36%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 214 24% 86%;
+    --input: 214 24% 86%;
+    --ring: 212 78% 42%;
+
+    --radius: 1rem;
+
+    --shadow-card: 0 18px 42px -26px rgba(15, 23, 42, 0.32);
+    --shadow-soft: 0 28px 70px -40px rgba(15, 23, 42, 0.38);
+
+    --gradient-app: linear-gradient(135deg, hsl(210 30% 98%) 0%, hsl(214 35% 96%) 50%, hsl(210 30% 97%) 100%);
+    --gradient-hero: linear-gradient(120deg, hsl(212 78% 42%) 0%, hsl(188 60% 35%) 55%, hsl(212 78% 42%) 100%);
+  }
 }
 
 @layer base {
@@ -177,6 +213,68 @@
   .glass-dark {
     @apply backdrop-blur-xl bg-black/20 border border-white/10;
   }
+
+  .app-shell {
+    background-image: var(--gradient-app);
+  }
+
+  .app-surface {
+    @apply rounded-2xl border border-border/60 bg-card/85 backdrop-blur;
+    box-shadow: var(--shadow-card);
+  }
+
+  .app-surface-strong {
+    @apply rounded-3xl border border-border/70 bg-card;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .app-section {
+    @apply rounded-2xl border border-border/60 bg-muted/40;
+  }
+
+  .app-pill {
+    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+
+  .app-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    opacity: 0.35;
+  }
+
+  .app-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(50px);
+    opacity: 0.7;
+  }
+
+  .app-orb-1 {
+    width: 320px;
+    height: 320px;
+    top: -140px;
+    right: -90px;
+    background: hsl(var(--primary) / 0.16);
+  }
+
+  .app-orb-2 {
+    width: 260px;
+    height: 260px;
+    bottom: 12%;
+    left: -120px;
+    background: hsl(var(--accent) / 0.14);
+  }
+
+  .app-orb-3 {
+    width: 220px;
+    height: 220px;
+    top: 38%;
+    left: 58%;
+    background: hsl(var(--secondary) / 0.45);
+  }
 }
 
 /* Custom Animations */
@@ -208,5 +306,4 @@
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
 }
-
 

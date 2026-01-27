@@ -22,12 +22,12 @@ export function PublicDaySection({ date, dayNumber, isToday, events }: PublicDay
       className="relative"
     >
       {/* Day header */}
-      <div className="sticky top-20 z-20 bg-background/95 backdrop-blur-sm py-3 -mx-4 px-4 mb-4 border-b border-border">
+      <div className="sticky top-20 z-20 bg-card/85 backdrop-blur-md py-3 -mx-4 px-4 mb-4 border-b border-border/60">
         <div className="flex items-center gap-3">
-          <div className={`flex items-center justify-center w-12 h-12 rounded-xl ${
+          <div className={`flex items-center justify-center w-12 h-12 rounded-2xl ${
             isToday 
-              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
-              : "bg-muted"
+              ? "bg-primary text-primary-foreground shadow-[0_18px_40px_-26px_rgba(15,23,42,0.45)]" 
+              : "bg-muted/70"
           }`}>
             <span className="text-xl font-bold">{dayNumber}</span>
           </div>
@@ -35,7 +35,7 @@ export function PublicDaySection({ date, dayNumber, isToday, events }: PublicDay
             <h3 className={`font-semibold text-lg capitalize ${isToday ? "text-primary" : "text-foreground"}`}>
               {format(date, "EEEE", { locale: it })}
               {isToday && (
-                <span className="ml-2 text-xs font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                <span className="ml-2 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
                   Oggi
                 </span>
               )}
@@ -54,8 +54,8 @@ export function PublicDaySection({ date, dayNumber, isToday, events }: PublicDay
 
       {/* Events */}
       {isEmpty ? (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <div className="p-3 rounded-full bg-muted mb-3">
+        <div className="flex flex-col items-center justify-center py-8 text-center app-section">
+          <div className="p-3 rounded-full bg-muted/70 mb-3">
             <CalendarDays className="h-5 w-5 text-muted-foreground" />
           </div>
           <p className="text-sm text-muted-foreground">

@@ -25,11 +25,11 @@ export function ExpenseCard({ expense, canDelete, onDelete, index }: ExpenseCard
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="bg-card rounded-xl p-4 shadow-card border border-border hover:border-primary/20 transition-all group"
+      className="app-surface p-4 hover:border-primary/20 transition-all group"
     >
       <div className="flex items-center gap-4">
         {/* Category Icon */}
-        <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-2xl flex-shrink-0">
+        <div className="w-12 h-12 rounded-xl bg-muted/60 flex items-center justify-center text-2xl flex-shrink-0">
           {categoryIcons[expense.category] || "📦"}
         </div>
 

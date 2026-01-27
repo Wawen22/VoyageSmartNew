@@ -27,7 +27,7 @@ export function AccommodationCard({ accommodation, onDelete }: AccommodationCard
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card className="app-surface overflow-hidden hover:border-primary/20 transition-shadow">
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3 flex-1">

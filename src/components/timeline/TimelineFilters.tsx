@@ -29,8 +29,10 @@ export function TimelineFilters({ activeFilter, onFilterChange }: TimelineFilter
             size="sm"
             onClick={() => onFilterChange(filter.id)}
             className={cn(
-              "flex items-center gap-2 whitespace-nowrap transition-all",
-              isActive && "shadow-md"
+              "flex items-center gap-2 whitespace-nowrap transition-all rounded-full px-4",
+              isActive
+                ? "shadow-[0_16px_32px_-22px_rgba(15,23,42,0.45)]"
+                : "bg-card/80 hover:bg-card border-border/60"
             )}
           >
             <filter.icon className="w-4 h-4" />

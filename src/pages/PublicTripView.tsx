@@ -11,7 +11,7 @@ import {
   CalendarDays
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { TimelineStats } from "@/components/timeline/TimelineStats";
 import { TimelineFilters, type TimelineFilterType } from "@/components/timeline/TimelineFilters";
@@ -250,25 +250,23 @@ export default function PublicTripView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="flex items-center justify-center h-[calc(100vh-4rem)] pt-16">
+      <AppLayout>
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)] pt-16 relative z-10">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   if (error || !trip) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 pt-24 text-center">
-          <div className="max-w-md mx-auto">
+      <AppLayout>
+        <div className="container mx-auto px-4 pt-24 text-center relative z-10">
+          <div className="max-w-md mx-auto app-surface-strong p-8">
             <div className="p-4 rounded-full bg-muted inline-block mb-4">
               <MapPin className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h1 className="text-2xl font-bold mb-2">{error || "Viaggio non trovato"}</h1>
+            <h1 className="text-2xl font-semibold mb-2">{error || "Viaggio non trovato"}</h1>
             <p className="text-muted-foreground mb-6">
               Il link potrebbe essere scaduto o non valido.
             </p>
@@ -277,17 +275,15 @@ export default function PublicTripView() {
             </Button>
           </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   const tripDuration = differenceInDays(parseISO(trip.end_date), parseISO(trip.start_date)) + 1;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      <main className="pt-16">
+    <AppLayout>
+      <main className="pt-20 relative z-10">
         {/* Hero Section */}
         <div className="relative h-64 md:h-80 overflow-hidden">
           {trip.cover_image ? (
@@ -302,10 +298,10 @@ export default function PublicTripView() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <div className="container mx-auto">
-              <div className="inline-block px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm mb-3">
                 🔗 Vista pubblica
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              <h1 className="text-3xl md:text-4xl font-semibold text-white mb-2">
                 {trip.title}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-white/90">
@@ -329,9 +325,9 @@ export default function PublicTripView() {
         {/* Content */}
         <div className="container mx-auto px-4 py-8">
           {trip.description && (
-            <p className="text-muted-foreground mb-6 max-w-2xl">
-              {trip.description}
-            </p>
+            <div className="app-section p-5 mb-6 max-w-2xl">
+              <p className="text-muted-foreground">{trip.description}</p>
+            </div>
           )}
 
           {timelineDays.length > 0 && (
@@ -394,6 +390,6 @@ export default function PublicTripView() {
           </div>
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 }

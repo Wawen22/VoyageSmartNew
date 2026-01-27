@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { Plane, Euro, Route, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useTransports } from "@/hooks/useTransports";
 import { AddTransportDialog } from "@/components/transports/AddTransportDialog";
@@ -55,21 +55,24 @@ export default function Transports() {
 
   if (authLoading || tripsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <AppLayout>
+        <main className="pt-24 pb-16 relative z-10">
+          <div className="container mx-auto px-4 flex items-center justify-center min-h-[60vh]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </main>
+      </AppLayout>
     );
   }
 
   const selectedTrip = trips.find(t => t.id === tripId);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 pt-24 pb-8">
+    <AppLayout>
+      <main className="container mx-auto px-4 pt-24 pb-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
+            <h1 className="text-3xl font-semibold flex items-center gap-2">
               <Plane className="h-8 w-8" />
               Trasporti
             </h1>
@@ -102,7 +105,7 @@ export default function Transports() {
         </div>
 
         {!tripId ? (
-          <Card>
+          <Card className="app-surface">
             <CardContent className="py-12 text-center">
               <Plane className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">Seleziona un viaggio per vedere i trasporti</p>
@@ -112,7 +115,7 @@ export default function Transports() {
           <>
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <Card>
+              <Card className="app-surface">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Totale Trasporti</CardTitle>
                   <Route className="h-4 w-4 text-muted-foreground" />
@@ -125,7 +128,7 @@ export default function Transports() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="app-surface">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">Costo Totale</CardTitle>
                   <Euro className="h-4 w-4 text-muted-foreground" />
@@ -142,7 +145,7 @@ export default function Transports() {
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : transports.length === 0 ? (
-              <Card>
+              <Card className="app-surface">
                 <CardContent className="py-12 text-center">
                   <Plane className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground mb-4">Nessun trasporto ancora</p>
@@ -163,6 +166,6 @@ export default function Transports() {
           </>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 }

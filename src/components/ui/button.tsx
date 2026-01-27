@@ -5,19 +5,19 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-[0.98]",
+          "bg-primary text-primary-foreground shadow-[0_14px_30px_-18px_rgba(15,23,42,0.45)] hover:bg-primary/90 active:scale-[0.98]",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90",
+          "bg-destructive text-destructive-foreground shadow-[0_12px_24px_-18px_rgba(220,38,38,0.45)] hover:bg-destructive/90",
         outline:
-          "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground",
+          "border border-border bg-card/70 text-foreground hover:border-primary/30 hover:bg-primary/5",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/80",
-        ghost: "hover:bg-accent/10 hover:text-accent-foreground",
+          "bg-secondary text-secondary-foreground shadow-[0_12px_24px_-20px_rgba(15,23,42,0.35)] hover:bg-secondary/80",
+        ghost: "text-foreground/70 hover:text-foreground hover:bg-muted/70",
         link: "text-primary underline-offset-4 hover:underline",
         // Premium variants for VoyageSmart
         hero: "bg-gradient-ocean text-white shadow-ocean hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",

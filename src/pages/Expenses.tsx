@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -174,22 +174,24 @@ export default function Expenses() {
 
   if (authLoading || loadingTrips) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
+      <AppLayout>
+        <main className="pt-24 pb-16 relative z-10">
+          <div className="container mx-auto px-4 flex items-center justify-center min-h-[60vh]">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </main>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      <main className="pt-24 pb-16">
+    <AppLayout>
+      <main className="pt-24 pb-16 relative z-10">
         <div className="container mx-auto px-4">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
+              <h1 className="text-3xl lg:text-4xl font-semibold text-foreground mb-2">
                 Spese
               </h1>
               <p className="text-muted-foreground">
@@ -242,7 +244,7 @@ export default function Expenses() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-card rounded-2xl p-6 shadow-card border border-border"
+                  className="app-surface p-6"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -258,7 +260,7 @@ export default function Expenses() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="bg-card rounded-2xl p-6 shadow-card border border-border"
+                  className="app-surface p-6"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-forest/10 flex items-center justify-center">
@@ -276,7 +278,7 @@ export default function Expenses() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-card rounded-2xl p-6 shadow-card border border-border"
+                  className="app-surface p-6"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
@@ -292,7 +294,7 @@ export default function Expenses() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-card rounded-2xl p-6 shadow-card border border-border"
+                  className="app-surface p-6"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
@@ -319,7 +321,7 @@ export default function Expenses() {
                         placeholder="Cerca spese..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full h-11 pl-12 pr-4 rounded-xl border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                        className="w-full h-11 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                       />
                     </div>
                     <Button variant="outline" disabled>
@@ -333,7 +335,7 @@ export default function Expenses() {
                       <Loader2 className="w-6 h-6 animate-spin text-primary" />
                     </div>
                   ) : filteredExpenses.length === 0 ? (
-                    <div className="text-center py-12 bg-card rounded-xl border border-border">
+                    <div className="text-center py-12 app-section">
                       <p className="text-muted-foreground">
                         {searchQuery 
                           ? "Nessuna spesa trovata per questa ricerca"
@@ -381,6 +383,6 @@ export default function Expenses() {
         currentUserId={user?.id || ""}
         onSubmit={createExpense}
       />
-    </div>
+    </AppLayout>
   );
 }

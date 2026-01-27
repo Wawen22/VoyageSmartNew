@@ -9,13 +9,13 @@ interface ItineraryItemProps {
 }
 
 const CATEGORY_CONFIG: Record<string, { icon: typeof MapPin; color: string; bgColor: string }> = {
-  activity: { icon: Sparkles, color: "text-purple-600", bgColor: "bg-purple-100" },
-  food: { icon: Utensils, color: "text-orange-600", bgColor: "bg-orange-100" },
-  sightseeing: { icon: Camera, color: "text-blue-600", bgColor: "bg-blue-100" },
-  entertainment: { icon: Sparkles, color: "text-pink-600", bgColor: "bg-pink-100" },
-  shopping: { icon: ShoppingBag, color: "text-green-600", bgColor: "bg-green-100" },
+  activity: { icon: Sparkles, color: "text-primary", bgColor: "bg-primary/10" },
+  food: { icon: Utensils, color: "text-amber-600", bgColor: "bg-amber-100" },
+  sightseeing: { icon: Camera, color: "text-sky-600", bgColor: "bg-sky-100" },
+  entertainment: { icon: Sparkles, color: "text-rose-600", bgColor: "bg-rose-100" },
+  shopping: { icon: ShoppingBag, color: "text-emerald-600", bgColor: "bg-emerald-100" },
   relaxation: { icon: Coffee, color: "text-teal-600", bgColor: "bg-teal-100" },
-  other: { icon: MapPin, color: "text-gray-600", bgColor: "bg-gray-100" },
+  other: { icon: MapPin, color: "text-muted-foreground", bgColor: "bg-muted/70" },
 };
 
 export function ItineraryItem({ activity, onDelete }: ItineraryItemProps) {
@@ -37,8 +37,8 @@ export function ItineraryItem({ activity, onDelete }: ItineraryItemProps) {
   };
 
   return (
-    <div className="flex gap-3 p-3 bg-card rounded-lg border hover:shadow-sm transition-shadow group">
-      <div className={`p-2 rounded-lg ${config.bgColor} h-fit`}>
+    <div className="flex gap-3 p-3 bg-card/80 rounded-2xl border border-border/60 hover:bg-card transition-all group">
+      <div className={`p-2 rounded-xl ${config.bgColor} h-fit`}>
         <Icon className={`h-4 w-4 ${config.color}`} />
       </div>
       
@@ -49,7 +49,7 @@ export function ItineraryItem({ activity, onDelete }: ItineraryItemProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={handleDelete}
             >
               <Trash2 className="h-3.5 w-3.5" />

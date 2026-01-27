@@ -83,8 +83,8 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
     food: "bg-red-500",
     transport: "bg-sky-500",
     accommodation: "bg-amber-500",
-    activities: "bg-purple-500",
-    shopping: "bg-pink-500",
+    activities: "bg-primary",
+    shopping: "bg-emerald-500",
     other: "bg-gray-500",
   };
 
@@ -98,12 +98,12 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className={cn(
-            "relative overflow-hidden rounded-2xl p-5 border border-border",
+            "relative overflow-hidden app-surface p-5",
             stats.tripStatus === "ongoing"
-              ? "bg-gradient-to-br from-green-500/10 to-emerald-500/5"
+              ? "bg-gradient-to-br from-emerald-500/10 to-transparent"
               : stats.tripStatus === "completed"
-              ? "bg-gradient-to-br from-muted to-muted/50"
-              : "bg-gradient-to-br from-primary/10 to-accent/5"
+              ? "bg-gradient-to-br from-muted to-card"
+              : "bg-gradient-to-br from-primary/10 to-transparent"
           )}
         >
           <div className="flex items-start justify-between">
@@ -150,7 +150,7 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="relative overflow-hidden rounded-2xl p-5 border border-border bg-gradient-to-br from-secondary/10 to-orange-500/5"
+          className="relative overflow-hidden app-surface p-5 bg-gradient-to-br from-secondary/40 to-card"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -186,7 +186,7 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="relative overflow-hidden rounded-2xl p-5 border border-border bg-gradient-to-br from-accent/10 to-teal-500/5"
+          className="relative overflow-hidden app-surface p-5 bg-gradient-to-br from-accent/10 to-card"
         >
           <div className="flex items-start justify-between">
             <div>
@@ -214,14 +214,14 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="relative overflow-hidden rounded-2xl p-5 border border-border bg-gradient-to-br from-purple-500/10 to-indigo-500/5"
+          className="relative overflow-hidden app-surface p-5 bg-gradient-to-br from-slate-500/10 to-card"
         >
           <div className="flex items-start justify-between mb-3">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Riepilogo
             </p>
-            <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-purple-500" />
+            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-primary" />
             </div>
           </div>
           <div className="space-y-2">
@@ -259,7 +259,7 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="rounded-2xl p-5 border border-border bg-card"
+          className="app-surface p-5"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Spese per Categoria</h3>

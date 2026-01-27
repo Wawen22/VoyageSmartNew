@@ -35,10 +35,8 @@ export function ChecklistSection({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "rounded-xl border p-5 space-y-4",
-        isPersonal
-          ? "bg-gradient-to-br from-violet-500/5 to-purple-500/5 border-violet-200/50 dark:border-violet-800/30"
-          : "bg-gradient-to-br from-sky-500/5 to-blue-500/5 border-sky-200/50 dark:border-sky-800/30"
+        "app-surface p-5 space-y-4",
+        isPersonal ? "border-primary/15" : "border-accent/15"
       )}
     >
       {/* Header */}
@@ -46,14 +44,14 @@ export function ChecklistSection({
         <div className="flex items-center gap-3">
           <div
             className={cn(
-              "p-2 rounded-lg",
-              isPersonal ? "bg-violet-500/10" : "bg-sky-500/10"
+              "p-2 rounded-xl",
+              isPersonal ? "bg-primary/10" : "bg-accent/10"
             )}
           >
             <Icon
               className={cn(
                 "w-5 h-5",
-                isPersonal ? "text-violet-500" : "text-sky-500"
+                isPersonal ? "text-primary" : "text-accent"
               )}
             />
           </div>

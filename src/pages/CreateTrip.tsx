@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -69,10 +69,8 @@ export default function CreateTrip() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      <main className="pt-24 pb-16">
+    <AppLayout>
+      <main className="pt-24 pb-16 relative z-10">
         <div className="container mx-auto px-4 max-w-2xl">
           {/* Header */}
           <motion.div
@@ -87,7 +85,7 @@ export default function CreateTrip() {
               <ArrowLeft className="w-4 h-4" />
               Back to Trips
             </button>
-            <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
+            <h1 className="text-3xl lg:text-4xl font-semibold text-foreground mb-2">
               Create New Trip
             </h1>
             <p className="text-muted-foreground">
@@ -101,7 +99,7 @@ export default function CreateTrip() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
             onSubmit={handleSubmit}
-            className="bg-card rounded-2xl p-6 lg:p-8 shadow-card border border-border space-y-6"
+            className="app-surface-strong p-6 lg:p-8 space-y-6"
           >
             {/* Trip Name */}
             <div>
@@ -113,7 +111,7 @@ export default function CreateTrip() {
                 placeholder="e.g., Summer in Greece"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full h-12 px-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                className="w-full h-12 px-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 required
                 disabled={loading}
               />
@@ -131,7 +129,7 @@ export default function CreateTrip() {
                   placeholder="e.g., Santorini, Greece"
                   value={formData.destination}
                   onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   required
                   disabled={loading}
                 />
@@ -150,7 +148,7 @@ export default function CreateTrip() {
                     type="date"
                     value={formData.startDate}
                     onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     required
                     disabled={loading}
                   />
@@ -166,7 +164,7 @@ export default function CreateTrip() {
                     type="date"
                     value={formData.endDate}
                     onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                     required
                     min={formData.startDate}
                     disabled={loading}
@@ -185,7 +183,7 @@ export default function CreateTrip() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
+                className="w-full px-4 py-3 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none"
                 disabled={loading}
               />
             </div>
@@ -202,15 +200,15 @@ export default function CreateTrip() {
                   placeholder="https://example.com/image.jpg"
                   value={formData.coverImage}
                   onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                  className="w-full h-12 pl-12 pr-4 rounded-xl border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                   disabled={loading}
                 />
               </div>
             </div>
 
             {/* AI Suggestion Box */}
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <div className="app-section p-4 flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div>
@@ -256,6 +254,6 @@ export default function CreateTrip() {
           </motion.form>
         </div>
       </main>
-    </div>
+    </AppLayout>
   );
 }

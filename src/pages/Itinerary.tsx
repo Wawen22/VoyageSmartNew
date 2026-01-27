@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useTimelineEvents } from "@/hooks/useTimelineEvents";
 import { useItinerary } from "@/hooks/useItinerary";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { TimelineDayNav } from "@/components/timeline/TimelineDayNav";
 import { TimelineDaySection } from "@/components/timeline/TimelineDaySection";
@@ -62,34 +62,30 @@ export default function Itinerary() {
   // Loading states
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="flex items-center justify-center h-[calc(100vh-4rem)] pt-16">
+      <AppLayout>
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)] pt-16 relative z-10">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   if (!loading && !trip) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 pt-24 text-center">
-          <h1 className="text-2xl font-bold mb-4">Viaggio non trovato</h1>
+      <AppLayout>
+        <div className="container mx-auto px-4 pt-24 text-center relative z-10">
+          <h1 className="text-2xl font-semibold mb-4">Viaggio non trovato</h1>
           <Button asChild>
             <Link to="/trips">Torna ai viaggi</Link>
           </Button>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-
-      <main className="container mx-auto px-4 pt-24 pb-8">
+    <AppLayout>
+      <main className="container mx-auto px-4 pt-24 pb-8 relative z-10">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Button variant="ghost" size="icon" asChild>
@@ -98,7 +94,7 @@ export default function Itinerary() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
+            <h1 className="text-2xl font-semibold flex items-center gap-2">
               <CalendarDays className="h-6 w-6 text-primary" />
               Itinerario
             </h1>
@@ -170,6 +166,6 @@ export default function Itinerary() {
           </motion.div>
         ) : null}
       </main>
-    </div>
+    </AppLayout>
   );
 }

@@ -29,13 +29,13 @@ export function TimelineStats({ stats, daysCount }: TimelineStatsProps) {
       icon: Plane,
       label: "Trasporti",
       value: stats.transports,
-      color: "bg-sky-100 dark:bg-sky-900 text-sky-600 dark:text-sky-400",
+      color: "bg-sky-100 text-sky-600",
     },
     {
       icon: Home,
       label: "Alloggi",
       value: stats.accommodations,
-      color: "bg-amber-100 dark:bg-amber-900 text-amber-600 dark:text-amber-400",
+      color: "bg-amber-100 text-amber-600",
     },
   ];
 
@@ -47,7 +47,7 @@ export function TimelineStats({ stats, daysCount }: TimelineStatsProps) {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="bg-card rounded-xl border border-border p-3 flex items-center gap-3"
+          className="app-surface p-3 flex items-center gap-3"
         >
           <div className={`p-2 rounded-lg ${item.color}`}>
             <item.icon className="w-4 h-4" />

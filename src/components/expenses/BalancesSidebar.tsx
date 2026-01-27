@@ -52,7 +52,7 @@ export function BalancesSidebar({
 
   return (
     <>
-      <div className="bg-card rounded-2xl p-6 shadow-card border border-border sticky top-24">
+      <div className="app-surface p-6 sticky top-24">
         <div className="flex items-center gap-2 mb-6">
           <Users className="w-5 h-5 text-primary" />
           <h3 className="font-semibold text-foreground">Bilanci del Gruppo</h3>
@@ -94,7 +94,7 @@ export function BalancesSidebar({
           </div>
         )}
 
-        <div className="mt-6 pt-6 border-t border-border">
+        <div className="mt-6 pt-6 border-t border-border/60">
           <Button 
             variant={hasDebts ? "sunset" : "outline"} 
             className="w-full"

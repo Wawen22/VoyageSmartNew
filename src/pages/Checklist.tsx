@@ -1,7 +1,7 @@
 import { useSearchParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ClipboardList, Loader2 } from "lucide-react";
-import { Navbar } from "@/components/layout/Navbar";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useChecklist } from "@/hooks/useChecklist";
 import { ChecklistSection } from "@/components/checklist/ChecklistSection";
@@ -25,9 +25,13 @@ export default function Checklist() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
+      <AppLayout>
+        <main className="pt-24 pb-16 relative z-10">
+          <div className="container mx-auto px-4 flex items-center justify-center min-h-[60vh]">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        </main>
+      </AppLayout>
     );
   }
 
@@ -44,10 +48,8 @@ export default function Checklist() {
   const overallProgress = totalItems > 0 ? Math.round((totalCompleted / totalItems) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <main className="container mx-auto px-4 pt-24 pb-12">
+    <AppLayout>
+      <main className="container mx-auto px-4 pt-24 pb-12 relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -59,7 +61,7 @@ export default function Checklist() {
               <ClipboardList className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+              <h1 className="text-2xl lg:text-3xl font-semibold text-foreground">
                 Checklist Viaggio
               </h1>
               <p className="text-muted-foreground text-sm">
@@ -103,6 +105,6 @@ export default function Checklist() {
           </div>
         )}
       </main>
-    </div>
+    </AppLayout>
   );
 }

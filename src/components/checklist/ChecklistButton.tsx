@@ -135,10 +135,10 @@ export function ChecklistButton({ isLanding = false }: ChecklistButtonProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-72 bg-background border border-border rounded-xl shadow-xl z-50 overflow-hidden"
+            className="absolute right-0 mt-2 w-72 app-surface z-50 overflow-hidden"
           >
             {/* Header */}
-            <div className="px-4 py-3 border-b border-border bg-muted/50">
+            <div className="px-4 py-3 border-b border-border/60 bg-muted/40">
               <h3 className="font-semibold text-foreground">Checklist Viaggio</h3>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Seleziona un viaggio
@@ -160,7 +160,7 @@ export function ChecklistButton({ isLanding = false }: ChecklistButtonProps) {
                     <button
                       key={trip.id}
                       onClick={() => handleTripClick(trip.id)}
-                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/50 transition-colors text-left"
+                      className="w-full px-4 py-3 flex items-center justify-between hover:bg-muted/40 transition-colors text-left"
                     >
                       <div className="min-w-0">
                         <p className="font-medium text-sm text-foreground truncate">

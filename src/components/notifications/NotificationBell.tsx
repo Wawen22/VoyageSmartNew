@@ -28,7 +28,7 @@ const getNotificationIcon = (type: string) => {
     case "transport":
       return <Car className="w-4 h-4 text-sky-500" />;
     case "activity":
-      return <Calendar className="w-4 h-4 text-violet-500" />;
+      return <Calendar className="w-4 h-4 text-primary" />;
     case "invitation":
       return <UserPlus className="w-4 h-4 text-rose-500" />;
     default:
@@ -106,10 +106,10 @@ export function NotificationBell({ isLanding = false }: NotificationBellProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-80 sm:w-96 bg-background border border-border rounded-xl shadow-xl z-50 overflow-hidden"
+            className="absolute right-0 mt-2 w-80 sm:w-96 app-surface z-50 overflow-hidden"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/50">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-muted/40">
               <h3 className="font-semibold text-foreground">Notifiche</h3>
               <div className="flex items-center gap-1">
                 {unreadCount > 0 && (
@@ -156,13 +156,13 @@ export function NotificationBell({ isLanding = false }: NotificationBellProps) {
                       animate={{ opacity: 1 }}
                       className={`relative group px-4 py-3 cursor-pointer transition-colors ${
                         notification.is_read
-                          ? "bg-background hover:bg-muted/50"
+                          ? "bg-card/70 hover:bg-card"
                           : "bg-primary/5 hover:bg-primary/10"
                       }`}
                       onClick={() => handleNotificationClick(notification)}
                     >
                       <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted/70 flex items-center justify-center">
                           {getNotificationIcon(notification.type)}
                         </div>
                         <div className="flex-1 min-w-0">

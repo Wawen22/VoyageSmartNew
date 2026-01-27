@@ -31,7 +31,7 @@ export function PendingInvitationsBanner() {
       animate={{ opacity: 1, y: 0 }}
       className="mb-6"
     >
-      <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-secondary/10 rounded-2xl p-4 border border-primary/20">
+      <div className="app-section p-4 bg-gradient-to-r from-primary/10 via-accent/5 to-secondary/20">
         <div className="flex items-center gap-2 mb-3">
           <Mail className="w-5 h-5 text-primary" />
           <h3 className="font-semibold text-foreground">
@@ -47,7 +47,7 @@ export function PendingInvitationsBanner() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-card rounded-xl p-4 shadow-sm border border-border flex flex-col sm:flex-row sm:items-center gap-4"
+                className="app-surface p-4 flex flex-col sm:flex-row sm:items-center gap-4"
               >
                 <div className="flex-1 min-w-0">
                   <h4 className="font-medium text-foreground truncate">

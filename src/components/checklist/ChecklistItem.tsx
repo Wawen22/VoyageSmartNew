@@ -24,10 +24,10 @@ export function ChecklistItem({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 10 }}
       className={cn(
-        "group flex items-center gap-3 p-3 rounded-lg transition-colors",
+        "group flex items-center gap-3 p-3 rounded-2xl border border-border/60 transition-all",
         item.is_completed
           ? "bg-primary/5 hover:bg-primary/10"
-          : "bg-muted/50 hover:bg-muted"
+          : "bg-card/80 hover:bg-card"
       )}
     >
       <Checkbox
@@ -53,7 +53,7 @@ export function ChecklistItem({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
           onClick={() => onDelete(item.id)}
         >
           <Trash2 className="w-3.5 h-3.5" />

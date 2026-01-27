@@ -22,10 +22,10 @@ export function PublicDayNav({ days, selectedDayIndex, onDaySelect }: PublicDayN
         <button
           onClick={() => onDaySelect(-1)}
           className={cn(
-            "flex flex-col items-center px-4 py-2 rounded-lg border transition-all min-w-[80px]",
+            "flex flex-col items-center px-4 py-2.5 rounded-2xl border transition-all min-w-[92px]",
             selectedDayIndex === null
-              ? "bg-primary text-primary-foreground border-primary shadow-md"
-              : "bg-card hover:bg-muted border-border"
+              ? "bg-primary text-primary-foreground border-primary shadow-[0_16px_32px_-22px_rgba(15,23,42,0.45)]"
+              : "bg-card/80 hover:bg-card border-border/60"
           )}
         >
           <span className="text-xs font-medium uppercase">Tutti</span>
@@ -43,12 +43,12 @@ export function PublicDayNav({ days, selectedDayIndex, onDaySelect }: PublicDayN
               key={day.dateStr}
               onClick={() => onDaySelect(index)}
               className={cn(
-                "flex flex-col items-center px-4 py-2 rounded-lg border transition-all min-w-[80px] relative",
+                "flex flex-col items-center px-4 py-2.5 rounded-2xl border transition-all min-w-[92px] relative",
                 isSelected
-                  ? "bg-primary text-primary-foreground border-primary shadow-md"
+                  ? "bg-primary text-primary-foreground border-primary shadow-[0_16px_32px_-22px_rgba(15,23,42,0.45)]"
                   : isToday
-                    ? "bg-primary/10 border-primary/30 hover:bg-primary/20"
-                    : "bg-card hover:bg-muted border-border"
+                    ? "bg-primary/10 border-primary/30 hover:bg-primary/15"
+                    : "bg-card/80 hover:bg-card border-border/60"
               )}
             >
               {isToday && !isSelected && (

@@ -113,7 +113,7 @@ export function TripMembersList({ tripId }: TripMembersListProps) {
 
   if (loading) {
     return (
-      <div className="bg-card rounded-2xl p-6 shadow-card border border-border">
+      <div className="app-surface p-6">
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>
@@ -122,7 +122,7 @@ export function TripMembersList({ tripId }: TripMembersListProps) {
   }
 
   return (
-    <div className="bg-card rounded-2xl p-6 shadow-card border border-border">
+    <div className="app-surface p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
@@ -203,7 +203,7 @@ export function TripMembersList({ tripId }: TripMembersListProps) {
 
       {/* Pending Invitations */}
       {invitations.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-border">
+        <div className="mt-6 pt-6 border-t border-border/60">
           <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
             <Clock className="w-4 h-4" />
             Inviti in sospeso ({invitations.length})
@@ -251,7 +251,7 @@ function MemberCard({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 20 }}
       transition={{ delay: index * 0.05 }}
-      className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+      className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted/70 transition-colors border border-border/40"
     >
       <Avatar className="w-10 h-10">
         <AvatarImage src={member.profile?.avatar_url || undefined} />

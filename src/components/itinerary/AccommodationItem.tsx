@@ -17,22 +17,22 @@ export function AccommodationItem({ accommodation, currentDate }: AccommodationI
   const isCheckOut = isSameDay(currentDate, checkOutDate);
 
   return (
-    <div className="flex gap-3 p-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 rounded-lg border border-amber-200/50 dark:border-amber-800/50">
-      <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/50 h-fit">
-        <Building2 className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+    <div className="flex gap-3 p-3 bg-card/80 rounded-2xl border border-border/60 hover:bg-card transition-all">
+      <div className="p-2 rounded-xl bg-amber-100 h-fit">
+        <Building2 className="h-4 w-4 text-amber-600" />
       </div>
       
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <h4 className="font-medium text-sm truncate">{accommodation.name}</h4>
           {isCheckIn && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs rounded bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400">
+            <span className="app-pill bg-emerald-100 text-emerald-700">
               <LogIn className="h-3 w-3" />
               Check-in
             </span>
           )}
           {isCheckOut && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-xs rounded bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400">
+            <span className="app-pill bg-rose-100 text-rose-700">
               <LogOut className="h-3 w-3" />
               Check-out
             </span>
@@ -60,7 +60,7 @@ export function AccommodationItem({ accommodation, currentDate }: AccommodationI
             </span>
           )}
           {!isCheckIn && !isCheckOut && (
-            <span className="text-amber-600 dark:text-amber-400">
+            <span className="text-amber-600">
               {format(checkInDate, "dd MMM", { locale: it })} - {format(checkOutDate, "dd MMM", { locale: it })}
             </span>
           )}
@@ -80,7 +80,7 @@ export function AccommodationItem({ accommodation, currentDate }: AccommodationI
       </div>
 
       {accommodation.price && (
-        <div className="text-sm font-medium text-amber-700 dark:text-amber-300">
+        <div className="app-pill bg-amber-100 text-amber-700 font-semibold">
           €{accommodation.price.toFixed(0)}
         </div>
       )}

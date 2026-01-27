@@ -70,41 +70,41 @@ const getEventStyles = (type: PublicEventType) => {
   switch (type) {
     case "transport":
       return {
-        bg: "bg-sky-50 dark:bg-sky-950/30",
-        border: "border-sky-200 dark:border-sky-800",
-        iconBg: "bg-sky-100 dark:bg-sky-900",
-        iconColor: "text-sky-600 dark:text-sky-400",
+        bg: "bg-card/90",
+        border: "border-border/60",
+        iconBg: "bg-sky-100",
+        iconColor: "text-sky-600",
         accent: "bg-sky-500",
       };
     case "accommodation-checkin":
       return {
-        bg: "bg-amber-50 dark:bg-amber-950/30",
-        border: "border-amber-200 dark:border-amber-800",
-        iconBg: "bg-amber-100 dark:bg-amber-900",
-        iconColor: "text-amber-600 dark:text-amber-400",
+        bg: "bg-card/90",
+        border: "border-border/60",
+        iconBg: "bg-amber-100",
+        iconColor: "text-amber-600",
         accent: "bg-amber-500",
       };
     case "accommodation-checkout":
       return {
-        bg: "bg-orange-50 dark:bg-orange-950/30",
-        border: "border-orange-200 dark:border-orange-800",
-        iconBg: "bg-orange-100 dark:bg-orange-900",
-        iconColor: "text-orange-600 dark:text-orange-400",
+        bg: "bg-card/90",
+        border: "border-border/60",
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-600",
         accent: "bg-orange-500",
       };
     case "accommodation-stay":
       return {
-        bg: "bg-amber-50/50 dark:bg-amber-950/20",
-        border: "border-amber-200/50 dark:border-amber-800/50",
-        iconBg: "bg-amber-100 dark:bg-amber-900",
-        iconColor: "text-amber-600 dark:text-amber-400",
+        bg: "bg-card/90",
+        border: "border-border/60",
+        iconBg: "bg-amber-100",
+        iconColor: "text-amber-600",
         accent: "bg-amber-400",
       };
     case "activity":
     default:
       return {
-        bg: "bg-primary/5",
-        border: "border-primary/20",
+        bg: "bg-card/90",
+        border: "border-border/60",
         iconBg: "bg-primary/10",
         iconColor: "text-primary",
         accent: "bg-primary",
@@ -156,7 +156,7 @@ export function PublicTimelineEventCard({ event, isFirst, isLast }: PublicTimeli
 
       {/* Event card */}
       <div className={cn(
-        "rounded-xl border p-4 transition-all hover:shadow-md",
+        "rounded-2xl border p-4 transition-all hover:shadow-card",
         styles.bg,
         styles.border
       )}>
@@ -197,12 +197,12 @@ export function PublicTimelineEventCard({ event, isFirst, isLast }: PublicTimeli
           <div className="mt-3 pt-3 border-t border-border/50">
             <div className="flex flex-wrap gap-2 text-xs">
               {event.details.transportType && (
-                <span className="px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-300 capitalize">
+                <span className="app-pill bg-sky-100 text-sky-700 capitalize">
                   {event.details.transportType}
                 </span>
               )}
               {event.details.carrier && (
-                <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <span className="app-pill bg-muted/70 text-muted-foreground">
                   {event.details.carrier}
                 </span>
               )}
