@@ -12,12 +12,16 @@ import {
   Search,
   Filter,
   Plane,
-  Loader2
+  Loader2,
+  LayoutGrid,
+  Map as MapIcon
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { PendingInvitationsBanner } from "@/components/trips/PendingInvitationsBanner";
+import { ProfileMap } from "@/components/maps/ProfileMap";
+import { searchPlace } from "@/lib/mapbox";
 
 interface Trip {
   id: string;
@@ -28,6 +32,8 @@ interface Trip {
   cover_image: string | null;
   status: string;
   member_count?: number;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 const statusConfig: Record<string, { label: string; class: string }> = {
@@ -50,6 +56,7 @@ export default function Trips() {
   const [searchQuery, setSearchQuery] = useState("");
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -62,6 +69,33 @@ export default function Trips() {
       fetchTrips();
     }
   }, [user]);
+
+  const enrichTripsWithCoordinates = async (rawTrips: Trip[]) => {
+    const tripsToProcess = rawTrips.filter(t => !t.latitude || !t.longitude);
+    
+    if (tripsToProcess.length === 0) return;
+
+    const enrichedTrips = await Promise.all(rawTrips.map(async (trip) => {
+      if (trip.latitude && trip.longitude) return trip;
+      
+      if (trip.destination) {
+        const coords = await searchPlace(trip.destination);
+        if (coords) {
+          supabase.from('trips').update({ 
+            latitude: coords.lat, 
+            longitude: coords.lng 
+          }).eq('id', trip.id).then(({ error }) => {
+             if (error) console.error("Error updating coords for trip", trip.id, error);
+          });
+          
+          return { ...trip, latitude: coords.lat, longitude: coords.lng };
+        }
+      }
+      return trip;
+    }));
+
+    setTrips(enrichedTrips);
+  };
 
   const fetchTrips = async () => {
     try {
@@ -85,6 +119,7 @@ export default function Trips() {
       );
 
       setTrips(tripsWithCounts);
+      enrichTripsWithCoordinates(tripsWithCounts);
     } catch (error) {
       console.error("Error fetching trips:", error);
       toast({
@@ -137,8 +172,8 @@ export default function Trips() {
             </Link>
           </div>
 
-          {/* Search & Filter */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          {/* Search & Filter & View Toggle */}
+          <div className="flex flex-col md:flex-row gap-4 mb-8">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -149,10 +184,31 @@ export default function Trips() {
                 className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
-            <Button variant="outline" size="lg" className="h-12">
-              <Filter className="w-5 h-5 mr-2" />
-              Filtri
-            </Button>
+            <div className="flex gap-2">
+              <div className="flex items-center bg-card/85 border border-border/60 p-1 rounded-2xl">
+                <Button 
+                  variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
+                  size="sm"
+                  className="h-10 px-3 rounded-xl"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <LayoutGrid className="w-5 h-5" />
+                </Button>
+                <Button 
+                  variant={viewMode === 'map' ? 'secondary' : 'ghost'} 
+                  size="sm"
+                  className="h-10 px-3 rounded-xl"
+                  onClick={() => setViewMode('map')}
+                >
+                  <MapIcon className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              <Button variant="outline" size="lg" className="h-12 px-6 rounded-2xl border-border/60 bg-card/85">
+                <Filter className="w-5 h-5 mr-2" />
+                Filtri
+              </Button>
+            </div>
           </div>
 
           {/* Pending Invitations */}
@@ -164,76 +220,88 @@ export default function Trips() {
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : filteredTrips.length > 0 ? (
-            /* Trips Grid */
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {filteredTrips.map((trip, index) => (
-                <motion.div
-                  key={trip.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Link to={`/trips/${trip.id}`}>
-                    <div className="group app-surface overflow-hidden transition-all duration-300 hover:shadow-[0_28px_60px_-38px_rgba(15,23,42,0.45)] hover:border-primary/20">
-                      {/* Image */}
-                      <div className="relative h-48 overflow-hidden">
-                        <img
-                          src={trip.cover_image || defaultImages[index % defaultImages.length]}
-                          alt={trip.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                        
-                        {/* Status Badge */}
-                        <div className={`absolute top-4 left-4 app-pill bg-white/20 text-white backdrop-blur ${statusConfig[trip.status]?.class || statusConfig.planning.class}`}>
-                          {statusConfig[trip.status]?.label || "In Pianificazione"}
-                        </div>
-
-                        {/* More Button */}
-                        <button className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreHorizontal className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
-
-                      {/* Content */}
-                      <div className="p-5">
-                        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                          {trip.title}
-                        </h3>
-                        
-                        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
-                          <MapPin className="w-4 h-4" />
-                          {trip.destination}
-                        </div>
-
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Calendar className="w-4 h-4" />
-                            {new Date(trip.start_date).toLocaleDateString("it-IT", {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                            {" - "}
-                            {new Date(trip.end_date).toLocaleDateString("it-IT", {
-                              month: "short",
-                              day: "numeric",
-                            })}
+            viewMode === 'map' ? (
+              /* Map View */
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="h-[650px]"
+              >
+                 <ProfileMap trips={filteredTrips} />
+              </motion.div>
+            ) : (
+              /* Trips Grid */
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
+                {filteredTrips.map((trip, index) => (
+                  <motion.div
+                    key={trip.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <Link to={`/trips/${trip.id}`}>
+                      <div className="group app-surface overflow-hidden transition-all duration-300 hover:shadow-[0_28px_60px_-38px_rgba(15,23,42,0.45)] hover:border-primary/20">
+                        {/* Image */}
+                        <div className="relative h-48 overflow-hidden">
+                          <img
+                            src={trip.cover_image || defaultImages[index % defaultImages.length]}
+                            alt={trip.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          
+                          {/* Status Badge */}
+                          <div className={`absolute top-4 left-4 app-pill bg-white/20 text-white backdrop-blur ${statusConfig[trip.status]?.class || statusConfig.planning.class}`}>
+                            {statusConfig[trip.status]?.label || "In Pianificazione"}
                           </div>
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Users className="w-4 h-4" />
-                            {trip.member_count || 1}
+
+                          {/* More Button */}
+                          <button className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreHorizontal className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-5">
+                          <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                            {trip.title}
+                          </h3>
+                          
+                          <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+                            <MapPin className="w-4 h-4" />
+                            {trip.destination}
+                          </div>
+
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Calendar className="w-4 h-4" />
+                              {new Date(trip.start_date).toLocaleDateString("it-IT", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                              {" - "}
+                              {new Date(trip.end_date).toLocaleDateString("it-IT", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </div>
+                            <div className="flex items-center gap-1 text-muted-foreground">
+                              <Users className="w-4 h-4" />
+                              {trip.member_count || 1}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )
           ) : (
             /* Empty State */
             <motion.div
