@@ -39,7 +39,6 @@ export default function CreateTrip() {
       return;
     }
 
-    // Validation
     if (destinations.length === 0 || !destinations[0].name.trim()) {
       toast({
         title: "Destinazione mancante",
@@ -51,23 +50,22 @@ export default function CreateTrip() {
 
     setLoading(true);
     try {
-      // 1. Identify Primary Destination
       const primaryDest = destinations.find(d => d.isPrimary) || destinations[0];
       
-      // 2. Geocode Primary Destination (Critical for Map)
-      let primaryCoords = { lat: null as number | null, lng: null as number | null };
-      if (primaryDest.name) {
+      // Use existing coords from autocomplete or fetch them
+      let primaryCoords = { lat: primaryDest.latitude, lng: primaryDest.longitude };
+      
+      if ((!primaryCoords.lat || !primaryCoords.lng) && primaryDest.name) {
         const coords = await searchPlace(primaryDest.name);
         if (coords) {
           primaryCoords = coords;
         }
       }
 
-      // 3. Create Trip Record
       const { data: tripData, error: tripError } = await supabase.from("trips").insert({
         user_id: user.id,
         title: formData.title,
-        destination: primaryDest.name, // Legacy/Display field
+        destination: primaryDest.name,
         latitude: primaryCoords.lat,
         longitude: primaryCoords.lng,
         description: formData.description || null,
@@ -79,18 +77,12 @@ export default function CreateTrip() {
 
       if (tripError) throw tripError;
 
-      // 4. Create Trip Destinations Records
-      // We geocode other destinations in parallel to save time
       const destinationsPayload = await Promise.all(destinations.map(async (d, index) => {
-        let lat = null;
-        let lng = null;
+        let lat = d.latitude;
+        let lng = d.longitude;
 
-        // If it's the primary one we already geocoded it
-        if (d.id === primaryDest.id && primaryCoords.lat) {
-          lat = primaryCoords.lat;
-          lng = primaryCoords.lng;
-        } else if (d.name.trim()) {
-          // Geocode others
+        if ((!lat || !lng) && d.name.trim()) {
+          // Fallback geocoding if user typed manually without selecting
           const coords = await searchPlace(d.name);
           if (coords) {
             lat = coords.lat;
@@ -108,7 +100,6 @@ export default function CreateTrip() {
         };
       }));
 
-      // Filter out empty names just in case
       const validDestinations = destinationsPayload.filter(d => d.name.trim() !== "");
 
       const { error: destError } = await supabase
@@ -138,7 +129,6 @@ export default function CreateTrip() {
     <AppLayout>
       <main className="pt-24 pb-16 relative z-10">
         <div className="container mx-auto px-4 max-w-2xl">
-          {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -159,7 +149,6 @@ export default function CreateTrip() {
             </p>
           </motion.div>
 
-          {/* Form */}
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -167,7 +156,6 @@ export default function CreateTrip() {
             onSubmit={handleSubmit}
             className="app-surface-strong p-6 lg:p-8 space-y-6"
           >
-            {/* Trip Name */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Nome Viaggio *
@@ -183,14 +171,12 @@ export default function CreateTrip() {
               />
             </div>
 
-            {/* Destinations */}
             <DestinationSelector 
               destinations={destinations} 
               onChange={setDestinations}
               disabled={loading}
             />
 
-            {/* Dates */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
@@ -227,7 +213,6 @@ export default function CreateTrip() {
               </div>
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Descrizione
@@ -242,7 +227,6 @@ export default function CreateTrip() {
               />
             </div>
 
-            {/* Cover Image URL */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 URL Immagine Copertina
@@ -260,7 +244,6 @@ export default function CreateTrip() {
               </div>
             </div>
 
-            {/* AI Suggestion Box */}
             <div className="app-section p-4 flex items-start gap-3">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <Sparkles className="w-5 h-5 text-primary" />
@@ -276,7 +259,6 @@ export default function CreateTrip() {
               </div>
             </div>
 
-            {/* Submit */}
             <div className="flex gap-4 pt-4">
               <Button
                 type="button"

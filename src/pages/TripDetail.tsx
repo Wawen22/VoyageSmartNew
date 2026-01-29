@@ -154,7 +154,9 @@ export default function TripDetail() {
         const mappedDests = dests.map(d => ({
           id: d.id,
           name: d.name,
-          isPrimary: d.is_primary
+          isPrimary: d.is_primary,
+          latitude: d.latitude,
+          longitude: d.longitude
         }));
         setDestinations(mappedDests);
         setEditDestinations(mappedDests);
@@ -162,7 +164,9 @@ export default function TripDetail() {
         const fallback = [{ 
           id: 'primary', 
           name: data.destination, 
-          isPrimary: true 
+          isPrimary: true,
+          latitude: data.latitude,
+          longitude: data.longitude
         }];
         setDestinations(fallback);
         setEditDestinations(fallback);
@@ -194,8 +198,9 @@ export default function TripDetail() {
     try {
       const primaryDest = editDestinations.find(d => d.isPrimary) || editDestinations[0];
       
-      let primaryCoords = { lat: null as number | null, lng: null as number | null };
-      if (primaryDest.name) {
+      let primaryCoords = { lat: primaryDest.latitude, lng: primaryDest.longitude };
+      
+      if ((!primaryCoords.lat || !primaryCoords.lng) && primaryDest.name) {
         const coords = await searchPlace(primaryDest.name);
         if (coords) primaryCoords = coords;
       }
@@ -224,13 +229,10 @@ export default function TripDetail() {
       if (deleteError) throw deleteError;
 
       const destinationsPayload = await Promise.all(editDestinations.map(async (d, index) => {
-        let lat = null;
-        let lng = null;
+        let lat = d.latitude;
+        let lng = d.longitude;
 
-        if (d.name === primaryDest.name && primaryCoords.lat) {
-          lat = primaryCoords.lat;
-          lng = primaryCoords.lng;
-        } else if (d.name.trim()) {
+        if ((!lat || !lng) && d.name.trim()) {
           const coords = await searchPlace(d.name);
           if (coords) {
             lat = coords.lat;
@@ -288,7 +290,6 @@ export default function TripDetail() {
         description: "Il viaggio è stato eliminato",
         duration: 3000
       });
-      // Small delay to let toast show
       setTimeout(() => navigate("/trips"), 100);
     } catch (error: any) {
       console.error("Error deleting trip:", error);

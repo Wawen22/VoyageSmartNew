@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Plus, X, MapPin, Star } from "lucide-react";
+import { Plus, X, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LocationInput } from "@/components/ui/LocationInput";
 
 export interface DestinationItem {
   id: string;
   name: string;
   isPrimary: boolean;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface DestinationSelectorProps {
@@ -30,16 +31,20 @@ export function DestinationSelector({ destinations, onChange, disabled }: Destin
 
   const handleRemove = (id: string) => {
     const newDestinations = destinations.filter(d => d.id !== id);
-    // If we removed the primary, make the first one primary
     if (newDestinations.length > 0 && !newDestinations.some(d => d.isPrimary)) {
       newDestinations[0].isPrimary = true;
     }
     onChange(newDestinations);
   };
 
-  const handleChange = (id: string, name: string) => {
+  const handleChange = (id: string, name: string, coords?: { lat: number; lng: number }) => {
     const newDestinations = destinations.map(d => 
-      d.id === id ? { ...d, name } : d
+      d.id === id ? { 
+        ...d, 
+        name,
+        latitude: coords?.lat ?? d.latitude, // Keep old if not provided (manual edit) or update
+        longitude: coords?.lng ?? d.longitude
+      } : d
     );
     onChange(newDestinations);
   };
@@ -51,7 +56,6 @@ export function DestinationSelector({ destinations, onChange, disabled }: Destin
     onChange(newDestinations);
   };
 
-  // Ensure at least one input exists
   useEffect(() => {
     if (destinations.length === 0) {
       handleAdd();
@@ -94,15 +98,15 @@ export function DestinationSelector({ destinations, onChange, disabled }: Destin
                    </button>
                 </div>
                 
-                <input
-                  type="text"
-                  value={dest.name}
-                  onChange={(e) => handleChange(dest.id, e.target.value)}
-                  placeholder={index === 0 ? "Es. Parigi, Francia" : "Altra tappa..."}
-                  className="flex-1 h-12 bg-transparent border-0 focus:ring-0 px-2 text-foreground placeholder:text-muted-foreground focus:outline-none"
-                  disabled={disabled}
-                  required={index === 0} // Only first is strictly required for HTML validation
-                />
+                <div className="flex-1 py-1 pr-1">
+                  <LocationInput
+                    value={dest.name}
+                    onChange={(name, coords) => handleChange(dest.id, name, coords)}
+                    placeholder={index === 0 ? "Es. Parigi, Francia" : "Altra tappa..."}
+                    className="border-0 bg-transparent shadow-none focus:ring-0 h-10 px-2"
+                    disabled={disabled}
+                  />
+                </div>
 
                 {destinations.length > 1 && (
                   <button
@@ -133,7 +137,7 @@ export function DestinationSelector({ destinations, onChange, disabled }: Destin
       </Button>
       
       <p className="text-xs text-muted-foreground mt-1 ml-1">
-        La destinazione con la stella ⭐ sarà quella principale mostrata nella mappa.
+        Seleziona dai suggerimenti per garantire la posizione corretta sulla mappa.
       </p>
     </div>
   );
