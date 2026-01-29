@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plane, Euro, Route, Loader2 } from "lucide-react";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { Plane, Euro, Route, Loader2, ChevronLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -9,6 +9,7 @@ import { useTransports } from "@/hooks/useTransports";
 import { AddTransportDialog } from "@/components/transports/AddTransportDialog";
 import { TransportCard } from "@/components/transports/TransportCard";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 interface Trip {
   id: string;
@@ -72,6 +73,15 @@ export default function Transports() {
       <main className="container mx-auto px-4 pt-24 pb-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                to={tripId ? `/trips/${tripId}` : "/trips"}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="w-5 h-5" />
+                Dettagli viaggio
+              </Link>
+            </Button>
             <h1 className="text-3xl font-semibold flex items-center gap-2">
               <Plane className="h-8 w-8" />
               Trasporti

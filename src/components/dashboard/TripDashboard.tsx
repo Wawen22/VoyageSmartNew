@@ -4,12 +4,6 @@ import {
   Calendar,
   Clock,
   CheckCircle2,
-  Plane,
-  Hotel,
-  MapPin,
-  Users,
-  TrendingUp,
-  ArrowRight,
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useTripStats } from "@/hooks/useTripStats";
@@ -24,8 +18,8 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
 
   if (stats.isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[...Array(3)].map((_, i) => (
           <div
             key={i}
             className="h-32 bg-muted/50 rounded-2xl animate-pulse"
@@ -91,28 +85,36 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Countdown Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className={cn(
-            "relative overflow-hidden app-surface p-5",
+            "relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card/95 via-card/80 to-card/60 p-5 shadow-card",
             stats.tripStatus === "ongoing"
-              ? "bg-gradient-to-br from-emerald-500/10 to-transparent"
+              ? "ring-1 ring-emerald-500/30"
               : stats.tripStatus === "completed"
-              ? "bg-gradient-to-br from-muted to-card"
-              : "bg-gradient-to-br from-primary/10 to-transparent"
+              ? "ring-1 ring-muted"
+              : "ring-1 ring-primary/30"
           )}
         >
+          <div className={cn(
+            "absolute -right-10 -top-10 h-24 w-24 rounded-full blur-3xl",
+            stats.tripStatus === "ongoing"
+              ? "bg-emerald-500/30"
+              : stats.tripStatus === "completed"
+              ? "bg-muted"
+              : "bg-primary/30"
+          )} />
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em]">
                 {countdown.label}
               </p>
               <p className={cn(
-                "text-4xl font-bold mt-1",
+                "text-4xl font-semibold mt-2",
                 stats.tripStatus === "ongoing" ? "text-green-600 dark:text-green-400" : 
                 stats.tripStatus === "completed" ? "text-muted-foreground" : "text-primary"
               )}>
@@ -125,21 +127,18 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
               )}
             </div>
             <div className={cn(
-              "w-10 h-10 rounded-xl flex items-center justify-center",
-              stats.tripStatus === "ongoing" ? "bg-green-500/20" : 
-              stats.tripStatus === "completed" ? "bg-muted" : "bg-primary/20"
+              "w-11 h-11 rounded-2xl border border-border/60 bg-background/70 backdrop-blur flex items-center justify-center",
+              stats.tripStatus === "ongoing" ? "text-green-600" : 
+              stats.tripStatus === "completed" ? "text-muted-foreground" : "text-primary"
             )}>
               {stats.tripStatus === "completed" ? (
-                <CheckCircle2 className="w-5 h-5 text-muted-foreground" />
+                <CheckCircle2 className="w-5 h-5" />
               ) : (
-                <Clock className={cn(
-                  "w-5 h-5",
-                  stats.tripStatus === "ongoing" ? "text-green-600" : "text-primary"
-                )} />
+                <Clock className="w-5 h-5" />
               )}
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="w-3.5 h-3.5" />
             <span>{stats.tripDuration} giorni totali</span>
           </div>
@@ -150,33 +149,34 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="relative overflow-hidden app-surface p-5 bg-gradient-to-br from-secondary/40 to-card"
+          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-secondary/20 via-card/80 to-card/60 p-5 shadow-card"
         >
+          <div className="absolute -left-10 -bottom-10 h-24 w-24 rounded-full bg-secondary/25 blur-3xl" />
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em]">
                 Budget Totale
               </p>
-              <p className="text-3xl font-bold text-secondary mt-1">
+              <p className="text-3xl font-semibold text-secondary mt-2">
                 {formatCurrency(stats.totalBudget)}
               </p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-secondary" />
+            <div className="w-11 h-11 rounded-2xl border border-border/60 bg-background/70 backdrop-blur flex items-center justify-center text-secondary">
+              <Wallet className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3 space-y-1">
+          <div className="mt-4 space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Spese</span>
-              <span className="font-medium">{formatCurrency(stats.totalExpenses)}</span>
+              <span className="font-semibold">{formatCurrency(stats.totalExpenses)}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Alloggi</span>
-              <span className="font-medium">{formatCurrency(stats.accommodationsCost)}</span>
+              <span className="font-semibold">{formatCurrency(stats.accommodationsCost)}</span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Trasporti</span>
-              <span className="font-medium">{formatCurrency(stats.transportsCost)}</span>
+              <span className="font-semibold">{formatCurrency(stats.transportsCost)}</span>
             </div>
           </div>
         </motion.div>
@@ -186,69 +186,27 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="relative overflow-hidden app-surface p-5 bg-gradient-to-br from-accent/10 to-card"
+          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-accent/15 via-card/80 to-card/60 p-5 shadow-card"
         >
+          <div className="absolute -right-10 -bottom-10 h-24 w-24 rounded-full bg-accent/30 blur-3xl" />
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em]">
                 Checklist
               </p>
-              <p className="text-3xl font-bold text-accent mt-1">
+              <p className="text-3xl font-semibold text-accent mt-2">
                 {stats.checklistProgress}%
               </p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-accent" />
+            <div className="w-11 h-11 rounded-2xl border border-border/60 bg-background/70 backdrop-blur flex items-center justify-center text-accent">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3 space-y-2">
-            <Progress value={stats.checklistProgress} className="h-2" />
+          <div className="mt-4 space-y-2">
+            <Progress value={stats.checklistProgress} className="h-2.5" />
             <p className="text-xs text-muted-foreground">
               {stats.checklistCompleted} di {stats.checklistTotal} completati
             </p>
-          </div>
-        </motion.div>
-
-        {/* Quick Stats Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="relative overflow-hidden app-surface p-5 bg-gradient-to-br from-slate-500/10 to-card"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Riepilogo
-            </p>
-            <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-primary" />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
-                <MapPin className="w-3.5 h-3.5 text-primary" />
-              </div>
-              <span className="text-sm">{stats.activitiesCount} attività</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <Hotel className="w-3.5 h-3.5 text-amber-500" />
-              </div>
-              <span className="text-sm">{stats.accommodationsCount} alloggi</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-sky-500/10 flex items-center justify-center">
-                <Plane className="w-3.5 h-3.5 text-sky-500" />
-              </div>
-              <span className="text-sm">{stats.transportsCount} trasporti</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <Users className="w-3.5 h-3.5 text-green-500" />
-              </div>
-              <span className="text-sm">{stats.membersCount} partecipanti</span>
-            </div>
           </div>
         </motion.div>
       </div>

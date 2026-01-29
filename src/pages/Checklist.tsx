@@ -1,10 +1,11 @@
-import { useSearchParams, Navigate } from "react-router-dom";
+import { useSearchParams, Navigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ClipboardList, Loader2 } from "lucide-react";
+import { ClipboardList, Loader2, ChevronLeft } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useChecklist } from "@/hooks/useChecklist";
 import { ChecklistSection } from "@/components/checklist/ChecklistSection";
+import { Button } from "@/components/ui/button";
 
 export default function Checklist() {
   const [searchParams] = useSearchParams();
@@ -56,6 +57,12 @@ export default function Checklist() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
+          <Button variant="ghost" size="sm" asChild>
+            <Link to={`/trips/${tripId}`} className="flex items-center gap-2">
+              <ChevronLeft className="w-5 h-5" />
+              Dettagli viaggio
+            </Link>
+          </Button>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 rounded-xl bg-primary/10">
               <ClipboardList className="w-6 h-6 text-primary" />

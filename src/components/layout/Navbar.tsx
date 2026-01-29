@@ -20,11 +20,11 @@ import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ChecklistButton } from "@/components/checklist/ChecklistButton";
 
 const navLinks = [
-  { href: "/trips", label: "Viaggi", icon: MapPin },
-  { href: "/itinerary", label: "Itinerario", icon: Calendar },
-  { href: "/expenses", label: "Spese", icon: Wallet },
-  { href: "/accommodations", label: "Alloggi", icon: Building2 },
-  { href: "/transports", label: "Trasporti", icon: Car },
+  { href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
+  { href: "/itinerary", label: "Itinerario", icon: Calendar, tripScoped: true },
+  { href: "/expenses", label: "Spese", icon: Wallet, tripScoped: true },
+  { href: "/accommodations", label: "Alloggi", icon: Building2, tripScoped: true },
+  { href: "/transports", label: "Trasporti", icon: Car, tripScoped: true },
 ];
 
 export function Navbar() {
@@ -55,7 +55,7 @@ export function Navbar() {
     return { ...link, href: `${link.href}?trip=${activeTripId}` };
   });
   const visibleNavLinks = isTripsIndex
-    ? navLinksWithTrip.filter((link) => !tripDetailLinks.has(link.href.split("?")[0]))
+    ? navLinksWithTrip.filter((link) => !link.tripScoped)
     : navLinksWithTrip;
 
   const handleSignOut = async () => {

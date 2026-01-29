@@ -87,19 +87,23 @@ export default function Itinerary() {
     <AppLayout>
       <main className="container mx-auto px-4 pt-24 pb-8 relative z-10">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to={trip ? `/trips/${trip.id}` : "/trips"}>
-              <ChevronLeft className="h-5 w-5" />
-            </Link>
-          </Button>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl font-semibold flex items-center gap-2">
-              <CalendarDays className="h-6 w-6 text-primary" />
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                to={trip?.id ? `/trips/${trip.id}` : tripId ? `/trips/${tripId}` : "/trips"}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                Dettagli viaggio
+              </Link>
+            </Button>
+            <h1 className="text-3xl font-semibold flex items-center gap-2">
+              <CalendarDays className="h-8 w-8" />
               Itinerario
             </h1>
             {trip && (
-              <p className="text-muted-foreground text-sm">
+              <p className="text-muted-foreground mt-1">
                 {trip.title} • {trip.destination}
               </p>
             )}

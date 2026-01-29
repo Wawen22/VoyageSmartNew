@@ -41,6 +41,7 @@ import { TripMembersList } from "@/components/trips/TripMembersList";
 import { ExportPDFButton } from "@/components/trips/ExportPDFButton";
 import { ShareTripDialog } from "@/components/trips/ShareTripDialog";
 import { TripDashboard } from "@/components/dashboard/TripDashboard";
+import { useTripStats } from "@/hooks/useTripStats";
 import {
   MapPin,
   Calendar as CalendarIcon,
@@ -53,6 +54,8 @@ import {
   Plane,
   CheckCircle2,
   Loader2,
+  Share2,
+  Users,
 } from "lucide-react";
 
 type Trip = {
@@ -82,6 +85,7 @@ export default function TripDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const stats = useTripStats(id);
 
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
@@ -251,6 +255,50 @@ export default function TripDetail() {
   const tripDuration = differenceInDays(parseISO(trip.end_date), parseISO(trip.start_date)) + 1;
   const statusInfo = getStatusInfo(trip.status);
   const StatusIcon = statusInfo.icon;
+  const shareLabel = trip.is_public_shared ? "Pubblico" : "Privato";
+
+  const quickActions = [
+    {
+      to: `/expenses?trip=${trip.id}`,
+      title: "Gestisci Spese",
+      description: "Traccia e dividi i costi",
+      icon: "💰",
+      count: stats.expensesCount,
+      glow: "bg-amber-500/30",
+    },
+    {
+      to: `/accommodations?trip=${trip.id}`,
+      title: "Alloggi",
+      description: "Prenotazioni e check-in",
+      icon: "🏨",
+      count: stats.accommodationsCount,
+      glow: "bg-primary/30",
+    },
+    {
+      to: `/transports?trip=${trip.id}`,
+      title: "Trasporti",
+      description: "Voli, treni e transfer",
+      icon: "✈️",
+      count: stats.transportsCount,
+      glow: "bg-sky-500/30",
+    },
+    {
+      to: `/itinerary?trip=${trip.id}`,
+      title: "Itinerario",
+      description: "Timeline completa del viaggio",
+      icon: "🗓️",
+      count: stats.activitiesCount,
+      glow: "bg-emerald-500/30",
+    },
+    {
+      to: `/checklist?trip=${trip.id}`,
+      title: "Checklist",
+      description: "Cosa portare e preparare",
+      icon: "✅",
+      count: stats.checklistTotal,
+      glow: "bg-indigo-500/30",
+    },
+  ];
 
   return (
     <AppLayout>
@@ -528,71 +576,37 @@ export default function TripDetail() {
 
                       <div className="app-section p-5">
                         <h3 className="font-semibold text-foreground mb-4">Azioni Rapide</h3>
-                        <div className="grid sm:grid-cols-2 gap-3">
-                          <Link to={`/expenses?trip=${trip.id}`} className="app-section p-4 hover:bg-card/70 transition-all">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-secondary/40 flex items-center justify-center">
-                                <span className="text-xl">💰</span>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                          {quickActions.map((action) => (
+                            <Link
+                              key={action.to}
+                              to={action.to}
+                              className="group relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/90 via-card/70 to-card/50 p-4 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-glow"
+                            >
+                              <div className={cn("absolute -right-10 -top-10 h-20 w-20 rounded-full blur-3xl", action.glow)} />
+                              <div className="relative flex items-center gap-3">
+                                <div className="w-11 h-11 rounded-2xl border border-border/60 bg-background/70 backdrop-blur flex items-center justify-center text-xl">
+                                  {action.icon}
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-semibold text-foreground">{action.title}</p>
+                                  <p className="text-xs text-muted-foreground">{action.description}</p>
+                                </div>
+                                <span className="text-xs font-semibold rounded-full border border-border/60 bg-background/80 px-2 py-0.5 text-foreground">
+                                  {stats.isLoading ? "—" : action.count}
+                                </span>
                               </div>
-                              <div>
-                                <p className="font-medium">Gestisci Spese</p>
-                                <p className="text-xs text-muted-foreground">Traccia e dividi i costi</p>
-                              </div>
-                            </div>
-                          </Link>
-                          <Link to={`/accommodations?trip=${trip.id}`} className="app-section p-4 hover:bg-card/70 transition-all">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                                <span className="text-xl">🏨</span>
-                              </div>
-                              <div>
-                                <p className="font-medium">Alloggi</p>
-                                <p className="text-xs text-muted-foreground">Gestisci prenotazioni</p>
-                              </div>
-                            </div>
-                          </Link>
-                          <Link to={`/transports?trip=${trip.id}`} className="app-section p-4 hover:bg-card/70 transition-all">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                                <span className="text-xl">✈️</span>
-                              </div>
-                              <div>
-                                <p className="font-medium">Trasporti</p>
-                                <p className="text-xs text-muted-foreground">Voli, treni e altro</p>
-                              </div>
-                            </div>
-                          </Link>
-                          <Link to={`/itinerary?trip=${trip.id}`} className="app-section p-4 hover:bg-card/70 transition-all">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-                                <span className="text-xl">🗓️</span>
-                              </div>
-                              <div>
-                                <p className="font-medium">Itinerario</p>
-                                <p className="text-xs text-muted-foreground">Timeline completa del viaggio</p>
-                              </div>
-                            </div>
-                          </Link>
-                          <Link to={`/checklist?trip=${trip.id}`} className="app-section p-4 hover:bg-card/70 transition-all sm:col-span-2">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
-                                <span className="text-xl">✅</span>
-                              </div>
-                              <div>
-                                <p className="font-medium">Checklist</p>
-                                <p className="text-xs text-muted-foreground">Cosa portare</p>
-                              </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          ))}
                         </div>
                       </div>
                     </div>
 
                     <div className="space-y-6">
-                      <div className="app-section p-5">
+                      <div className="app-surface p-5">
                         <h3 className="font-semibold text-foreground mb-4">Dettagli viaggio</h3>
                         <div className="space-y-3">
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <CalendarIcon className="w-4 h-4" />
                               Partenza
@@ -601,7 +615,7 @@ export default function TripDetail() {
                               {format(parseISO(trip.start_date), "d MMMM yyyy", { locale: it })}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <CalendarIcon className="w-4 h-4" />
                               Ritorno
@@ -610,13 +624,38 @@ export default function TripDetail() {
                               {format(parseISO(trip.end_date), "d MMMM yyyy", { locale: it })}
                             </span>
                           </div>
-                          <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
                             <div className="flex items-center gap-2 text-muted-foreground">
                               <Clock className="w-4 h-4" />
                               Durata
                             </div>
                             <span className="font-medium text-foreground">
                               {tripDuration} {tripDuration === 1 ? "giorno" : "giorni"}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <StatusIcon className={cn("w-4 h-4", statusInfo.color)} />
+                              Stato
+                            </div>
+                            <span className={cn("font-medium", statusInfo.color)}>
+                              {statusInfo.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Share2 className="w-4 h-4" />
+                              Condivisione
+                            </div>
+                            <span className="font-medium text-foreground">{shareLabel}</span>
+                          </div>
+                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Users className="w-4 h-4" />
+                              Partecipanti
+                            </div>
+                            <span className="font-medium text-foreground">
+                              {stats.isLoading ? "—" : stats.membersCount}
                             </span>
                           </div>
                         </div>

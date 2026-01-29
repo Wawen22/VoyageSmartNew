@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,9 @@ import {
   TrendingUp,
   Filter,
   Search,
-  Loader2
+  Loader2,
+  ChevronLeft,
+  Wallet
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useExpenses } from "@/hooks/useExpenses";
@@ -191,10 +193,20 @@ export default function Expenses() {
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
-              <h1 className="text-3xl lg:text-4xl font-semibold text-foreground mb-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link
+                  to={selectedTripId ? `/trips/${selectedTripId}` : "/trips"}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                  Dettagli viaggio
+                </Link>
+              </Button>
+              <h1 className="text-3xl font-semibold flex items-center gap-2">
+                <Wallet className="h-8 w-8" />
                 Spese
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mt-1">
                 Traccia le spese e dividi i costi con i tuoi compagni di viaggio
               </p>
             </div>

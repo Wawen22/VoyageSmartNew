@@ -18,6 +18,7 @@ export interface TripStats {
   tripStatus: "upcoming" | "ongoing" | "completed";
 
   // Counts
+  expensesCount: number;
   activitiesCount: number;
   accommodationsCount: number;
   transportsCount: number;
@@ -44,6 +45,7 @@ export function useTripStats(tripId: string | undefined) {
     daysUntilEnd: 0,
     tripDuration: 0,
     tripStatus: "upcoming",
+    expensesCount: 0,
     activitiesCount: 0,
     accommodationsCount: 0,
     transportsCount: 0,
@@ -140,6 +142,7 @@ export function useTripStats(tripId: string | undefined) {
           daysUntilEnd,
           tripDuration,
           tripStatus,
+          expensesCount: expenses.length,
           activitiesCount: activities.length,
           accommodationsCount: accommodations.length,
           transportsCount: transports.length,
