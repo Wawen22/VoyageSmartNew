@@ -122,14 +122,16 @@ export function Navbar() {
               <>
                 <ChecklistButton isLanding={isLanding} />
                 <NotificationBell isLanding={isLanding} />
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
-                  isLanding ? "bg-white/10" : "bg-muted/70"
-                }`}>
-                  <User className={`w-4 h-4 ${isLanding ? "text-white" : "text-foreground"}`} />
-                  <span className={`text-sm font-medium ${isLanding ? "text-white" : "text-foreground"}`}>
-                    {user.email?.split("@")[0]}
-                  </span>
-                </div>
+                <Link to="/profile">
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors ${
+                    isLanding ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
+                  }`}>
+                    <User className={`w-4 h-4 ${isLanding ? "text-white" : "text-foreground"}`} />
+                    <span className={`text-sm font-medium ${isLanding ? "text-white" : "text-foreground"}`}>
+                      {user.email?.split("@")[0]}
+                    </span>
+                  </div>
+                </Link>
                 <Button 
                   variant={isLanding ? "heroOutline" : "outline"} 
                   size="sm"
@@ -205,10 +207,12 @@ export function Navbar() {
               <div className="pt-4 flex flex-col gap-2">
                 {user ? (
                   <>
-                    <div className="flex items-center gap-2 px-4 py-2 text-muted-foreground">
-                      <User className="w-5 h-5" />
-                      <span>{user.email}</span>
-                    </div>
+                    <Link to="/profile" onClick={() => setIsOpen(false)}>
+                      <div className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
+                        <User className="w-5 h-5" />
+                        <span>{user.email}</span>
+                      </div>
+                    </Link>
                     <Button 
                       variant="outline" 
                       className="w-full"

@@ -14,6 +14,7 @@ import Accommodations from "./pages/Accommodations";
 import Transports from "./pages/Transports";
 import Itinerary from "./pages/Itinerary";
 import Checklist from "./pages/Checklist";
+import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/transports" element={<Transports />} />
             <Route path="/itinerary" element={<Itinerary />} />
             <Route path="/checklist" element={<Checklist />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/auth" element={<Auth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
