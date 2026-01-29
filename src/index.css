@@ -307,3 +307,22 @@
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
+/* Mapbox Custom Popup Overrides */
+.mapboxgl-popup {
+  z-index: 50;
+}
+
+.mapboxgl-popup-content {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+.mapboxgl-popup-tip {
+  display: none !important;
+}
+
+.mapboxgl-popup-close-button {
+  display: none !important;
+}

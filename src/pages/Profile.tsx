@@ -6,10 +6,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Link as LinkIcon, Calendar, Edit2, Loader2, User as UserIcon, Globe } from "lucide-react";
+import { MapPin, Link as LinkIcon, Calendar, Edit2, Loader2, User as UserIcon, Globe, LayoutGrid, Map as MapIcon } from "lucide-react";
 import { EditProfileDialog, ProfileData } from "@/components/profile/EditProfileDialog";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { ProfileMap } from "@/components/maps/ProfileMap";
+import { searchPlace } from "@/lib/mapbox";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -18,6 +20,7 @@ export default function Profile() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [trips, setTrips] = useState<any[]>([]);
   const [tripsLoading, setTripsLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -37,16 +40,37 @@ export default function Profile() {
     }
   };
 
+  const enrichTripsWithCoordinates = async (rawTrips: any[]) => {
+    const tripsToProcess = rawTrips.filter(t => !t.latitude || !t.longitude);
+    
+    if (tripsToProcess.length === 0) return;
+
+    const enrichedTrips = await Promise.all(rawTrips.map(async (trip) => {
+      if (trip.latitude && trip.longitude) return trip;
+      
+      if (trip.destination) {
+        const coords = await searchPlace(trip.destination);
+        if (coords) {
+          supabase.from('trips').update({ 
+            latitude: coords.lat, 
+            longitude: coords.lng 
+          }).eq('id', trip.id).then(({ error }) => {
+             if (error) console.error("Error updating coords for trip", trip.id, error);
+          });
+          
+          return { ...trip, latitude: coords.lat, longitude: coords.lng };
+        }
+      }
+      return trip;
+    }));
+
+    setTrips(enrichedTrips);
+  };
+
   const fetchUserTrips = async () => {
     if (!user) return;
     setTripsLoading(true);
     try {
-      // Fetch trips where user is owner or member
-      // Since we don't have a simple view for this yet without complex joins, 
-      // let's just fetch trips owned by user for the profile display for now, 
-      // or duplicate the logic from Trips page if needed. 
-      // For a "Social Profile", showing trips they OWN is usually the standard first step.
-      
       const { data, error } = await supabase
         .from("trips")
         .select("*")
@@ -54,7 +78,11 @@ export default function Profile() {
         .order("start_date", { ascending: false });
 
       if (error) throw error;
-      setTrips(data || []);
+      
+      const rawTrips = data || [];
+      setTrips(rawTrips);
+      enrichTripsWithCoordinates(rawTrips);
+      
     } catch (error) {
       console.error("Error fetching trips:", error);
     } finally {
@@ -77,14 +105,13 @@ export default function Profile() {
     );
   }
 
-  if (!profile) return null; // Should handle error state better
+  if (!profile) return null;
 
   return (
     <AppLayout>
       <main className="pt-24 pb-16 relative z-10">
         <div className="container mx-auto px-4 max-w-4xl">
           
-          {/* Profile Header Card */}
           <Card className="mb-8 border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden">
             <div className="h-32 bg-gradient-to-r from-primary/20 to-secondary/20 w-full" />
             <div className="px-6 pb-6">
@@ -135,43 +162,93 @@ export default function Profile() {
             </div>
           </Card>
 
-          {/* Content Tabs */}
           <Tabs defaultValue="trips" className="w-full">
             <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
               <TabsTrigger value="trips">I miei Viaggi</TabsTrigger>
               <TabsTrigger value="about">Info</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="trips" className="mt-6">
+            <TabsContent value="trips" className="mt-6 space-y-6">
+              <div className="flex items-center justify-between">
+                 <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-primary" />
+                  Esplora i tuoi viaggi
+                </h3>
+                <div className="flex items-center bg-muted/50 p-1 rounded-lg">
+                  <Button 
+                    variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 px-3 gap-2"
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                    <span className="hidden sm:inline">Griglia</span>
+                  </Button>
+                  <Button 
+                    variant={viewMode === 'map' ? 'secondary' : 'ghost'} 
+                    size="sm"
+                    className="h-8 px-3 gap-2"
+                    onClick={() => setViewMode('map')}
+                  >
+                    <MapIcon className="w-4 h-4" />
+                    <span className="hidden sm:inline">Mappa</span>
+                  </Button>
+                </div>
+              </div>
+
               {tripsLoading ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
                 </div>
               ) : trips.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {trips.map((trip) => (
-                    <Link key={trip.id} to={`/trips/${trip.id}`}>
-                      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60">
-                        <div className="aspect-video relative overflow-hidden">
-                          <img 
-                            src={trip.cover_image || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800"} 
-                            alt={trip.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
-                          <div className="absolute bottom-3 left-3 text-white">
-                            <h3 className="font-semibold">{trip.title}</h3>
-                            <p className="text-xs opacity-90">{trip.destination}</p>
-                          </div>
-                        </div>
-                      </Card>
-                    </Link>
-                  ))}
+                <div className="min-h-[400px]">
+                  {viewMode === 'map' ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="h-[650px]"
+                    >
+                       <ProfileMap trips={trips} />
+                    </motion.div>
+                  ) : (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="grid gap-4 sm:grid-cols-2"
+                    >
+                      {trips.map((trip, index) => (
+                        <motion.div
+                           key={trip.id}
+                           initial={{ opacity: 0, y: 10 }}
+                           animate={{ opacity: 1, y: 0 }}
+                           transition={{ delay: index * 0.05 }}
+                        >
+                          <Link to={`/trips/${trip.id}`}>
+                            <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border/60">
+                              <div className="aspect-video relative overflow-hidden">
+                                <img 
+                                  src={trip.cover_image || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800"} 
+                                  alt={trip.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+                                <div className="absolute bottom-3 left-3 text-white">
+                                  <h3 className="font-semibold">{trip.title}</h3>
+                                  <p className="text-xs opacity-90">{trip.destination}</p>
+                                </div>
+                              </div>
+                            </Card>
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  )}
                 </div>
               ) : (
                 <div className="text-center py-12 border rounded-xl border-dashed border-muted-foreground/25">
                   <Globe className="w-10 h-10 mx-auto text-muted-foreground mb-3 opacity-50" />
-                  <p className="text-muted-foreground">Nessun viaggio pubblico da mostrare.</p>
+                  <p className="text-muted-foreground">Nessun viaggio da mostrare.</p>
                   <Button variant="link" asChild className="mt-2">
                     <Link to="/trips/new">Crea un nuovo viaggio</Link>
                   </Button>
