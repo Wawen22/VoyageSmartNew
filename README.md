@@ -1,73 +1,140 @@
-# Welcome to your Lovable project
+# VoyageSmart 🌍✈️
 
-## Project info
+VoyageSmart is your ultimate travel companion, designed to simplify group trip planning, expense tracking, and itinerary management. Built with modern web technologies, it offers a seamless experience for organizing every aspect of your journey.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+![Project Status](https://img.shields.io/badge/status-active-success.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-## How can I edit this code?
+## 🚀 Key Features
 
-There are several ways of editing your application.
+### 📅 Smart Itinerary Planning
+- **Drag-and-Drop Timeline:** Easily organize your activities day by day.
+- **Detailed Activities:** Add locations, notes, and times for every event.
+- **Visual Overview:** View your trip on a clear, interactive timeline.
 
-**Use Lovable**
+### 💰 Expense Tracking & Splitting
+- **Group Finance:** Track shared expenses and know exactly who owes whom.
+- **Splitwise-Style Settlement:** Smart algorithms to calculate the most efficient way to settle debts.
+- **Visual Budgeting:** Charts and graphs to analyze spending categories.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### 🏨 Logistics Management
+- **Accommodations:** Keep track of check-in/out times, addresses, and booking details.
+- **Transports:** Manage flights, trains, and transfers with departure/arrival tracking.
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🤝 Collaboration & Sharing
+- **Real-time Collaboration:** Invite friends to plan the trip together.
+- **Public View:** Share a read-only view of your itinerary with family and friends via a public link.
+- **PDF Export:** Download your complete itinerary and booking details for offline access.
 
-**Use your preferred IDE**
+### 📝 Utilities
+- **Smart Checklists:** Pre-trip packing lists and to-do items.
+- **Document Storage:** Securely upload and access travel documents (passports, tickets).
+- **Notifications:** Stay updated on trip changes.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**Frontend:**
+- [React](https://react.dev/) - UI Library
+- [TypeScript](https://www.typescriptlang.org/) - Static Typing
+- [Vite](https://vitejs.dev/) - Build Tool
+- [Tailwind CSS](https://tailwindcss.com/) - Styling Framework
+- [Shadcn UI](https://ui.shadcn.com/) - Component Library (Radix UI)
+- [TanStack Query](https://tanstack.com/query/latest) - Server State Management
+- [React Router](https://reactrouter.com/) - Routing
+- [Framer Motion](https://www.framer.com/motion/) - Animations
 
-Follow these steps:
+**Backend & Services:**
+- [Supabase](https://supabase.com/) - Database (PostgreSQL), Authentication, and Realtime
+- [Lovable](https://lovable.dev/) - Rapid Prototyping (Initial generation)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+**Utilities:**
+- `recharts` - Data Visualization
+- `jspdf` - PDF Generation
+- `zod` & `react-hook-form` - Form Validation
+- `date-fns` - Date Management
+- `lucide-react` - Icons
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+**Testing:**
+- [Vitest](https://vitest.dev/) - Unit & Integration Testing
 
-# Step 3: Install the necessary dependencies.
-npm i
+## ⚡ Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Prerequisites
+- Node.js (v18+ recommended)
+- npm or bun
+- A Supabase project
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/yourusername/voyagesmart.git
+    cd voyagesmart
+    ```
+
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    bun install
+    ```
+
+3.  **Environment Setup:**
+    Create a `.env` file in the root directory (or `.env.local`) and add your Supabase credentials:
+    ```env
+    VITE_SUPABASE_URL=your_supabase_project_url
+    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+
+## 🗄️ Database Setup
+
+This project uses Supabase. You can find the SQL migrations in the `supabase/migrations` folder. To set up your local or remote database:
+
+1.  Ensure you have the Supabase CLI installed.
+2.  Link your project:
+    ```bash
+    supabase link --project-ref your-project-id
+    ```
+3.  Apply migrations:
+    ```bash
+    supabase db push
+    ```
+
+## 🧪 Testing
+
+We use Vitest for testing. To run the test suite:
+
+```bash
+npm test
+# or
+npm run test:watch
 ```
 
-**Edit a file directly in GitHub**
+## 📂 Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── assets/          # Static assets
+├── components/      # Reusable UI components
+│   ├── accommodations/
+│   ├── checklist/
+│   ├── dashboard/
+│   ├── expenses/    # Expense tracking logic
+│   ├── itinerary/   # Timeline and activity components
+│   ├── ui/          # Shadcn UI primitives
+│   └── ...
+├── hooks/           # Custom React hooks (useAuth, useExpenses, etc.)
+├── integrations/    # External service configurations (Supabase)
+├── pages/           # Application routes/screens
+├── lib/             # Utility functions
+└── utils/           # Helper scripts (PDF export, etc.)
+```
 
-**Use GitHub Codespaces**
+## 📄 License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
