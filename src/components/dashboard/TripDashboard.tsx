@@ -92,7 +92,7 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className={cn(
-            "relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card/95 via-card/80 to-card/60 p-5 shadow-card",
+            "relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card/95 via-card/80 to-card/60 p-5 shadow-card min-h-[200px]",
             stats.tripStatus === "ongoing"
               ? "ring-1 ring-emerald-500/30"
               : stats.tripStatus === "completed"
@@ -138,7 +138,7 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
               )}
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="absolute bottom-5 left-5 flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="w-3.5 h-3.5" />
             <span>{stats.tripDuration} giorni totali</span>
           </div>
@@ -149,13 +149,13 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-secondary/20 via-card/80 to-card/60 p-5 shadow-card"
+          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-secondary/20 via-card/80 to-card/60 p-5 shadow-card min-h-[200px]"
         >
           <div className="absolute -left-10 -bottom-10 h-24 w-24 rounded-full bg-secondary/25 blur-3xl" />
           <div className="flex items-start justify-between">
             <div>
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em]">
-                Budget Totale
+                Budget
               </p>
               <p className="text-3xl font-semibold text-secondary mt-2">
                 {formatCurrency(stats.totalBudget)}
@@ -165,19 +165,12 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
               <Wallet className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 space-y-2">
+          <div className="absolute bottom-5 left-5 w-[calc(100%-40px)] space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-muted-foreground">Spese</span>
               <span className="font-semibold">{formatCurrency(stats.totalExpenses)}</span>
             </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Alloggi</span>
-              <span className="font-semibold">{formatCurrency(stats.accommodationsCost)}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Trasporti</span>
-              <span className="font-semibold">{formatCurrency(stats.transportsCost)}</span>
-            </div>
+            <Progress value={(stats.totalExpenses / (stats.totalBudget || 1)) * 100} className="h-1.5 bg-secondary/20" />
           </div>
         </motion.div>
 
@@ -186,7 +179,7 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-accent/15 via-card/80 to-card/60 p-5 shadow-card"
+          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-accent/15 via-card/80 to-card/60 p-5 shadow-card min-h-[200px]"
         >
           <div className="absolute -right-10 -bottom-10 h-24 w-24 rounded-full bg-accent/30 blur-3xl" />
           <div className="flex items-start justify-between">
@@ -202,8 +195,8 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
               <CheckCircle2 className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 space-y-2">
-            <Progress value={stats.checklistProgress} className="h-2.5" />
+          <div className="absolute bottom-5 left-5 w-[calc(100%-40px)] space-y-2">
+            <Progress value={stats.checklistProgress} className="h-1.5 bg-accent/20" />
             <p className="text-xs text-muted-foreground">
               {stats.checklistCompleted} di {stats.checklistTotal} completati
             </p>

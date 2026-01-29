@@ -44,6 +44,7 @@ import { TripDashboard } from "@/components/dashboard/TripDashboard";
 import { useTripStats } from "@/hooks/useTripStats";
 import { DestinationSelector, DestinationItem } from "@/components/trips/DestinationSelector";
 import { searchPlace } from "@/lib/mapbox";
+import { TripHeroWeather } from "@/components/trips/TripHeroWeather";
 import {
   MapPin,
   Calendar as CalendarIcon,
@@ -75,6 +76,8 @@ type Trip = {
   updated_at: string;
   is_public_shared: boolean;
   public_share_token: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 const statusOptions = [
@@ -283,8 +286,10 @@ export default function TripDetail() {
       toast({
         title: "Eliminato",
         description: "Il viaggio è stato eliminato",
+        duration: 3000
       });
-      navigate("/trips");
+      // Small delay to let toast show
+      setTimeout(() => navigate("/trips"), 100);
     } catch (error: any) {
       console.error("Error deleting trip:", error);
       toast({
@@ -442,6 +447,12 @@ export default function TripDetail() {
                 <div className="w-full h-full bg-gradient-hero" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              
+              {/* Minimal Weather Widget */}
+              <div className="absolute top-4 right-4 z-20">
+                <TripHeroWeather lat={trip.latitude} lon={trip.longitude} />
+              </div>
+
               <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-end gap-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="app-pill bg-white/20 text-white backdrop-blur-sm">
@@ -647,7 +658,12 @@ export default function TripDetail() {
                           <span className="text-xl">📊</span>
                           Dashboard
                         </h3>
-                        <TripDashboard tripId={trip.id} />
+                        <TripDashboard 
+                          tripId={trip.id}
+                          latitude={trip.latitude}
+                          longitude={trip.longitude}
+                          destinationName={trip.destination}
+                        />
                       </div>
 
                       <div className="app-section p-5">
