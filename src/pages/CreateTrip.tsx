@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   ArrowRight,
-  MapPin,
   Calendar,
   Sparkles,
   Loader2,
@@ -15,14 +14,18 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { DestinationSelector, DestinationItem } from "@/components/trips/DestinationSelector";
+import { searchPlace } from "@/lib/mapbox";
 
 export default function CreateTrip() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [destinations, setDestinations] = useState<DestinationItem[]>([
+    { id: '1', name: '', isPrimary: true }
+  ]);
   const [formData, setFormData] = useState({
     title: "",
-    destination: "",
     description: "",
     startDate: "",
     endDate: "",
@@ -36,31 +39,94 @@ export default function CreateTrip() {
       return;
     }
 
+    // Validation
+    if (destinations.length === 0 || !destinations[0].name.trim()) {
+      toast({
+        title: "Destinazione mancante",
+        description: "Inserisci almeno una destinazione per il tuo viaggio.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      const { error } = await supabase.from("trips").insert({
+      // 1. Identify Primary Destination
+      const primaryDest = destinations.find(d => d.isPrimary) || destinations[0];
+      
+      // 2. Geocode Primary Destination (Critical for Map)
+      let primaryCoords = { lat: null as number | null, lng: null as number | null };
+      if (primaryDest.name) {
+        const coords = await searchPlace(primaryDest.name);
+        if (coords) {
+          primaryCoords = coords;
+        }
+      }
+
+      // 3. Create Trip Record
+      const { data: tripData, error: tripError } = await supabase.from("trips").insert({
         user_id: user.id,
         title: formData.title,
-        destination: formData.destination,
+        destination: primaryDest.name, // Legacy/Display field
+        latitude: primaryCoords.lat,
+        longitude: primaryCoords.lng,
         description: formData.description || null,
         start_date: formData.startDate,
         end_date: formData.endDate,
         cover_image: formData.coverImage || null,
         status: "planning",
-      });
+      }).select().single();
 
-      if (error) throw error;
+      if (tripError) throw tripError;
+
+      // 4. Create Trip Destinations Records
+      // We geocode other destinations in parallel to save time
+      const destinationsPayload = await Promise.all(destinations.map(async (d, index) => {
+        let lat = null;
+        let lng = null;
+
+        // If it's the primary one we already geocoded it
+        if (d.id === primaryDest.id && primaryCoords.lat) {
+          lat = primaryCoords.lat;
+          lng = primaryCoords.lng;
+        } else if (d.name.trim()) {
+          // Geocode others
+          const coords = await searchPlace(d.name);
+          if (coords) {
+            lat = coords.lat;
+            lng = coords.lng;
+          }
+        }
+
+        return {
+          trip_id: tripData.id,
+          name: d.name,
+          is_primary: d.isPrimary,
+          order_index: index,
+          latitude: lat,
+          longitude: lng
+        };
+      }));
+
+      // Filter out empty names just in case
+      const validDestinations = destinationsPayload.filter(d => d.name.trim() !== "");
+
+      const { error: destError } = await supabase
+        .from("trip_destinations")
+        .insert(validDestinations);
+
+      if (destError) throw destError;
 
       toast({
-        title: "Trip created! 🎉",
-        description: "Your adventure awaits. Start adding activities!",
+        title: "Viaggio creato! 🎉",
+        description: "La tua avventura inizia ora. Aggiungi le attività!",
       });
       navigate("/trips");
     } catch (error) {
       console.error("Error creating trip:", error);
       toast({
-        title: "Error",
-        description: "Failed to create trip. Please try again.",
+        title: "Errore",
+        description: "Impossibile creare il viaggio. Riprova.",
         variant: "destructive",
       });
     } finally {
@@ -83,13 +149,13 @@ export default function CreateTrip() {
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-4"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Trips
+              Torna ai Viaggi
             </button>
             <h1 className="text-3xl lg:text-4xl font-semibold text-foreground mb-2">
-              Create New Trip
+              Nuovo Viaggio
             </h1>
             <p className="text-muted-foreground">
-              Let's plan your next adventure
+              Pianifica la tua prossima avventura
             </p>
           </motion.div>
 
@@ -104,11 +170,11 @@ export default function CreateTrip() {
             {/* Trip Name */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Trip Name *
+                Nome Viaggio *
               </label>
               <input
                 type="text"
-                placeholder="e.g., Summer in Greece"
+                placeholder="Es. Estate in Grecia"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 className="w-full h-12 px-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -117,30 +183,18 @@ export default function CreateTrip() {
               />
             </div>
 
-            {/* Destination */}
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Destination *
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="e.g., Santorini, Greece"
-                  value={formData.destination}
-                  onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
-                  className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  required
-                  disabled={loading}
-                />
-              </div>
-            </div>
+            {/* Destinations */}
+            <DestinationSelector 
+              destinations={destinations} 
+              onChange={setDestinations}
+              disabled={loading}
+            />
 
             {/* Dates */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Start Date *
+                  Data Inizio *
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -156,7 +210,7 @@ export default function CreateTrip() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  End Date *
+                  Data Fine *
                 </label>
                 <div className="relative">
                   <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -176,10 +230,10 @@ export default function CreateTrip() {
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Description
+                Descrizione
               </label>
               <textarea
-                placeholder="What's this trip about?"
+                placeholder="Di cosa tratta questo viaggio?"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
@@ -191,7 +245,7 @@ export default function CreateTrip() {
             {/* Cover Image URL */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Cover Image URL
+                URL Immagine Copertina
               </label>
               <div className="relative">
                 <Image className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -213,11 +267,11 @@ export default function CreateTrip() {
               </div>
               <div>
                 <h4 className="font-medium text-foreground mb-1">
-                  AI Itinerary Generation
+                  Generazione Itinerario AI
                 </h4>
                 <p className="text-sm text-muted-foreground">
-                  After creating your trip, you'll be able to generate a personalized 
-                  itinerary using AI based on your destination and dates.
+                  Dopo aver creato il viaggio, potrai generare un itinerario personalizzato 
+                  con l'AI basato sulle tue destinazioni e date.
                 </p>
               </div>
             </div>
@@ -232,7 +286,7 @@ export default function CreateTrip() {
                 onClick={() => navigate("/trips")}
                 disabled={loading}
               >
-                Cancel
+                Annulla
               </Button>
               <Button
                 type="submit"
@@ -245,7 +299,7 @@ export default function CreateTrip() {
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   <>
-                    Create Trip
+                    Crea Viaggio
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}

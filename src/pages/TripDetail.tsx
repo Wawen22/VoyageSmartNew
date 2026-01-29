@@ -42,6 +42,8 @@ import { ExportPDFButton } from "@/components/trips/ExportPDFButton";
 import { ShareTripDialog } from "@/components/trips/ShareTripDialog";
 import { TripDashboard } from "@/components/dashboard/TripDashboard";
 import { useTripStats } from "@/hooks/useTripStats";
+import { DestinationSelector, DestinationItem } from "@/components/trips/DestinationSelector";
+import { searchPlace } from "@/lib/mapbox";
 import {
   MapPin,
   Calendar as CalendarIcon,
@@ -56,6 +58,7 @@ import {
   Loader2,
   Share2,
   Users,
+  ChevronRight,
 } from "lucide-react";
 
 type Trip = {
@@ -88,6 +91,7 @@ export default function TripDetail() {
   const stats = useTripStats(id);
 
   const [trip, setTrip] = useState<Trip | null>(null);
+  const [destinations, setDestinations] = useState<DestinationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -95,7 +99,7 @@ export default function TripDetail() {
 
   // Edit form state
   const [editTitle, setEditTitle] = useState("");
-  const [editDestination, setEditDestination] = useState("");
+  const [editDestinations, setEditDestinations] = useState<DestinationItem[]>([]);
   const [editDescription, setEditDescription] = useState("");
   const [editStartDate, setEditStartDate] = useState<Date | undefined>();
   const [editEndDate, setEditEndDate] = useState<Date | undefined>();
@@ -128,13 +132,39 @@ export default function TripDetail() {
       }
 
       setTrip(data);
+      
       // Initialize edit form
       setEditTitle(data.title);
-      setEditDestination(data.destination);
       setEditDescription(data.description || "");
       setEditStartDate(parseISO(data.start_date));
       setEditEndDate(parseISO(data.end_date));
       setEditStatus(data.status);
+
+      // Fetch destinations
+      const { data: dests, error: destsError } = await supabase
+        .from('trip_destinations')
+        .select('*')
+        .eq('trip_id', id)
+        .order('order_index');
+
+      if (dests && dests.length > 0) {
+        const mappedDests = dests.map(d => ({
+          id: d.id,
+          name: d.name,
+          isPrimary: d.is_primary
+        }));
+        setDestinations(mappedDests);
+        setEditDestinations(mappedDests);
+      } else {
+        const fallback = [{ 
+          id: 'primary', 
+          name: data.destination, 
+          isPrimary: true 
+        }];
+        setDestinations(fallback);
+        setEditDestinations(fallback);
+      }
+
     } catch (error: any) {
       console.error("Error fetching trip:", error);
       toast({
@@ -148,10 +178,10 @@ export default function TripDetail() {
   };
 
   const handleSave = async () => {
-    if (!editTitle.trim() || !editDestination.trim() || !editStartDate || !editEndDate) {
+    if (!editTitle.trim() || editDestinations.length === 0 || !editStartDate || !editEndDate) {
       toast({
         title: "Campi obbligatori",
-        description: "Compila tutti i campi richiesti",
+        description: "Compila tutti i campi richiesti e inserisci almeno una destinazione",
         variant: "destructive",
       });
       return;
@@ -159,11 +189,21 @@ export default function TripDetail() {
 
     setSaving(true);
     try {
+      const primaryDest = editDestinations.find(d => d.isPrimary) || editDestinations[0];
+      
+      let primaryCoords = { lat: null as number | null, lng: null as number | null };
+      if (primaryDest.name) {
+        const coords = await searchPlace(primaryDest.name);
+        if (coords) primaryCoords = coords;
+      }
+
       const { error } = await supabase
         .from("trips")
         .update({
           title: editTitle.trim(),
-          destination: editDestination.trim(),
+          destination: primaryDest.name,
+          latitude: primaryCoords.lat,
+          longitude: primaryCoords.lng,
           description: editDescription.trim() || null,
           start_date: format(editStartDate, "yyyy-MM-dd"),
           end_date: format(editEndDate, "yyyy-MM-dd"),
@@ -173,7 +213,44 @@ export default function TripDetail() {
 
       if (error) throw error;
 
-      // Refresh trip data
+      const { error: deleteError } = await supabase
+        .from("trip_destinations")
+        .delete()
+        .eq("trip_id", id);
+      
+      if (deleteError) throw deleteError;
+
+      const destinationsPayload = await Promise.all(editDestinations.map(async (d, index) => {
+        let lat = null;
+        let lng = null;
+
+        if (d.name === primaryDest.name && primaryCoords.lat) {
+          lat = primaryCoords.lat;
+          lng = primaryCoords.lng;
+        } else if (d.name.trim()) {
+          const coords = await searchPlace(d.name);
+          if (coords) {
+            lat = coords.lat;
+            lng = coords.lng;
+          }
+        }
+
+        return {
+          trip_id: id,
+          name: d.name,
+          is_primary: d.isPrimary,
+          order_index: index,
+          latitude: lat,
+          longitude: lng
+        };
+      }));
+
+      const { error: insertError } = await supabase
+        .from("trip_destinations")
+        .insert(destinationsPayload);
+
+      if (insertError) throw insertError;
+
       await fetchTrip();
       setIsEditing(false);
 
@@ -221,14 +298,7 @@ export default function TripDetail() {
   };
 
   const cancelEdit = () => {
-    if (trip) {
-      setEditTitle(trip.title);
-      setEditDestination(trip.destination);
-      setEditDescription(trip.description || "");
-      setEditStartDate(parseISO(trip.start_date));
-      setEditEndDate(parseISO(trip.end_date));
-      setEditStatus(trip.status);
-    }
+    fetchTrip();
     setIsEditing(false);
   };
 
@@ -388,9 +458,21 @@ export default function TripDetail() {
                   <h1 className="text-3xl md:text-4xl font-semibold text-white">
                     {trip.title}
                   </h1>
-                  <div className="flex items-center gap-2 text-white/80">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm md:text-base">{trip.destination}</span>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/80 mt-1">
+                    <MapPin className="w-4 h-4 shrink-0" />
+                    {destinations.map((dest, index) => (
+                      <div key={dest.id} className="flex items-center">
+                        <span className={cn(
+                          "text-sm md:text-base",
+                          dest.isPrimary && "font-bold text-white underline decoration-primary/50 underline-offset-4"
+                        )}>
+                          {dest.name}
+                        </span>
+                        {index < destinations.length - 1 && (
+                          <ChevronRight className="w-3.5 h-3.5 mx-1 opacity-50" />
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -429,17 +511,11 @@ export default function TripDetail() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="destination">Destinazione</Label>
-                          <div className="relative">
-                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              id="destination"
-                              value={editDestination}
-                              onChange={(e) => setEditDestination(e.target.value)}
-                              placeholder="Dove vuoi andare?"
-                              className="pl-10"
-                            />
-                          </div>
+                          <DestinationSelector 
+                            destinations={editDestinations} 
+                            onChange={setEditDestinations}
+                            disabled={saving}
+                          />
                         </div>
 
                         <div className="space-y-2">
