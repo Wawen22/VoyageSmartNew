@@ -16,6 +16,7 @@ import Itinerary from "./pages/Itinerary";
 import Checklist from "./pages/Checklist";
 import TripIdeas from "./pages/TripIdeas";
 import Profile from "./pages/Profile";
+import PublicProfile from "./pages/PublicProfile";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/trips/new" element={<CreateTrip />} />
             <Route path="/trips/:id" element={<TripDetail />} />
             <Route path="/share/:token" element={<PublicTripView />} />
+            <Route path="/u/:username" element={<PublicProfile />} />
             <Route path="/expenses" element={<Expenses />} />
             <Route path="/accommodations" element={<Accommodations />} />
             <Route path="/transports" element={<Transports />} />

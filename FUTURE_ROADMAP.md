@@ -19,25 +19,17 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
     *   Visualizzazione a griglia responsive.
     *   Ideale per brainstorming e raccolta spunti prima della definizione dell'itinerario.
 
-### 3. Chat di Gruppo Real-time 💬
+### 3. Profilo Pubblico & Gamification (Passaporto Digitale) 🌍 (✅ Completato)
+*   **Stato:** Implementato.
+*   **Dettagli:**
+    *   URL pubblico: `voyagesmart.app/u/:username`.
+    *   Mappa interattiva dei paesi visitati (rimossa dalla vista pubblica per pulizia, presente in quella privata).
+    *   Sistema di Badge dinamici basati su statistiche reali (anche di viaggi privati).
+    *   Statistiche globali (Viaggi totali, Paesi unici).
+    *   Layout "Social" con Avatar, Bio e Link.
+
+### 4. Chat di Gruppo Real-time 💬
 Centralizzare la comunicazione per eliminare la necessità di gruppi WhatsApp/Telegram separati e dispersivi.
-*   **Funzionalità:**
-    *   Tab "Chat" dedicata per ogni viaggio.
-    *   Supporto messaggi di testo, emoji e reazioni.
-    *   **Sondaggi Rapidi:** Feature integrata nella chat per decisioni veloci (es. "Dove ceniamo stasera? [Opzione A] [Opzione B]").
-    *   Notifiche push per nuovi messaggi.
-*   **Perché:** Tiene tutta l'organizzazione (e le discussioni correlate) in un unico contesto.
-
-### 3. Profilo Pubblico (Social Sharing) 🔗
-Espandere il lato social permettendo agli utenti di mostrare il proprio "Passaporto Digitale" al mondo.
-*   **Funzionalità:**
-    *   Generazione URL univoco (es. `voyagesmart.app/u/mario_rossi`).
-    *   Pagina profilo "Read-Only" accessibile pubblicamente.
-    *   Visualizzazione statistiche (Paesi, KM), Badge sbloccati e lista viaggi impostati come "Pubblici".
-    *   Opzione privacy granulare (Profilo Privato / Solo Amici / Pubblico).
-*   **Perché:** Gamification virale e condivisione delle proprie esperienze.
-
-### 4. AI Planner & Generazione Itinerari ✨
 Sfruttare l'Intelligenza Artificiale per rimuovere lo stress della pianificazione iniziale.
 *   **Funzionalità:**
     *   Wizard iniziale: "Dove vuoi andare? Quanti giorni? Che tipo di viaggio (Relax, Avventura, Cultura)?"

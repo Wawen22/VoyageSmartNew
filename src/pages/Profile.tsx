@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Link as LinkIcon, Calendar, Edit2, Loader2, User as UserIcon, Globe, LayoutGrid, Map as MapIcon, Trophy } from "lucide-react";
+import { MapPin, Link as LinkIcon, Calendar, Edit2, Loader2, User as UserIcon, Globe, LayoutGrid, Map as MapIcon, Trophy, AlertTriangle, ExternalLink } from "lucide-react";
 import { EditProfileDialog, ProfileData } from "@/components/profile/EditProfileDialog";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -90,12 +90,6 @@ export default function Profile() {
       return trip;
     }));
 
-    // Only update state if we actually enriched something to avoid unnecessary re-renders
-    // But since we are mapping all trips, we get a full list back.
-    // A simple JSON stringify comparison or checking if any changed could work, 
-    // but simply setting it is fine as it will settle.
-    // However, to avoid infinite loops if enrichment fails, we might want to be careful.
-    // For now, let's just set it.
     setTrips(enrichedTrips);
   };
 
@@ -155,16 +149,37 @@ export default function Profile() {
                   <AvatarImage src={profile.avatar_url || ""} objectFit="cover" />
                   <AvatarFallback className="text-2xl">{profile.full_name?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
                 </Avatar>
-                <Button onClick={() => setIsEditOpen(true)} variant="outline" size="sm" className="gap-2">
-                  <Edit2 className="w-4 h-4" />
-                  Modifica Profilo
-                </Button>
+                
+                <div className="flex gap-2">
+                  {profile.username && (
+                    <Button variant="secondary" size="sm" asChild className="gap-2 hidden sm:flex">
+                      <Link to={`/u/${profile.username}`} target="_blank">
+                        <Globe className="w-4 h-4" />
+                        Profilo Pubblico
+                      </Link>
+                    </Button>
+                  )}
+                  <Button onClick={() => setIsEditOpen(true)} variant="outline" size="sm" className="gap-2">
+                    <Edit2 className="w-4 h-4" />
+                    Modifica
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <h1 className="text-2xl font-bold">{profile.full_name || "Utente VoyageSmart"}</h1>
-                  <p className="text-muted-foreground">@{profile.username || user?.email?.split('@')[0]}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h1 className="text-2xl font-bold">{profile.full_name || "Utente VoyageSmart"}</h1>
+                    {profile.username && (
+                      <span className="text-muted-foreground bg-muted px-2 py-0.5 rounded-full text-xs">@{profile.username}</span>
+                    )}
+                  </div>
+                  {!profile.username && (
+                    <p className="text-amber-600 text-sm mt-1 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" />
+                      Nessun username impostato
+                    </p>
+                  )}
                 </div>
 
                 {profile.bio && (
@@ -196,6 +211,23 @@ export default function Profile() {
               </div>
             </div>
           </Card>
+
+          {!profile.username && (
+            <div className="bg-amber-500/10 border border-amber-200 text-amber-800 p-4 rounded-xl mb-8 flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-fade-in">
+              <div className="bg-amber-100 p-2 rounded-full">
+                <Globe className="w-6 h-6 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-bold text-amber-900">Sblocca il tuo Profilo Pubblico</h4>
+                <p className="text-sm text-amber-800/80 mt-1">
+                  Imposta uno username univoco per condividere i tuoi viaggi e mostrare il tuo passaporto digitale al mondo.
+                </p>
+              </div>
+              <Button size="sm" className="bg-amber-600 hover:bg-amber-700 text-white border-0 shrink-0" onClick={() => setIsEditOpen(true)}>
+                Imposta Username
+              </Button>
+            </div>
+          )}
 
           <Tabs defaultValue="passport" className="w-full">
             <TabsList className="grid w-full grid-cols-3 lg:w-[500px]">
