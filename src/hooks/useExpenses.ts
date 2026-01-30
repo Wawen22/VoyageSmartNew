@@ -11,6 +11,9 @@ export interface Expense {
   description: string;
   amount: number;
   currency: string;
+  original_amount: number;
+  original_currency: string;
+  exchange_rate: number;
   category: ExpenseCategory;
   paid_by: string;
   created_by: string;
@@ -48,7 +51,9 @@ interface CreateExpenseData {
   trip_id: string;
   description: string;
   amount: number;
-  currency?: string;
+  original_amount: number;
+  original_currency: string;
+  exchange_rate: number;
   category: ExpenseCategory;
   paid_by: string;
   expense_date?: string;
@@ -190,7 +195,10 @@ export function useExpenses(tripId?: string) {
           trip_id: data.trip_id,
           description: data.description,
           amount: data.amount,
-          currency: data.currency || "EUR",
+          currency: "EUR", // Always store normalized amount in EUR (or base currency)
+          original_amount: data.original_amount,
+          original_currency: data.original_currency,
+          exchange_rate: data.exchange_rate,
           category: data.category,
           paid_by: data.paid_by,
           created_by: user.id,

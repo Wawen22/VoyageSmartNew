@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,9 +17,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { X } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { DocumentUpload } from "@/components/documents/DocumentUpload";
 import type { ExpenseCategory } from "@/hooks/useExpenses";
+import { CURRENCIES, getExchangeRate } from "@/lib/currency";
 
 interface TripMember {
   user_id: string;
@@ -39,6 +40,9 @@ interface AddExpenseDialogProps {
     trip_id: string;
     description: string;
     amount: number;
+    original_amount: number;
+    original_currency: string;
+    exchange_rate: number;
     category: ExpenseCategory;
     paid_by: string;
     expense_date: string;
@@ -65,13 +69,47 @@ export function AddExpenseDialog({
   onSubmit
 }: AddExpenseDialogProps) {
   const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
+  const [originalAmount, setOriginalAmount] = useState("");
+  const [currency, setCurrency] = useState("EUR");
+  const [exchangeRate, setExchangeRate] = useState<number>(1);
+  const [convertedAmount, setConvertedAmount] = useState<number>(0);
+  const [isLoadingRate, setIsLoadingRate] = useState(false);
+  
   const [category, setCategory] = useState<ExpenseCategory>("food");
   const [paidBy, setPaidBy] = useState(currentUserId);
   const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
   const [splitWith, setSplitWith] = useState<string[]>(members.map(m => m.user_id));
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Fetch exchange rate when currency or date changes
+  useEffect(() => {
+    const fetchRate = async () => {
+      if (currency === 'EUR') {
+        setExchangeRate(1);
+        return;
+      }
+      
+      setIsLoadingRate(true);
+      const rate = await getExchangeRate(currency, 'EUR', expenseDate);
+      if (rate) {
+        setExchangeRate(rate);
+      }
+      setIsLoadingRate(false);
+    };
+    
+    fetchRate();
+  }, [currency, expenseDate]);
+
+  // Recalculate converted amount
+  useEffect(() => {
+    const raw = parseFloat(originalAmount);
+    if (!isNaN(raw)) {
+      setConvertedAmount(raw * exchangeRate);
+    } else {
+      setConvertedAmount(0);
+    }
+  }, [originalAmount, exchangeRate]);
 
   const handleSplitToggle = (userId: string) => {
     setSplitWith(prev => 
@@ -83,13 +121,16 @@ export function AddExpenseDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description.trim() || !amount || splitWith.length === 0) return;
+    if (!description.trim() || !originalAmount || splitWith.length === 0) return;
 
     setSubmitting(true);
     const success = await onSubmit({
       trip_id: tripId,
       description: description.trim(),
-      amount: parseFloat(amount),
+      amount: convertedAmount, // Base currency
+      original_amount: parseFloat(originalAmount),
+      original_currency: currency,
+      exchange_rate: exchangeRate,
       category,
       paid_by: paidBy,
       expense_date: expenseDate,
@@ -99,7 +140,8 @@ export function AddExpenseDialog({
 
     if (success) {
       setDescription("");
-      setAmount("");
+      setOriginalAmount("");
+      setCurrency("EUR");
       setCategory("food");
       setPaidBy(currentUserId);
       setExpenseDate(new Date().toISOString().split('T')[0]);
@@ -111,12 +153,12 @@ export function AddExpenseDialog({
   };
 
   const splitAmount = splitWith.length > 0 
-    ? (parseFloat(amount) || 0) / splitWith.length 
+    ? convertedAmount / splitWith.length 
     : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card">
+      <DialogContent className="sm:max-w-md bg-card overflow-y-auto max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Aggiungi Spesa</DialogTitle>
         </DialogHeader>
@@ -135,29 +177,61 @@ export function AddExpenseDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Importo (€)</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-              />
+              <Label htmlFor="amount">Importo</Label>
+              <div className="flex gap-2">
+                 <Input
+                  id="amount"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="0.00"
+                  value={originalAmount}
+                  onChange={(e) => setOriginalAmount(e.target.value)}
+                  required
+                  className="flex-1"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Data</Label>
-              <Input
-                id="date"
-                type="date"
-                value={expenseDate}
-                onChange={(e) => setExpenseDate(e.target.value)}
-                required
-              />
+              <Label htmlFor="currency">Valuta</Label>
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((curr) => (
+                    <SelectItem key={curr.code} value={curr.code}>
+                      {curr.code} ({curr.symbol})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
+
+          {/* Exchange Rate Info */}
+          {currency !== 'EUR' && (
+            <div className="bg-muted/40 p-3 rounded-lg text-sm flex items-center justify-between">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <RefreshCw className={`w-3 h-3 ${isLoadingRate ? 'animate-spin' : ''}`} />
+                <span>Tasso: {exchangeRate.toFixed(4)}</span>
+              </div>
+              <div className="font-medium">
+                ≈ €{convertedAmount.toFixed(2)}
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="date">Data</Label>
+            <Input
+              id="date"
+              type="date"
+              value={expenseDate}
+              onChange={(e) => setExpenseDate(e.target.value)}
+              required
+            />
           </div>
 
           <div className="space-y-2">
@@ -214,7 +288,7 @@ export function AddExpenseDialog({
                     {member.user_id === currentUserId && " (tu)"}
                   </label>
                   <AnimatePresence>
-                    {splitWith.includes(member.user_id) && amount && (
+                    {splitWith.includes(member.user_id) && convertedAmount > 0 && (
                       <motion.span
                         initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -255,9 +329,9 @@ export function AddExpenseDialog({
               type="submit"
               variant="sunset"
               className="flex-1"
-              disabled={submitting || !description.trim() || !amount || splitWith.length === 0}
+              disabled={submitting || !description.trim() || !originalAmount || splitWith.length === 0}
             >
-              {submitting ? "Salvataggio..." : "Aggiungi"}
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Aggiungi"}
             </Button>
           </div>
         </form>

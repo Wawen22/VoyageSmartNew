@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Trash2, Paperclip, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ExpenseWithSplits } from "@/hooks/useExpenses";
+import { formatCurrency } from "@/lib/currency";
 
 const categoryIcons: Record<string, string> = {
   food: "🍽️",
@@ -20,6 +21,8 @@ interface ExpenseCardProps {
 }
 
 export function ExpenseCard({ expense, canDelete, onDelete, index }: ExpenseCardProps) {
+  const isForeignCurrency = expense.original_currency && expense.original_currency !== 'EUR';
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -61,9 +64,14 @@ export function ExpenseCard({ expense, canDelete, onDelete, index }: ExpenseCard
         {/* Amount & Date */}
         <div className="text-right flex-shrink-0">
           <p className="font-semibold text-foreground">
-            €{expense.amount.toFixed(2)}
+            {formatCurrency(expense.amount, 'EUR')}
           </p>
-          <p className="text-xs text-muted-foreground">
+          {isForeignCurrency && (
+             <p className="text-xs text-muted-foreground/80">
+               ({formatCurrency(expense.original_amount, expense.original_currency)})
+             </p>
+          )}
+          <p className="text-xs text-muted-foreground mt-0.5">
             {new Date(expense.expense_date).toLocaleDateString("it-IT", {
               month: "short",
               day: "numeric",

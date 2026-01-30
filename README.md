@@ -1,140 +1,100 @@
-# VoyageSmart 🌍✈️
+# VoyageSmart - Il Compagno di Viaggio Definitivo 🌍✈️
 
-VoyageSmart is your ultimate travel companion, designed to simplify group trip planning, expense tracking, and itinerary management. Built with modern web technologies, it offers a seamless experience for organizing every aspect of your journey.
+**VoyageSmart** è l'applicazione web moderna e all-in-one pensata per pianificare, gestire e condividere i tuoi viaggi con facilità e stile. Dimentica fogli di calcolo sparsi, note disordinate e chat di gruppo caotiche: VoyageSmart centralizza tutto in un'unica piattaforma intuitiva e collaborativa.
 
-![Project Status](https://img.shields.io/badge/status-active-success.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![VoyageSmart Hero](./src/assets/hero-travel.jpg)
 
-## 🚀 Key Features
+## 🚀 Funzionalità Principali
 
-### 📅 Smart Itinerary Planning
-- **Drag-and-Drop Timeline:** Easily organize your activities day by day.
-- **Detailed Activities:** Add locations, notes, and times for every event.
-- **Visual Overview:** View your trip on a clear, interactive timeline.
+### 🗺️ Pianificazione & Itinerario
+*   **Gestione Viaggi:** Crea viaggi, imposta date, destinazioni e carica immagini di copertina personalizzate.
+*   **Itinerario Intelligente:** Organizza le tue giornate con un'interfaccia drag-and-drop. Aggiungi attività, pause e note.
+*   **Mappe Interattive:** Visualizza il tuo percorso su mappe dinamiche (basate su Mapbox) con tutti i tuoi stop.
 
-### 💰 Expense Tracking & Splitting
-- **Group Finance:** Track shared expenses and know exactly who owes whom.
-- **Splitwise-Style Settlement:** Smart algorithms to calculate the most efficient way to settle debts.
-- **Visual Budgeting:** Charts and graphs to analyze spending categories.
+### 💰 Finanze & Budget (Smart Finance)
+*   **Tracciamento Spese:** Registra ogni spesa, categorizzala e assegnala a chi l'ha pagata.
+*   **Gestione Debiti (Settle Up):** Calcolo automatico di "chi deve a chi" per semplificare i rimborsi a fine viaggio.
+*   **Budgeting:** Imposta un budget totale e monitora l'andamento delle spese in tempo reale con grafici chiari.
 
-### 🏨 Logistics Management
-- **Accommodations:** Keep track of check-in/out times, addresses, and booking details.
-- **Transports:** Manage flights, trains, and transfers with departure/arrival tracking.
+### 🤝 Collaborazione & Social
+*   **Viaggi di Gruppo:** Invita amici e compagni di viaggio tramite email.
+*   **Collaborazione Real-time:** Le modifiche sono sincronizzate istantaneamente per tutti i partecipanti.
+*   **Condivisione Pubblica:** Condividi il link del tuo viaggio con chi è rimasto a casa tramite una vista "solo lettura".
 
-### 🤝 Collaboration & Sharing
-- **Real-time Collaboration:** Invite friends to plan the trip together.
-- **Public View:** Share a read-only view of your itinerary with family and friends via a public link.
-- **PDF Export:** Download your complete itinerary and booking details for offline access.
+### 🎒 Organizzazione
+*   **Alloggi & Trasporti:** Tieni traccia di hotel, voli, treni e noleggi in sezioni dedicate.
+*   **Documenti:** Carica e archivia biglietti, prenotazioni e documenti importanti in cloud.
+*   **Checklist:** Liste condivise per non dimenticare nulla a casa.
 
-### 📝 Utilities
-- **Smart Checklists:** Pre-trip packing lists and to-do items.
-- **Document Storage:** Securely upload and access travel documents (passports, tickets).
-- **Notifications:** Stay updated on trip changes.
+### 🏆 Gamification & Profilo (Novità!)
+*   **Passaporto Digitale:** Un profilo utente arricchito che mostra statistiche di viaggio (km percorsi, paesi visitati).
+*   **Collezione Badge:** Sblocca obiettivi come "Globetrotter" o "Weekend Warrior" viaggiando di più.
+*   **Mappa dei Timbri:** Visualizza le bandiere di tutti i paesi che hai visitato.
 
-## 🛠️ Tech Stack
+## 🛠️ Tecnologie Utilizzate
 
-**Frontend:**
-- [React](https://react.dev/) - UI Library
-- [TypeScript](https://www.typescriptlang.org/) - Static Typing
-- [Vite](https://vitejs.dev/) - Build Tool
-- [Tailwind CSS](https://tailwindcss.com/) - Styling Framework
-- [Shadcn UI](https://ui.shadcn.com/) - Component Library (Radix UI)
-- [TanStack Query](https://tanstack.com/query/latest) - Server State Management
-- [React Router](https://reactrouter.com/) - Routing
-- [Framer Motion](https://www.framer.com/motion/) - Animations
+Il progetto è costruito con uno stack moderno per garantire performance, scalabilità e un'ottima esperienza sviluppatore.
 
-**Backend & Services:**
-- [Supabase](https://supabase.com/) - Database (PostgreSQL), Authentication, and Realtime
-- [Lovable](https://lovable.dev/) - Rapid Prototyping (Initial generation)
+*   **Frontend:** [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) + [Vite](https://vitejs.dev/)
+*   **UI/UX:** [Tailwind CSS](https://tailwindcss.com/) + [Shadcn/ui](https://ui.shadcn.com/) + [Framer Motion](https://www.framer.com/motion/)
+*   **Backend & Database:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Storage, Realtime)
+*   **Mappe:** [Mapbox GL JS](https://www.mapbox.com/)
+*   **Grafici:** [Recharts](https://recharts.org/)
+*   **Gestione Date:** [date-fns](https://date-fns.org/)
+*   **Export:** Generazione PDF integrata per itinerari e spese.
 
-**Utilities:**
-- `recharts` - Data Visualization
-- `jspdf` - PDF Generation
-- `zod` & `react-hook-form` - Form Validation
-- `date-fns` - Date Management
-- `lucide-react` - Icons
+## 📦 Installazione e Setup
 
-**Testing:**
-- [Vitest](https://vitest.dev/) - Unit & Integration Testing
+### Prerequisiti
+*   Node.js (v18+)
+*   Account Supabase
+*   Account Mapbox
 
-## ⚡ Getting Started
-
-### Prerequisites
-- Node.js (v18+ recommended)
-- npm or bun
-- A Supabase project
-
-### Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/yourusername/voyagesmart.git
-    cd voyagesmart
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or
-    bun install
-    ```
-
-3.  **Environment Setup:**
-    Create a `.env` file in the root directory (or `.env.local`) and add your Supabase credentials:
-    ```env
-    VITE_SUPABASE_URL=your_supabase_project_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-    ```
-
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-
-## 🗄️ Database Setup
-
-This project uses Supabase. You can find the SQL migrations in the `supabase/migrations` folder. To set up your local or remote database:
-
-1.  Ensure you have the Supabase CLI installed.
-2.  Link your project:
-    ```bash
-    supabase link --project-ref your-project-id
-    ```
-3.  Apply migrations:
-    ```bash
-    supabase db push
-    ```
-
-## 🧪 Testing
-
-We use Vitest for testing. To run the test suite:
-
+### 1. Clona la repository
 ```bash
-npm test
-# or
-npm run test:watch
+git clone https://github.com/tuo-username/VoyageSmart.git
+cd VoyageSmart
 ```
 
-## 📂 Project Structure
+### 2. Installa le dipendenze
+```bash
+npm install
+# oppure
+bun install
+```
+
+### 3. Configura le variabili d'ambiente
+Crea un file `.env` nella root del progetto e aggiungi le tue chiavi:
+
+```env
+VITE_SUPABASE_URL=la-tua-url-supabase
+VITE_SUPABASE_ANON_KEY=la-tua-chiave-anon-supabase
+VITE_MAPBOX_TOKEN=il-tuo-token-mapbox
+```
+
+### 4. Avvia il server di sviluppo
+```bash
+npm run dev
+```
+
+L'applicazione sarà disponibile su `http://localhost:8080`.
+
+## 🗂️ Struttura del Progetto
 
 ```
 src/
-├── assets/          # Static assets
-├── components/      # Reusable UI components
-│   ├── accommodations/
-│   ├── checklist/
-│   ├── dashboard/
-│   ├── expenses/    # Expense tracking logic
-│   ├── itinerary/   # Timeline and activity components
-│   ├── ui/          # Shadcn UI primitives
-│   └── ...
-├── hooks/           # Custom React hooks (useAuth, useExpenses, etc.)
-├── integrations/    # External service configurations (Supabase)
-├── pages/           # Application routes/screens
-├── lib/             # Utility functions
-└── utils/           # Helper scripts (PDF export, etc.)
+├── assets/         # Immagini e risorse statiche
+├── components/     # Componenti React riutilizzabili (UI, Dashboard, Maps...)
+├── hooks/          # Custom Hooks (useAuth, useItinerary, etc.)
+├── integrations/   # Configurazione client Supabase
+├── lib/            # Utility functions (mapbox, weather, utils)
+├── pages/          # Pagine principali dell'applicazione (Router)
+├── utils/          # Logica di business (gamification, pdfExport)
+└── App.tsx         # Root component e configurazione Routing
 ```
 
-## 📄 License
+## 🤝 Contribuire
+Siamo aperti a contributi! Se hai idee per nuove funzionalità o hai trovato un bug, apri una issue o invia una pull request. Vedi `FUTURE_ROADMAP.md` per le funzionalità pianificate.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📄 Licenza
+Questo progetto è distribuito sotto licenza MIT.

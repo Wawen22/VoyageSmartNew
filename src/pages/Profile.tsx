@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,12 +6,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Link as LinkIcon, Calendar, Edit2, Loader2, User as UserIcon, Globe, LayoutGrid, Map as MapIcon } from "lucide-react";
+import { MapPin, Link as LinkIcon, Calendar, Edit2, Loader2, User as UserIcon, Globe, LayoutGrid, Map as MapIcon, Trophy } from "lucide-react";
 import { EditProfileDialog, ProfileData } from "@/components/profile/EditProfileDialog";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ProfileMap } from "@/components/maps/ProfileMap";
 import { searchPlace } from "@/lib/mapbox";
+import { DigitalPassport } from "@/components/profile/DigitalPassport";
+import { calculateUserStats, getBadges, UserStats, Badge } from "@/utils/gamification";
 
 export default function Profile() {
   const { user } = useAuth();
@@ -21,6 +23,7 @@ export default function Profile() {
   const [trips, setTrips] = useState<any[]>([]);
   const [tripsLoading, setTripsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [userLocationCoords, setUserLocationCoords] = useState<{ lat: number; lng: number } | undefined>(undefined);
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -33,6 +36,14 @@ export default function Profile() {
 
       if (error) throw error;
       setProfile(data as ProfileData);
+      
+      // Attempt to geocode user location for stats
+      if (data.location) {
+        const coords = await searchPlace(data.location);
+        if (coords) {
+          setUserLocationCoords({ lat: coords.lat, lng: coords.lng });
+        }
+      }
     } catch (error) {
       console.error("Error fetching profile:", error);
     } finally {
@@ -41,29 +52,50 @@ export default function Profile() {
   };
 
   const enrichTripsWithCoordinates = async (rawTrips: any[]) => {
-    const tripsToProcess = rawTrips.filter(t => !t.latitude || !t.longitude);
+    const tripsToProcess = rawTrips.filter(t => !t.latitude || !t.longitude || !t.country_code);
     
     if (tripsToProcess.length === 0) return;
 
     const enrichedTrips = await Promise.all(rawTrips.map(async (trip) => {
-      if (trip.latitude && trip.longitude) return trip;
+      // If we have coords and country code, we are good
+      if (trip.latitude && trip.longitude && trip.country_code) return trip;
       
+      // If we have destination, try to fetch missing info
       if (trip.destination) {
-        const coords = await searchPlace(trip.destination);
-        if (coords) {
-          supabase.from('trips').update({ 
-            latitude: coords.lat, 
-            longitude: coords.lng 
-          }).eq('id', trip.id).then(({ error }) => {
-             if (error) console.error("Error updating coords for trip", trip.id, error);
-          });
-          
-          return { ...trip, latitude: coords.lat, longitude: coords.lng };
+        // Only fetch if we are missing something
+        if (!trip.latitude || !trip.longitude || !trip.country_code) {
+           const result = await searchPlace(trip.destination);
+           
+           if (result) {
+             const updates: any = {};
+             if (!trip.latitude || !trip.longitude) {
+               updates.latitude = result.lat;
+               updates.longitude = result.lng;
+             }
+             if (!trip.country_code && result.countryCode) {
+               updates.country_code = result.countryCode;
+             }
+
+             if (Object.keys(updates).length > 0) {
+               // Update in background
+               supabase.from('trips').update(updates).eq('id', trip.id).then(({ error }) => {
+                  if (error) console.error("Error updating trip details", trip.id, error);
+               });
+               
+               return { ...trip, ...updates };
+             }
+           }
         }
       }
       return trip;
     }));
 
+    // Only update state if we actually enriched something to avoid unnecessary re-renders
+    // But since we are mapping all trips, we get a full list back.
+    // A simple JSON stringify comparison or checking if any changed could work, 
+    // but simply setting it is fine as it will settle.
+    // However, to avoid infinite loops if enrichment fails, we might want to be careful.
+    // For now, let's just set it.
     setTrips(enrichedTrips);
   };
 
@@ -94,6 +126,9 @@ export default function Profile() {
     fetchProfile();
     fetchUserTrips();
   }, [user]);
+
+  const stats = useMemo(() => calculateUserStats(trips, userLocationCoords), [trips, userLocationCoords]);
+  const badges = useMemo(() => getBadges(stats, trips), [stats, trips]);
 
   if (loading) {
     return (
@@ -162,12 +197,17 @@ export default function Profile() {
             </div>
           </Card>
 
-          <Tabs defaultValue="trips" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+          <Tabs defaultValue="passport" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 lg:w-[500px]">
+              <TabsTrigger value="passport">Passaporto</TabsTrigger>
               <TabsTrigger value="trips">I miei Viaggi</TabsTrigger>
               <TabsTrigger value="about">Info</TabsTrigger>
             </TabsList>
             
+            <TabsContent value="passport" className="mt-6">
+              <DigitalPassport stats={stats} badges={badges} loading={tripsLoading && !stats.totalTrips} />
+            </TabsContent>
+
             <TabsContent value="trips" className="mt-6 space-y-6">
               <div className="flex items-center justify-between">
                  <h3 className="text-lg font-semibold flex items-center gap-2">
