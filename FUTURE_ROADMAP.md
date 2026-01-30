@@ -11,7 +11,15 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
     *   Conversione automatica in EUR (valuta base) utilizzando i tassi di cambio storici (Frankfurter API).
     *   Visualizzazione duale nelle card delle spese (es. €10.00 (≈ $11.00)).
 
-### 2. Chat di Gruppo Real-time 💬
+### 2. Idea Board & Scrapbook Collaborativo 💡 (✅ Completato)
+*   **Stato:** Implementato.
+*   **Dettagli:**
+    *   Bacheca condivisa per ogni viaggio.
+    *   Supporto per Note testuali, Link (con anteprima URL) e Foto.
+    *   Visualizzazione a griglia responsive.
+    *   Ideale per brainstorming e raccolta spunti prima della definizione dell'itinerario.
+
+### 3. Chat di Gruppo Real-time 💬
 Centralizzare la comunicazione per eliminare la necessità di gruppi WhatsApp/Telegram separati e dispersivi.
 *   **Funzionalità:**
     *   Tab "Chat" dedicata per ogni viaggio.

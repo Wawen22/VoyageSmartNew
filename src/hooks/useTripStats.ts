@@ -23,6 +23,7 @@ export interface TripStats {
   accommodationsCount: number;
   transportsCount: number;
   membersCount: number;
+  ideasCount: number;
 
   // Checklist
   checklistTotal: number;
@@ -50,6 +51,7 @@ export function useTripStats(tripId: string | undefined) {
     accommodationsCount: 0,
     transportsCount: 0,
     membersCount: 0,
+    ideasCount: 0,
     checklistTotal: 0,
     checklistCompleted: 0,
     checklistProgress: 0,
@@ -70,6 +72,7 @@ export function useTripStats(tripId: string | undefined) {
           activitiesResult,
           membersResult,
           checklistResult,
+          ideasResult,
         ] = await Promise.all([
           supabase.from("trips").select("*").eq("id", tripId).maybeSingle(),
           supabase.from("expenses").select("amount, currency, category").eq("trip_id", tripId),
@@ -78,6 +81,7 @@ export function useTripStats(tripId: string | undefined) {
           supabase.from("itinerary_activities").select("id").eq("trip_id", tripId),
           supabase.from("trip_members").select("id").eq("trip_id", tripId),
           supabase.from("checklist_items").select("id, is_completed").eq("trip_id", tripId),
+          supabase.from("trip_ideas").select("id").eq("trip_id", tripId),
         ]);
 
         const trip = tripResult.data;
@@ -87,6 +91,7 @@ export function useTripStats(tripId: string | undefined) {
         const activities = activitiesResult.data || [];
         const members = membersResult.data || [];
         const checklistItems = checklistResult.data || [];
+        const ideas = ideasResult.data || [];
 
         // Calculate expenses by category
         const expensesByCategory: Record<string, number> = {};
@@ -147,6 +152,7 @@ export function useTripStats(tripId: string | undefined) {
           accommodationsCount: accommodations.length,
           transportsCount: transports.length,
           membersCount: members.length,
+          ideasCount: ideas.length,
           checklistTotal,
           checklistCompleted,
           checklistProgress,

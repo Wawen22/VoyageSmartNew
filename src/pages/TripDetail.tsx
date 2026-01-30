@@ -374,6 +374,14 @@ export default function TripDetail() {
       count: stats.checklistTotal,
       glow: "bg-indigo-500/30",
     },
+    {
+      to: `/ideas?trip=${trip.id}`,
+      title: "Bacheca Idee",
+      description: "Note, link e ispirazioni",
+      icon: "💡",
+      count: stats.ideasCount,
+      glow: "bg-purple-500/30",
+    },
   ];
 
   return (
