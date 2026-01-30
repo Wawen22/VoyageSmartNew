@@ -28,10 +28,12 @@ export function usePendingInvitations() {
         return;
       }
 
+      const normalizedEmail = user.email.trim().toLowerCase();
+
       const { data, error } = await supabase
         .from("trip_invitations")
         .select("*, trips:trip_id(title, destination)")
-        .eq("invited_email", user.email)
+        .eq("invited_email", normalizedEmail)
         .eq("status", "pending");
 
       if (error) throw error;

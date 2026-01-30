@@ -130,8 +130,12 @@ export function useTripMembers(tripId: string | undefined) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non autenticato");
 
+      const normalizedEmail = email.trim().toLowerCase();
+
       // Check if already invited
-      const existing = invitations.find(i => i.invited_email === email);
+      const existing = invitations.find(
+        (i) => i.invited_email.toLowerCase() === normalizedEmail
+      );
       if (existing) {
         toast({
           title: "Già invitato",
@@ -145,7 +149,7 @@ export function useTripMembers(tripId: string | undefined) {
         .from("trip_invitations")
         .insert({
           trip_id: tripId,
-          invited_email: email,
+          invited_email: normalizedEmail,
           invited_by: user.id,
         });
 

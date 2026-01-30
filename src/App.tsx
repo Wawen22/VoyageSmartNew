@@ -15,6 +15,7 @@ import Transports from "./pages/Transports";
 import Itinerary from "./pages/Itinerary";
 import Checklist from "./pages/Checklist";
 import TripIdeas from "./pages/TripIdeas";
+import TripChat from "./pages/TripChat";
 import Profile from "./pages/Profile";
 import PublicProfile from "./pages/PublicProfile";
 import Auth from "./pages/Auth";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/itinerary" element={<Itinerary />} />
             <Route path="/checklist" element={<Checklist />} />
             <Route path="/ideas" element={<TripIdeas />} />
+            <Route path="/chat" element={<TripChat />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/auth" element={<Auth />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
