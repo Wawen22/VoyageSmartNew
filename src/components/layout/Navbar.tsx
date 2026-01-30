@@ -14,7 +14,8 @@ import {
   ClipboardList,
   LogOut,
   User,
-  Lightbulb
+  Lightbulb,
+  MessageCircle
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -125,6 +126,16 @@ export function Navbar() {
               <>
                 <ChecklistButton isLanding={isLanding} />
                 <NotificationBell isLanding={isLanding} />
+                {activeTripId && (
+                  <Link to={`/chat?trip=${activeTripId}`}>
+                    <div className={`p-2 rounded-full transition-colors relative group ${
+                      isLanding ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
+                    }`}>
+                      <MessageCircle className="w-5 h-5" />
+                      <span className="sr-only">Chat Viaggio</span>
+                    </div>
+                  </Link>
+                )}
                 <Link to="/profile">
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors ${
                     isLanding ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
@@ -162,6 +173,15 @@ export function Navbar() {
 
           {/* Mobile Actions */}
           <div className="flex lg:hidden items-center gap-1">
+            {user && activeTripId && (
+              <Link to={`/chat?trip=${activeTripId}`}>
+                <div className={`p-2 rounded-xl transition-colors ${
+                  isLanding ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
+                }`}>
+                  <MessageCircle className="w-6 h-6" />
+                </div>
+              </Link>
+            )}
             {user && <ChecklistButton isLanding={isLanding} />}
             {user && <NotificationBell isLanding={isLanding} />}
             <button

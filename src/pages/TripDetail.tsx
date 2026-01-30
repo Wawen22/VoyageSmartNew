@@ -334,7 +334,6 @@ export default function TripDetail() {
     { to: `/transports?trip=${trip.id}`, label: "Trasporti", icon: Plane, color: "text-sky-500", count: stats.transportsCount },
     { to: `/checklist?trip=${trip.id}`, label: "Checklist", icon: ClipboardList, color: "text-indigo-500", count: stats.checklistTotal },
     { to: `/ideas?trip=${trip.id}`, label: "Idee", icon: Lightbulb, color: "text-purple-500", count: stats.ideasCount },
-    { to: `/chat?trip=${trip.id}`, label: "Chat", icon: MessageCircle, color: "text-pink-500", count: 0 },
   ];
 
   return (
