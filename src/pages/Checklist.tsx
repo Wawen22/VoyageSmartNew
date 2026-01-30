@@ -1,16 +1,19 @@
-import { useSearchParams, Navigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useSearchParams, Navigate, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ClipboardList, Loader2, ChevronLeft } from "lucide-react";
+import { ClipboardList, Loader2, ArrowLeft } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useChecklist } from "@/hooks/useChecklist";
 import { ChecklistSection } from "@/components/checklist/ChecklistSection";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function Checklist() {
   const [searchParams] = useSearchParams();
   const tripId = searchParams.get("trip");
   const { user, loading: authLoading } = useAuth();
+  const [tripTitle, setTripTitle] = useState("");
 
   const {
     groupItems,
@@ -23,6 +26,19 @@ export default function Checklist() {
     groupStats,
     personalStats,
   } = useChecklist(tripId);
+
+  useEffect(() => {
+    async function fetchTripTitle() {
+      if (!tripId) return;
+      const { data } = await supabase
+        .from("trips")
+        .select("title")
+        .eq("id", tripId)
+        .single();
+      if (data) setTripTitle(data.title);
+    }
+    fetchTripTitle();
+  }, [tripId]);
 
   if (authLoading) {
     return (
@@ -50,67 +66,66 @@ export default function Checklist() {
 
   return (
     <AppLayout>
-      <main className="container mx-auto px-4 pt-24 pb-12 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <Button variant="ghost" size="sm" asChild>
-            <Link to={`/trips/${tripId}`} className="flex items-center gap-2">
-              <ChevronLeft className="w-5 h-5" />
-              Dettagli viaggio
-            </Link>
-          </Button>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 rounded-xl bg-primary/10">
-              <ClipboardList className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl lg:text-3xl font-semibold text-foreground">
+      <main className="pt-24 pb-16 min-h-screen bg-background">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 mb-6">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to={`/trips/${tripId}`} className="flex items-center gap-2">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Torna al viaggio
+              </Link>
+            </Button>
+            <span className="text-muted-foreground">/</span>
+            <span className="font-medium">{tripTitle || "Checklist"}</span>
+          </div>
+
+          <div className="bg-card rounded-xl border shadow-sm p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                <ClipboardList className="h-6 w-6 text-primary" />
                 Checklist Viaggio
-              </h1>
-              <p className="text-muted-foreground text-sm">
+              </h2>
+              <p className="text-muted-foreground">
                 {totalItems > 0
                   ? `${totalCompleted}/${totalItems} elementi completati (${overallProgress}%)`
                   : "Organizza cosa portare e cosa fare"}
               </p>
             </div>
-          </div>
-        </motion.div>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Group Checklist */}
-            <ChecklistSection
-              title="Checklist di Gruppo"
-              isPersonal={false}
-              items={groupItems}
-              stats={groupStats}
-              onAdd={addItem}
-              onToggle={toggleItem}
-              onDelete={deleteItem}
-              isAdding={isAdding}
-            />
+            {isLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Group Checklist */}
+                <ChecklistSection
+                  title="Checklist di Gruppo"
+                  isPersonal={false}
+                  items={groupItems}
+                  stats={groupStats}
+                  onAdd={addItem}
+                  onToggle={toggleItem}
+                  onDelete={deleteItem}
+                  isAdding={isAdding}
+                />
 
-            {/* Personal Checklist */}
-            <ChecklistSection
-              title="La Mia Checklist"
-              isPersonal={true}
-              items={personalItems}
-              stats={personalStats}
-              onAdd={addItem}
-              onToggle={toggleItem}
-              onDelete={deleteItem}
-              isAdding={isAdding}
-            />
+                {/* Personal Checklist */}
+                <ChecklistSection
+                  title="La Mia Checklist"
+                  isPersonal={true}
+                  items={personalItems}
+                  stats={personalStats}
+                  onAdd={addItem}
+                  onToggle={toggleItem}
+                  onDelete={deleteItem}
+                  isAdding={isAdding}
+                />
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </main>
     </AppLayout>
   );

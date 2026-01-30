@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { Building2, Euro, Calendar, Loader2, ChevronLeft } from "lucide-react";
+import { Building2, Euro, Calendar, Loader2, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -46,7 +46,6 @@ export default function Accommodations() {
       setTrips(data || []);
       setTripsLoading(false);
 
-      // Auto-select first trip if none selected
       if (!tripId && data && data.length > 0) {
         setSearchParams({ trip: data[0].id });
       }
@@ -70,111 +69,117 @@ export default function Accommodations() {
 
   return (
     <AppLayout>
-      <main className="container mx-auto px-4 pt-24 pb-8 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
+      <main className="pt-24 pb-16 min-h-screen bg-background">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 mb-6">
             <Button variant="ghost" size="sm" asChild>
               <Link
                 to={tripId ? `/trips/${tripId}` : "/trips"}
                 className="flex items-center gap-2"
               >
-                <ChevronLeft className="w-5 h-5" />
-                Dettagli viaggio
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Torna al viaggio
               </Link>
             </Button>
-            <h1 className="text-3xl font-semibold flex items-center gap-2">
-              <Building2 className="h-8 w-8" />
-              Alloggi
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Gestisci le prenotazioni alloggi del viaggio
-            </p>
+            <span className="text-muted-foreground">/</span>
+            <span className="font-medium">{selectedTrip?.title || "Alloggi"}</span>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <Select
-              value={tripId || ""}
-              onValueChange={(value) => setSearchParams({ trip: value })}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Seleziona viaggio" />
-              </SelectTrigger>
-              <SelectContent>
-                {trips.map((trip) => (
-                  <SelectItem key={trip.id} value={trip.id}>
-                    {trip.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
 
-            {tripId && (
-              <AddAccommodationDialog tripId={tripId} onAdd={createAccommodation} />
+          <div className="bg-card rounded-xl border shadow-sm p-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                  <Building2 className="h-6 w-6 text-primary" />
+                  Alloggi
+                </h2>
+                <p className="text-muted-foreground">
+                  Gestisci le prenotazioni alloggi del viaggio
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <Select
+                  value={tripId || ""}
+                  onValueChange={(value) => setSearchParams({ trip: value })}
+                >
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Seleziona viaggio" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {trips.map((trip) => (
+                      <SelectItem key={trip.id} value={trip.id}>
+                        {trip.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {tripId && (
+                  <AddAccommodationDialog tripId={tripId} onAdd={createAccommodation} />
+                )}
+              </div>
+            </div>
+
+            {!tripId ? (
+              <div className="text-center py-12 border rounded-lg border-dashed bg-muted/10">
+                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
+                <p className="text-muted-foreground">Seleziona un viaggio per vedere gli alloggi</p>
+              </div>
+            ) : (
+              <>
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  <div className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex flex-row items-center justify-between pb-2">
+                      <h3 className="text-sm font-medium">Totale Alloggi</h3>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">{accommodations.length}</div>
+                      <p className="text-xs text-muted-foreground">
+                        {selectedTrip?.destination}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex flex-row items-center justify-between pb-2">
+                      <h3 className="text-sm font-medium">Costo Totale</h3>
+                      <Euro className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold">€{totalCost.toFixed(2)}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Accommodations List */}
+                {loading ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : accommodations.length === 0 ? (
+                  <div className="text-center py-12 border rounded-lg border-dashed bg-muted/10">
+                    <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
+                    <p className="text-muted-foreground mb-4">Nessun alloggio ancora</p>
+                    <AddAccommodationDialog tripId={tripId} onAdd={createAccommodation} />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {accommodations.map((accommodation) => (
+                      <AccommodationCard
+                        key={accommodation.id}
+                        accommodation={accommodation}
+                        onDelete={deleteAccommodation}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
-
-        {!tripId ? (
-          <Card className="app-surface">
-            <CardContent className="py-12 text-center">
-              <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Seleziona un viaggio per vedere gli alloggi</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <Card className="app-surface">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Totale Alloggi</CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{accommodations.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedTrip?.destination}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="app-surface">
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-sm font-medium">Costo Totale</CardTitle>
-                  <Euro className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">€{totalCost.toFixed(2)}</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Accommodations List */}
-            {loading ? (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : accommodations.length === 0 ? (
-              <Card className="app-surface">
-                <CardContent className="py-12 text-center">
-                  <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground mb-4">Nessun alloggio ancora</p>
-                  <AddAccommodationDialog tripId={tripId} onAdd={createAccommodation} />
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {accommodations.map((accommodation) => (
-                  <AccommodationCard
-                    key={accommodation.id}
-                    accommodation={accommodation}
-                    onDelete={deleteAccommodation}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        )}
       </main>
     </AppLayout>
   );

@@ -19,7 +19,7 @@ import {
   Filter,
   Search,
   Loader2,
-  ChevronLeft,
+  ArrowLeft,
   Wallet
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -86,7 +86,6 @@ export default function Expenses() {
       if (!user) return;
 
       try {
-        // Get trips where user is a member
         const { data: memberTrips } = await supabase
           .from("trip_members")
           .select("trip_id")
@@ -103,7 +102,6 @@ export default function Expenses() {
 
           setTrips(tripsData || []);
 
-          // Set initial trip from URL or first trip
           const urlTripId = searchParams.get("trip");
           if (urlTripId && tripsData?.some(t => t.id === urlTripId)) {
             setSelectedTripId(urlTripId);
@@ -121,7 +119,7 @@ export default function Expenses() {
     fetchTrips();
   }, [user, searchParams]);
 
-  // Fetch members when trip changes
+  // Fetch members
   useEffect(() => {
     const fetchMembers = async () => {
       if (!selectedTripId) {
@@ -157,22 +155,18 @@ export default function Expenses() {
 
     fetchMembers();
 
-    // Update URL
     if (selectedTripId) {
       setSearchParams({ trip: selectedTripId });
     }
   }, [selectedTripId, setSearchParams]);
 
-  // Handle dialog close
   const handleDialogChange = (open: boolean) => {
     setShowAddDialog(open);
     if (!open) {
-      // Small delay to prevent UI jump before dialog closes
       setTimeout(() => setEditingExpense(null), 300);
     }
   };
 
-  // Handle save (create or update)
   const handleSaveExpense = async (data: any) => {
     if (data.id) {
       return await updateExpense(data.id, data);
@@ -181,18 +175,15 @@ export default function Expenses() {
     }
   };
 
-  // Filter expenses by search
   const filteredExpenses = expenses.filter(exp =>
     exp.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Calculate amounts owed
-  const youAreOwed = balances
-    .filter(b => b.userId !== user?.id && b.amount < 0)
-    .reduce((sum, b) => sum + Math.abs(b.amount), 0);
-  
   const youOwe = userBalance < 0 ? Math.abs(userBalance) : 0;
   const netBalance = userBalance;
+
+  // Helper to get current trip title
+  const currentTripTitle = trips.find(t => t.id === selectedTripId)?.title || "Spese";
 
   if (authLoading || loadingTrips) {
     return (
@@ -208,212 +199,192 @@ export default function Expenses() {
 
   return (
     <AppLayout>
-      <main className="pt-24 pb-16 relative z-10">
-        <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-            <div>
-              <Button variant="ghost" size="sm" asChild>
-                <Link
-                  to={selectedTripId ? `/trips/${selectedTripId}` : "/trips"}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                  Dettagli viaggio
-                </Link>
-              </Button>
-              <h1 className="text-3xl font-semibold flex items-center gap-2">
-                <Wallet className="h-8 w-8" />
-                Spese
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Traccia le spese e dividi i costi con i tuoi compagni di viaggio
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              {/* Trip Selector */}
-              {trips.length > 0 && (
-                <Select value={selectedTripId} onValueChange={setSelectedTripId}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Seleziona viaggio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {trips.map((trip) => (
-                      <SelectItem key={trip.id} value={trip.id}>
-                        {trip.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              <Button 
-                variant="sunset" 
-                size="lg"
-                disabled={!selectedTripId}
-                onClick={() => {
-                  setEditingExpense(null);
-                  setShowAddDialog(true);
-                }}
+      <main className="pt-24 pb-16 min-h-screen bg-background">
+        <div className="container mx-auto px-4 max-w-7xl">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 mb-6">
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                to={selectedTripId ? `/trips/${selectedTripId}` : "/trips"}
+                className="flex items-center gap-2"
               >
-                <Plus className="w-5 h-5" />
-                Aggiungi Spesa
-              </Button>
-            </div>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Torna al viaggio
+              </Link>
+            </Button>
+            <span className="text-muted-foreground">/</span>
+            <span className="font-medium">{currentTripTitle}</span>
           </div>
 
-          {trips.length === 0 ? (
-            <div className="text-center py-16">
-              <p className="text-muted-foreground mb-4">
-                Non fai parte di nessun viaggio ancora.
-              </p>
-              <Button variant="outline" onClick={() => navigate("/trips")}>
-                Vai ai Viaggi
-              </Button>
-            </div>
-          ) : (
-            <>
-              {/* Stats Cards */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="app-surface p-6"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <DollarSign className="w-6 h-6 text-primary" />
-                    </div>
-                    <span className="text-xs text-muted-foreground">Totale</span>
-                  </div>
-                  <p className="text-2xl font-bold text-foreground">€{totalSpent.toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">Speso in totale</p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="app-surface p-6"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-forest/10 flex items-center justify-center">
-                      <ArrowDownLeft className="w-6 h-6 text-forest" />
-                    </div>
-                    <span className="text-xs text-muted-foreground">Credito</span>
-                  </div>
-                  <p className="text-2xl font-bold text-forest">
-                    €{userBalance > 0 ? userBalance.toFixed(2) : "0.00"}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Ti devono</p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="app-surface p-6"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
-                      <ArrowUpRight className="w-6 h-6 text-secondary" />
-                    </div>
-                    <span className="text-xs text-muted-foreground">Debito</span>
-                  </div>
-                  <p className="text-2xl font-bold text-secondary">€{youOwe.toFixed(2)}</p>
-                  <p className="text-sm text-muted-foreground">Devi</p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="app-surface p-6"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-accent" />
-                    </div>
-                    <span className="text-xs text-muted-foreground">Bilancio</span>
-                  </div>
-                  <p className={`text-2xl font-bold ${netBalance >= 0 ? "text-forest" : "text-secondary"}`}>
-                    {netBalance >= 0 ? "+" : ""}€{netBalance.toFixed(2)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Saldo netto</p>
-                </motion.div>
+          <div className="bg-card rounded-xl border shadow-sm p-6">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                  <Wallet className="h-6 w-6 text-primary" />
+                  Spese
+                </h2>
+                <p className="text-muted-foreground">
+                  Traccia le spese e dividi i costi con i tuoi compagni di viaggio
+                </p>
               </div>
-
-              <div className="grid lg:grid-cols-3 gap-8">
-                {/* Expenses List */}
-                <div className="lg:col-span-2">
-                  {/* Search & Filter */}
-                  <div className="flex gap-4 mb-6">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <input
-                        type="text"
-                        placeholder="Cerca spese..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full h-11 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                      />
-                    </div>
-                    <Button variant="outline" disabled>
-                      <Filter className="w-5 h-5" />
-                    </Button>
-                  </div>
-
-                  {/* Expenses */}
-                  {expensesLoading ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                    </div>
-                  ) : filteredExpenses.length === 0 ? (
-                    <div className="text-center py-12 app-section">
-                      <p className="text-muted-foreground">
-                        {searchQuery 
-                          ? "Nessuna spesa trovata per questa ricerca"
-                          : "Nessuna spesa ancora. Aggiungi la prima!"}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {filteredExpenses.map((expense, index) => (
-                        <ExpenseCard
-                          key={expense.id}
-                          expense={expense}
-                          canDelete={expense.created_by === user?.id}
-                          onDelete={() => deleteExpense(expense.id)}
-                          onEdit={expense.created_by === user?.id ? () => {
-                            setEditingExpense(expense);
-                            setShowAddDialog(true);
-                          } : undefined}
-                          index={index}
-                        />
+              
+              <div className="flex items-center gap-3">
+                {trips.length > 0 && (
+                  <Select value={selectedTripId} onValueChange={setSelectedTripId}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Seleziona viaggio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {trips.map((trip) => (
+                        <SelectItem key={trip.id} value={trip.id}>
+                          {trip.title}
+                        </SelectItem>
                       ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                <Button 
+                  onClick={() => {
+                    setEditingExpense(null);
+                    setShowAddDialog(true);
+                  }}
+                  disabled={!selectedTripId}
+                  className="gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Aggiungi Spesa
+                </Button>
+              </div>
+            </div>
+
+            {trips.length === 0 ? (
+              <div className="text-center py-16 bg-muted/20 rounded-lg border border-dashed">
+                <p className="text-muted-foreground mb-4">
+                  Non fai parte di nessun viaggio ancora.
+                </p>
+                <Button variant="outline" onClick={() => navigate("/trips")}>
+                  Vai ai Viaggi
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Stats Cards */}
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <DollarSign className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Totale</span>
                     </div>
-                  )}
+                    <p className="text-xl font-bold text-foreground">€{totalSpent.toFixed(2)}</p>
+                  </motion.div>
+
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-full bg-forest/10 flex items-center justify-center">
+                        <ArrowDownLeft className="w-4 h-4 text-forest" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Credito</span>
+                    </div>
+                    <p className="text-xl font-bold text-forest">
+                      €{userBalance > 0 ? userBalance.toFixed(2) : "0.00"}
+                    </p>
+                  </motion.div>
+
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                        <ArrowUpRight className="w-4 h-4 text-secondary" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Debito</span>
+                    </div>
+                    <p className="text-xl font-bold text-secondary">€{youOwe.toFixed(2)}</p>
+                  </motion.div>
+
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                        <TrendingUp className="w-4 h-4 text-accent" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Bilancio</span>
+                    </div>
+                    <p className={`text-xl font-bold ${netBalance >= 0 ? "text-forest" : "text-secondary"}`}>
+                      {netBalance >= 0 ? "+" : ""}€{netBalance.toFixed(2)}
+                    </p>
+                  </motion.div>
                 </div>
 
-                {/* Balances Sidebar */}
-                <div>
-                  <BalancesSidebar 
-                    balances={balances} 
-                    currentUserId={user?.id}
-                    tripId={selectedTripId}
-                    settlements={settlements}
-                    onSettle={createSettlement}
-                    onDeleteSettlement={deleteSettlement}
-                  />
+                <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Expenses List */}
+                  <div className="lg:col-span-2">
+                    <div className="flex gap-4 mb-6">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input
+                          type="text"
+                          placeholder="Cerca spese..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full h-10 pl-9 pr-4 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                        />
+                      </div>
+                      <Button variant="outline" size="icon" disabled>
+                        <Filter className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {expensesLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                      </div>
+                    ) : filteredExpenses.length === 0 ? (
+                      <div className="text-center py-12 border rounded-lg border-dashed bg-muted/10">
+                        <p className="text-muted-foreground">
+                          {searchQuery 
+                            ? "Nessuna spesa trovata per questa ricerca"
+                            : "Nessuna spesa ancora. Aggiungi la prima!"}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {filteredExpenses.map((expense, index) => (
+                          <ExpenseCard
+                            key={expense.id}
+                            expense={expense}
+                            canDelete={expense.created_by === user?.id}
+                            onDelete={() => deleteExpense(expense.id)}
+                            onEdit={expense.created_by === user?.id ? () => {
+                              setEditingExpense(expense);
+                              setShowAddDialog(true);
+                            } : undefined}
+                            index={index}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Balances Sidebar */}
+                  <div>
+                    <BalancesSidebar 
+                      balances={balances} 
+                      currentUserId={user?.id}
+                      tripId={selectedTripId}
+                      settlements={settlements}
+                      onSettle={createSettlement}
+                      onDeleteSettlement={deleteSettlement}
+                    />
+                  </div>
                 </div>
-              </div>
-            </>
-          )}
+              </>
+            )}
+          </div>
         </div>
       </main>
 
-      {/* Add/Edit Expense Dialog */}
       <AddExpenseDialog
         open={showAddDialog}
         onOpenChange={handleDialogChange}
