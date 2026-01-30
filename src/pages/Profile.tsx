@@ -100,7 +100,6 @@ export default function Profile() {
       const { data, error } = await supabase
         .from("trips")
         .select("*")
-        .eq("user_id", user.id)
         .order("start_date", { ascending: false });
 
       if (error) throw error;
