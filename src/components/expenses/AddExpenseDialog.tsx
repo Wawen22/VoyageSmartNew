@@ -19,7 +19,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, RefreshCw } from "lucide-react";
 import { DocumentUpload } from "@/components/documents/DocumentUpload";
-import type { ExpenseCategory } from "@/hooks/useExpenses";
+import type { ExpenseCategory, ExpenseWithSplits } from "@/hooks/useExpenses";
 import { CURRENCIES, getExchangeRate } from "@/lib/currency";
 
 interface TripMember {
@@ -36,7 +36,9 @@ interface AddExpenseDialogProps {
   tripId: string;
   members: TripMember[];
   currentUserId: string;
+  expenseToEdit?: ExpenseWithSplits | null;
   onSubmit: (data: {
+    id?: string;
     trip_id: string;
     description: string;
     amount: number;
@@ -66,6 +68,7 @@ export function AddExpenseDialog({
   tripId,
   members,
   currentUserId,
+  expenseToEdit,
   onSubmit
 }: AddExpenseDialogProps) {
   const [description, setDescription] = useState("");
@@ -82,14 +85,61 @@ export function AddExpenseDialog({
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Load expense data if editing
+  useEffect(() => {
+    if (open && expenseToEdit) {
+      setDescription(expenseToEdit.description);
+      
+      // Handle legacy expenses (no original_amount)
+      const amt = expenseToEdit.original_amount !== null ? expenseToEdit.original_amount : expenseToEdit.amount;
+      setOriginalAmount(amt.toString());
+      
+      const curr = expenseToEdit.original_currency || "EUR";
+      setCurrency(curr);
+      
+      setExchangeRate(expenseToEdit.exchange_rate || 1);
+      setCategory(expenseToEdit.category);
+      setPaidBy(expenseToEdit.paid_by);
+      setExpenseDate(expenseToEdit.expense_date);
+      setSplitWith(expenseToEdit.splits.map(s => s.user_id));
+      setReceiptUrl(expenseToEdit.receipt_url);
+    } else if (open && !expenseToEdit) {
+      // Reset form if opening as new
+      setDescription("");
+      setOriginalAmount("");
+      setCurrency("EUR");
+      setCategory("food");
+      setPaidBy(currentUserId);
+      setExpenseDate(new Date().toISOString().split('T')[0]);
+      setSplitWith(members.map(m => m.user_id));
+      setReceiptUrl(null);
+      setExchangeRate(1);
+    }
+  }, [open, expenseToEdit, currentUserId, members]);
+
   // Fetch exchange rate when currency or date changes
   useEffect(() => {
     const fetchRate = async () => {
+      // Don't fetch if editing and values match (avoids overwriting stored custom rates if we had them)
+      // But for now, let's keep it simple: if currency changes by user interaction.
+      // Ideally we shouldn't re-fetch if just opening edit dialog.
       if (currency === 'EUR') {
         setExchangeRate(1);
         return;
       }
       
+      // If editing and currency matches stored, don't overwrite rate immediately? 
+      // Actually, standard behavior is fine: fetch latest rate for date. 
+      // If user wants to keep old rate, they shouldn't change currency/date.
+      // But on initial load of edit, we set state. This effect might run and overwrite it.
+      // Let's rely on the fact that setCurrency in useEffect above sets state, 
+      // and this effect runs after.
+      // To prevent overwriting the stored rate with a fresh API rate on open:
+      if (expenseToEdit && expenseToEdit.original_currency === currency && expenseToEdit.expense_date === expenseDate) {
+         // It's the same, so keep the stored rate (already set in previous useEffect)
+         return;
+      }
+
       setIsLoadingRate(true);
       const rate = await getExchangeRate(currency, 'EUR', expenseDate);
       if (rate) {
@@ -99,7 +149,7 @@ export function AddExpenseDialog({
     };
     
     fetchRate();
-  }, [currency, expenseDate]);
+  }, [currency, expenseDate]); // Warning: this depends on expenseToEdit being stable or ignored here.
 
   // Recalculate converted amount
   useEffect(() => {
@@ -125,6 +175,7 @@ export function AddExpenseDialog({
 
     setSubmitting(true);
     const success = await onSubmit({
+      id: expenseToEdit?.id,
       trip_id: tripId,
       description: description.trim(),
       amount: convertedAmount, // Base currency
@@ -139,14 +190,6 @@ export function AddExpenseDialog({
     });
 
     if (success) {
-      setDescription("");
-      setOriginalAmount("");
-      setCurrency("EUR");
-      setCategory("food");
-      setPaidBy(currentUserId);
-      setExpenseDate(new Date().toISOString().split('T')[0]);
-      setSplitWith(members.map(m => m.user_id));
-      setReceiptUrl(null);
       onOpenChange(false);
     }
     setSubmitting(false);
@@ -160,7 +203,7 @@ export function AddExpenseDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card overflow-y-auto max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Aggiungi Spesa</DialogTitle>
+          <DialogTitle>{expenseToEdit ? "Modifica Spesa" : "Aggiungi Spesa"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -245,6 +245,72 @@ export function useExpenses(tripId?: string) {
     }
   };
 
+  const updateExpense = async (expenseId: string, data: CreateExpenseData): Promise<boolean> => {
+    if (!user) return false;
+
+    try {
+      // 1. Update the expense record
+      const { error: expenseError } = await supabase
+        .from("expenses")
+        .update({
+          description: data.description,
+          amount: data.amount,
+          // currency: "EUR" (base currency usually doesn't change unless we re-convert)
+          original_amount: data.original_amount,
+          original_currency: data.original_currency,
+          exchange_rate: data.exchange_rate,
+          category: data.category,
+          paid_by: data.paid_by,
+          expense_date: data.expense_date || new Date().toISOString().split('T')[0],
+          receipt_url: data.receipt_url || null,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", expenseId);
+
+      if (expenseError) throw expenseError;
+
+      // 2. Delete existing splits
+      const { error: deleteSplitsError } = await supabase
+        .from("expense_splits")
+        .delete()
+        .eq("expense_id", expenseId);
+
+      if (deleteSplitsError) throw deleteSplitsError;
+
+      // 3. Create new splits
+      const splitAmount = data.split_amounts || {};
+      const equalSplit = data.amount / data.split_with.length;
+
+      const splits = data.split_with.map(userId => ({
+        expense_id: expenseId,
+        user_id: userId,
+        amount: splitAmount[userId] || equalSplit
+      }));
+
+      const { error: insertSplitsError } = await supabase
+        .from("expense_splits")
+        .insert(splits);
+
+      if (insertSplitsError) throw insertSplitsError;
+
+      toast({
+        title: "Spesa aggiornata",
+        description: `${data.description}`
+      });
+
+      await fetchExpenses();
+      return true;
+    } catch (error: any) {
+      console.error("Error updating expense:", error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare la spesa",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
   const deleteExpense = async (expenseId: string): Promise<boolean> => {
     try {
       const { error } = await supabase
@@ -320,6 +386,7 @@ export function useExpenses(tripId?: string) {
     totalSpent,
     userBalance,
     createExpense,
+    updateExpense,
     deleteExpense,
     refetch: fetchExpenses
   };

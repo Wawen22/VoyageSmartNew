@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Trash2, Paperclip, ExternalLink } from "lucide-react";
+import { Trash2, Paperclip, ExternalLink, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ExpenseWithSplits } from "@/hooks/useExpenses";
 import { formatCurrency } from "@/lib/currency";
@@ -17,10 +17,11 @@ interface ExpenseCardProps {
   expense: ExpenseWithSplits;
   canDelete: boolean;
   onDelete: () => void;
+  onEdit?: () => void;
   index: number;
 }
 
-export function ExpenseCard({ expense, canDelete, onDelete, index }: ExpenseCardProps) {
+export function ExpenseCard({ expense, canDelete, onDelete, onEdit, index }: ExpenseCardProps) {
   const isForeignCurrency = expense.original_currency && expense.original_currency !== 'EUR';
 
   return (
@@ -79,20 +80,36 @@ export function ExpenseCard({ expense, canDelete, onDelete, index }: ExpenseCard
           </p>
         </div>
 
-        {/* Delete Button */}
-        {canDelete && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        )}
+        {/* Actions */}
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
+              <Pencil className="w-4 h-4" />
+            </Button>
+          )}
+
+          {canDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
       </div>
     </motion.div>
   );

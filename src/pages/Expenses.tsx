@@ -23,7 +23,7 @@ import {
   Wallet
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useExpenses } from "@/hooks/useExpenses";
+import { useExpenses, ExpenseWithSplits } from "@/hooks/useExpenses";
 import { useSettlements } from "@/hooks/useSettlements";
 import { supabase } from "@/integrations/supabase/client";
 import { ExpenseCard } from "@/components/expenses/ExpenseCard";
@@ -53,6 +53,7 @@ export default function Expenses() {
   const [members, setMembers] = useState<TripMember[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<ExpenseWithSplits | null>(null);
   const [loadingTrips, setLoadingTrips] = useState(true);
 
   const { 
@@ -62,6 +63,7 @@ export default function Expenses() {
     totalSpent,
     userBalance,
     createExpense,
+    updateExpense,
     deleteExpense 
   } = useExpenses(selectedTripId);
 
@@ -161,6 +163,24 @@ export default function Expenses() {
     }
   }, [selectedTripId, setSearchParams]);
 
+  // Handle dialog close
+  const handleDialogChange = (open: boolean) => {
+    setShowAddDialog(open);
+    if (!open) {
+      // Small delay to prevent UI jump before dialog closes
+      setTimeout(() => setEditingExpense(null), 300);
+    }
+  };
+
+  // Handle save (create or update)
+  const handleSaveExpense = async (data: any) => {
+    if (data.id) {
+      return await updateExpense(data.id, data);
+    } else {
+      return await createExpense(data);
+    }
+  };
+
   // Filter expenses by search
   const filteredExpenses = expenses.filter(exp =>
     exp.description.toLowerCase().includes(searchQuery.toLowerCase())
@@ -232,7 +252,10 @@ export default function Expenses() {
                 variant="sunset" 
                 size="lg"
                 disabled={!selectedTripId}
-                onClick={() => setShowAddDialog(true)}
+                onClick={() => {
+                  setEditingExpense(null);
+                  setShowAddDialog(true);
+                }}
               >
                 <Plus className="w-5 h-5" />
                 Aggiungi Spesa
@@ -362,6 +385,10 @@ export default function Expenses() {
                           expense={expense}
                           canDelete={expense.created_by === user?.id}
                           onDelete={() => deleteExpense(expense.id)}
+                          onEdit={expense.created_by === user?.id ? () => {
+                            setEditingExpense(expense);
+                            setShowAddDialog(true);
+                          } : undefined}
                           index={index}
                         />
                       ))}
@@ -386,14 +413,15 @@ export default function Expenses() {
         </div>
       </main>
 
-      {/* Add Expense Dialog */}
+      {/* Add/Edit Expense Dialog */}
       <AddExpenseDialog
         open={showAddDialog}
-        onOpenChange={setShowAddDialog}
+        onOpenChange={handleDialogChange}
         tripId={selectedTripId}
         members={members}
         currentUserId={user?.id || ""}
-        onSubmit={createExpense}
+        expenseToEdit={editingExpense}
+        onSubmit={handleSaveExpense}
       />
     </AppLayout>
   );
