@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { it } from "date-fns/locale";
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Popover,
   PopoverContent,
@@ -48,18 +48,22 @@ import { TripHeroWeather } from "@/components/trips/TripHeroWeather";
 import {
   MapPin,
   Calendar as CalendarIcon,
-  Edit3,
   Trash2,
   ArrowLeft,
   Save,
-  X,
   Clock,
   Plane,
   CheckCircle2,
   Loader2,
   Share2,
   Users,
-  ChevronRight,
+  Wallet,
+  Building2,
+  ClipboardList,
+  Lightbulb,
+  LayoutDashboard,
+  Settings,
+  ChevronRight
 } from "lucide-react";
 
 type Trip = {
@@ -81,9 +85,9 @@ type Trip = {
 };
 
 const statusOptions = [
-  { value: "planning", label: "In Pianificazione", icon: Clock, color: "text-amber-500" },
-  { value: "upcoming", label: "In Arrivo", icon: Plane, color: "text-primary" },
-  { value: "completed", label: "Completato", icon: CheckCircle2, color: "text-forest" },
+  { value: "planning", label: "In Pianificazione", icon: Clock, color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-200" },
+  { value: "upcoming", label: "In Arrivo", icon: Plane, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-200" },
+  { value: "completed", label: "Completato", icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-200" },
 ];
 
 export default function TripDetail() {
@@ -98,7 +102,6 @@ export default function TripDetail() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
 
   // Edit form state
   const [editTitle, setEditTitle] = useState("");
@@ -257,8 +260,6 @@ export default function TripDetail() {
       if (insertError) throw insertError;
 
       await fetchTrip();
-      setIsEditing(false);
-
       toast({
         title: "Salvato!",
         description: "Il viaggio è stato aggiornato con successo",
@@ -303,11 +304,6 @@ export default function TripDetail() {
     }
   };
 
-  const cancelEdit = () => {
-    fetchTrip();
-    setIsEditing(false);
-  };
-
   const getStatusInfo = (status: string) => {
     return statusOptions.find(s => s.value === status) || statusOptions[0];
   };
@@ -324,191 +320,196 @@ export default function TripDetail() {
     );
   }
 
-  if (!trip) {
-    return null;
-  }
+  if (!trip) return null;
 
   const tripDuration = differenceInDays(parseISO(trip.end_date), parseISO(trip.start_date)) + 1;
   const statusInfo = getStatusInfo(trip.status);
   const StatusIcon = statusInfo.icon;
-  const shareLabel = trip.is_public_shared ? "Pubblico" : "Privato";
 
-  const quickActions = [
-    {
-      to: `/expenses?trip=${trip.id}`,
-      title: "Gestisci Spese",
-      description: "Traccia e dividi i costi",
-      icon: "💰",
-      count: stats.expensesCount,
-      glow: "bg-amber-500/30",
-    },
-    {
-      to: `/accommodations?trip=${trip.id}`,
-      title: "Alloggi",
-      description: "Prenotazioni e check-in",
-      icon: "🏨",
-      count: stats.accommodationsCount,
-      glow: "bg-primary/30",
-    },
-    {
-      to: `/transports?trip=${trip.id}`,
-      title: "Trasporti",
-      description: "Voli, treni e transfer",
-      icon: "✈️",
-      count: stats.transportsCount,
-      glow: "bg-sky-500/30",
-    },
-    {
-      to: `/itinerary?trip=${trip.id}`,
-      title: "Itinerario",
-      description: "Timeline completa del viaggio",
-      icon: "🗓️",
-      count: stats.activitiesCount,
-      glow: "bg-emerald-500/30",
-    },
-    {
-      to: `/checklist?trip=${trip.id}`,
-      title: "Checklist",
-      description: "Cosa portare e preparare",
-      icon: "✅",
-      count: stats.checklistTotal,
-      glow: "bg-indigo-500/30",
-    },
-    {
-      to: `/ideas?trip=${trip.id}`,
-      title: "Bacheca Idee",
-      description: "Note, link e ispirazioni",
-      icon: "💡",
-      count: stats.ideasCount,
-      glow: "bg-purple-500/30",
-    },
+  const navItems = [
+    { to: `/itinerary?trip=${trip.id}`, label: "Itinerario", icon: CalendarIcon, color: "text-emerald-500", count: stats.activitiesCount },
+    { to: `/expenses?trip=${trip.id}`, label: "Spese", icon: Wallet, color: "text-amber-500", count: stats.expensesCount },
+    { to: `/accommodations?trip=${trip.id}`, label: "Alloggi", icon: Building2, color: "text-blue-500", count: stats.accommodationsCount },
+    { to: `/transports?trip=${trip.id}`, label: "Trasporti", icon: Plane, color: "text-sky-500", count: stats.transportsCount },
+    { to: `/checklist?trip=${trip.id}`, label: "Checklist", icon: ClipboardList, color: "text-indigo-500", count: stats.checklistTotal },
+    { to: `/ideas?trip=${trip.id}`, label: "Idee", icon: Lightbulb, color: "text-purple-500", count: stats.ideasCount },
   ];
 
   return (
     <AppLayout>
-      <main className="pt-24 pb-16 relative z-10">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-            <Button variant="ghost" size="sm" asChild>
+      <div className="min-h-screen bg-background pb-12 pt-16 lg:pt-20">
+        {/* HERO SECTION */}
+        <div className="relative h-[400px] md:h-[500px] w-full overflow-hidden">
+          {trip.cover_image ? (
+            <img 
+              src={trip.cover_image} 
+              alt={trip.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-indigo-700" />
+          )}
+          <div className="absolute inset-0 bg-black/40" />
+          
+          {/* Back Button */}
+          <div className="absolute top-6 left-6 z-20">
+            <Button variant="secondary" size="sm" className="bg-black/20 text-white hover:bg-black/40 backdrop-blur-md border-0" asChild>
               <Link to="/trips" className="flex items-center gap-2">
                 <ArrowLeft className="w-4 h-4" />
                 Torna ai viaggi
               </Link>
             </Button>
-            <div className="flex flex-wrap items-center gap-2">
-              <ShareTripDialog
-                tripId={trip.id}
-                tripTitle={trip.title}
-                isPublicShared={trip.is_public_shared}
-                publicShareToken={trip.public_share_token}
-                onUpdate={fetchTrip}
-              />
-              <ExportPDFButton tripId={trip.id} tripTitle={trip.title} />
-              <Button variant="outline" onClick={() => setIsEditing(true)}>
-                <Edit3 className="w-4 h-4" />
-                Modifica
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" className="text-destructive hover:text-destructive">
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Eliminare questo viaggio?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Questa azione non può essere annullata. Il viaggio "{trip.title}" 
-                      e tutti i dati associati verranno eliminati permanentemente.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Annulla</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                      disabled={deleting}
-                    >
-                      {deleting ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : null}
-                      Elimina
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="app-surface-strong overflow-hidden"
-          >
-            <div className="relative h-64 md:h-72 overflow-hidden">
-              {trip.cover_image ? (
-                <img 
-                  src={trip.cover_image} 
-                  alt={trip.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-hero" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-              
-              {/* Minimal Weather Widget */}
-              <div className="absolute top-4 right-4 z-20">
-                <TripHeroWeather lat={trip.latitude} lon={trip.longitude} />
-              </div>
+          {/* Weather Widget (Moved back to top right) */}
+          <div className="absolute top-6 right-6 z-20">
+            <TripHeroWeather lat={trip.latitude} lon={trip.longitude} />
+          </div>
 
-              <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-end gap-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="app-pill bg-white/20 text-white backdrop-blur-sm">
-                    <StatusIcon className="w-3.5 h-3.5" />
-                    {statusInfo.label}
-                  </div>
-                  <div className="app-pill bg-white/10 text-white/90 backdrop-blur-sm">
-                    <CalendarIcon className="w-3.5 h-3.5" />
-                    {format(parseISO(trip.start_date), "d MMM", { locale: it })} -{" "}
-                    {format(parseISO(trip.end_date), "d MMM yyyy", { locale: it })}
-                  </div>
-                </div>
-                <div>
-                  <h1 className="text-3xl md:text-4xl font-semibold text-white">
-                    {trip.title}
-                  </h1>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-white/80 mt-1">
-                    <MapPin className="w-4 h-4 shrink-0" />
-                    {destinations.map((dest, index) => (
-                      <div key={dest.id} className="flex items-center">
-                        <span className={cn(
-                          "text-sm md:text-base",
-                          dest.isPrimary && "font-bold text-white underline decoration-primary/50 underline-offset-4"
-                        )}>
-                          {dest.name}
-                        </span>
-                        {index < destinations.length - 1 && (
-                          <ChevronRight className="w-3.5 h-3.5 mx-1 opacity-50" />
-                        )}
+          <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent">
+             <div className="container mx-auto max-w-7xl">
+                <div className="flex flex-col md:flex-row items-end justify-between gap-6">
+                  <div className="text-white">
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      <div className={cn("px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 backdrop-blur-md bg-white/20 border border-white/10")}>
+                        <StatusIcon className="w-3.5 h-3.5" />
+                        {statusInfo.label}
                       </div>
-                    ))}
+                      <div className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 backdrop-blur-md bg-white/10 border border-white/10 text-white/90">
+                         <Clock className="w-3.5 h-3.5" />
+                         {tripDuration} {tripDuration === 1 ? 'giorno' : 'giorni'}
+                      </div>
+                    </div>
+                    <h1 className="text-4xl md:text-6xl font-bold mb-3 tracking-tight">{trip.title}</h1>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/80 text-sm md:text-lg font-medium">
+                      <div className="flex items-center gap-2">
+                        <CalendarIcon className="w-5 h-5 text-white/60" />
+                        {format(parseISO(trip.start_date), "d MMM", { locale: it })} - {format(parseISO(trip.end_date), "d MMM yyyy", { locale: it })}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-5 h-5 text-white/60" />
+                        {trip.destination}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 pb-2">
+                     <ShareTripDialog
+                        tripId={trip.id}
+                        tripTitle={trip.title}
+                        isPublicShared={trip.is_public_shared}
+                        publicShareToken={trip.public_share_token}
+                        onUpdate={fetchTrip}
+                      />
+                      <ExportPDFButton tripId={trip.id} tripTitle={trip.title} />
+                  </div>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto max-w-7xl px-4 mt-8 relative z-10">
+          {/* QUICK NAV */}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 mb-10">
+            {navItems.map((item) => (
+              <Link key={item.to} to={item.to}>
+                <div className="bg-card hover:bg-accent/50 transition-all border shadow-sm rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 h-28 group hover:-translate-y-1">
+                  <div className={cn("p-2.5 rounded-2xl transition-colors shadow-sm", item.color.replace('text-', 'bg-').replace('500', '100'))}>
+                    <item.icon className={cn("w-6 h-6", item.color)} />
+                  </div>
+                  <span className="text-xs font-semibold tracking-wide uppercase">{item.label}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="mb-8 bg-muted/50 p-1 rounded-xl w-full md:w-auto h-12">
+              <TabsTrigger value="overview" className="gap-2 px-6 h-10 rounded-lg data-[state=active]:shadow-md">
+                <LayoutDashboard className="w-4 h-4" /> Panoramica
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="gap-2 px-6 h-10 rounded-lg data-[state=active]:shadow-md">
+                <Settings className="w-4 h-4" /> Impostazioni
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-8">
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* LEFT COLUMN */}
+                <div className="lg:col-span-2 space-y-8">
+                  {/* Description Card */}
+                  {trip.description && (
+                    <div className="bg-card rounded-2xl border p-8 shadow-sm relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
+                      <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
+                        <ClipboardList className="w-5 h-5 text-primary" /> 
+                        Diario di Viaggio
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed text-lg italic">
+                        "{trip.description}"
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Map Section */}
+                  <div className="bg-card rounded-2xl border p-1 shadow-sm overflow-hidden">
+                    <TripDashboard 
+                      tripId={trip.id}
+                      latitude={trip.latitude}
+                      longitude={trip.longitude}
+                      destinationName={trip.destination}
+                    />
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN */}
+                <div className="space-y-8">
+                  {/* Info Sidebar instead of Weather (Weather is now in Hero) */}
+                  <div className="bg-card rounded-2xl border p-6 shadow-sm space-y-6">
+                    <h3 className="font-bold text-lg flex items-center gap-2 border-b pb-4">
+                      <Users className="w-5 h-5 text-primary" />
+                      Compagni di Viaggio
+                    </h3>
+                    <TripMembersList tripId={trip.id} />
+                  </div>
+
+                  {/* Trip Summary Card */}
+                  <div className="bg-card rounded-2xl border p-6 shadow-sm space-y-4">
+                    <h3 className="font-bold text-lg mb-2">Info Veloci</h3>
+                    <div className="space-y-3">
+                       <div className="flex justify-between items-center py-2.5 border-b border-dashed">
+                          <span className="text-sm text-muted-foreground">Stato</span>
+                          <span className={cn("px-3 py-1 rounded-full text-xs font-bold uppercase", statusInfo.bg, statusInfo.color)}>
+                            {statusInfo.label}
+                          </span>
+                       </div>
+                       <div className="flex justify-between items-center py-2.5 border-b border-dashed">
+                          <span className="text-sm text-muted-foreground">Destinazione</span>
+                          <span className="text-sm font-bold text-right">{trip.destination}</span>
+                       </div>
+                       <div className="flex justify-between items-center py-2.5">
+                          <span className="text-sm text-muted-foreground">Privacy</span>
+                          <div className="flex items-center gap-2">
+                             <div className={cn("w-2 h-2 rounded-full", trip.is_public_shared ? "bg-emerald-500" : "bg-amber-500")} />
+                             <span className="text-sm font-bold">{trip.is_public_shared ? "Pubblico" : "Privato"}</span>
+                          </div>
+                       </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </TabsContent>
 
-            <div className="p-6 lg:p-8">
-              <AnimatePresence mode="wait">
-                {isEditing ? (
-                  <motion.div
-                    key="editing"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="space-y-6"
-                  >
-                    <div className="app-section p-5 space-y-2">
+            <TabsContent value="settings">
+              <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
+                <div className="p-6 border-b bg-muted/30">
+                  <h3 className="text-lg font-semibold">Modifica Viaggio</h3>
+                  <p className="text-muted-foreground text-sm">Aggiorna le informazioni principali del tuo viaggio.</p>
+                </div>
+                
+                <div className="p-6 space-y-8">
+                    {/* Cover Image */}
+                    <div className="space-y-3">
                       <Label>Immagine di Copertina</Label>
                       <CoverImageUpload
                         tripId={trip.id}
@@ -518,8 +519,7 @@ export default function TripDetail() {
                       />
                     </div>
 
-                    <div className="app-section p-5">
-                      <div className="grid gap-4 md:grid-cols-2">
+                    <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label htmlFor="title">Titolo</Label>
                           <Input
@@ -531,6 +531,25 @@ export default function TripDetail() {
                         </div>
 
                         <div className="space-y-2">
+                          <Label>Stato</Label>
+                          <Select value={editStatus} onValueChange={setEditStatus}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleziona stato" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {statusOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  <div className="flex items-center gap-2">
+                                    <option.icon className={cn("w-4 h-4", option.color)} />
+                                    {option.label}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
                           <DestinationSelector 
                             destinations={editDestinations} 
                             onChange={setEditDestinations}
@@ -596,29 +615,9 @@ export default function TripDetail() {
                             </PopoverContent>
                           </Popover>
                         </div>
-
-                        <div className="space-y-2">
-                          <Label>Stato</Label>
-                          <Select value={editStatus} onValueChange={setEditStatus}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleziona stato" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {statusOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  <div className="flex items-center gap-2">
-                                    <option.icon className={cn("w-4 h-4", option.color)} />
-                                    {option.label}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
                     </div>
 
-                    <div className="app-section p-5 space-y-2">
+                    <div className="space-y-2">
                       <Label htmlFor="description">Descrizione</Label>
                       <Textarea
                         id="description"
@@ -629,12 +628,8 @@ export default function TripDetail() {
                       />
                     </div>
 
-                    <div className="flex flex-wrap gap-3 justify-end">
-                      <Button variant="outline" onClick={cancelEdit} disabled={saving}>
-                        <X className="w-4 h-4 mr-2" />
-                        Annulla
-                      </Button>
-                      <Button onClick={handleSave} disabled={saving}>
+                    <div className="flex justify-end pt-4 border-t">
+                      <Button onClick={handleSave} disabled={saving} size="lg">
                         {saving ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                         ) : (
@@ -643,134 +638,50 @@ export default function TripDetail() {
                         Salva Modifiche
                       </Button>
                     </div>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="viewing"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="grid gap-8 lg:grid-cols-[1.4fr,0.9fr]"
-                  >
-                    <div className="space-y-6">
-                      {trip.description && (
-                        <div className="app-section p-5">
-                          <h3 className="font-semibold text-foreground mb-2">Descrizione</h3>
-                          <p className="text-muted-foreground leading-relaxed">
-                            {trip.description}
-                          </p>
-                        </div>
-                      )}
+                </div>
+              </div>
 
-                      <div>
-                        <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                          <span className="text-xl">📊</span>
-                          Dashboard
-                        </h3>
-                        <TripDashboard 
-                          tripId={trip.id}
-                          latitude={trip.latitude}
-                          longitude={trip.longitude}
-                          destinationName={trip.destination}
-                        />
-                      </div>
-
-                      <div className="app-section p-5">
-                        <h3 className="font-semibold text-foreground mb-4">Azioni Rapide</h3>
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          {quickActions.map((action) => (
-                            <Link
-                              key={action.to}
-                              to={action.to}
-                              className="group relative overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-card/90 via-card/70 to-card/50 p-4 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-glow"
-                            >
-                              <div className={cn("absolute -right-10 -top-10 h-20 w-20 rounded-full blur-3xl", action.glow)} />
-                              <div className="relative flex items-center gap-3">
-                                <div className="w-11 h-11 rounded-2xl border border-border/60 bg-background/70 backdrop-blur flex items-center justify-center text-xl">
-                                  {action.icon}
-                                </div>
-                                <div className="flex-1">
-                                  <p className="font-semibold text-foreground">{action.title}</p>
-                                  <p className="text-xs text-muted-foreground">{action.description}</p>
-                                </div>
-                                <span className="text-xs font-semibold rounded-full border border-border/60 bg-background/80 px-2 py-0.5 text-foreground">
-                                  {stats.isLoading ? "—" : action.count}
-                                </span>
-                              </div>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="app-surface p-5">
-                        <h3 className="font-semibold text-foreground mb-4">Dettagli viaggio</h3>
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <CalendarIcon className="w-4 h-4" />
-                              Partenza
-                            </div>
-                            <span className="font-medium text-foreground">
-                              {format(parseISO(trip.start_date), "d MMMM yyyy", { locale: it })}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <CalendarIcon className="w-4 h-4" />
-                              Ritorno
-                            </div>
-                            <span className="font-medium text-foreground">
-                              {format(parseISO(trip.end_date), "d MMMM yyyy", { locale: it })}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Clock className="w-4 h-4" />
-                              Durata
-                            </div>
-                            <span className="font-medium text-foreground">
-                              {tripDuration} {tripDuration === 1 ? "giorno" : "giorni"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <StatusIcon className={cn("w-4 h-4", statusInfo.color)} />
-                              Stato
-                            </div>
-                            <span className={cn("font-medium", statusInfo.color)}>
-                              {statusInfo.label}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Share2 className="w-4 h-4" />
-                              Condivisione
-                            </div>
-                            <span className="font-medium text-foreground">{shareLabel}</span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-sm">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <Users className="w-4 h-4" />
-                              Partecipanti
-                            </div>
-                            <span className="font-medium text-foreground">
-                              {stats.isLoading ? "—" : stats.membersCount}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <TripMembersList tripId={trip.id} />
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
+              {/* Danger Zone */}
+              <div className="mt-8 border border-red-200 bg-red-50 dark:bg-red-950/10 dark:border-red-900 rounded-xl p-6">
+                 <h3 className="text-red-600 font-semibold mb-2">Zona Pericolo</h3>
+                 <p className="text-sm text-muted-foreground mb-4">
+                   L'eliminazione del viaggio è irreversibile e cancellerà tutti i dati associati (spese, itinerario, ecc.).
+                 </p>
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive">
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Elimina Viaggio
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Eliminare questo viaggio?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Questa azione non può essere annullata. Il viaggio "{trip.title}" 
+                          e tutti i dati associati verranno eliminati permanentemente.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annulla</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          disabled={deleting}
+                        >
+                          {deleting ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : null}
+                          Elimina
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-      </main>
+      </div>
     </AppLayout>
   );
 }
