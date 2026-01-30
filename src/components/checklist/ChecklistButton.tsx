@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClipboardList, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -15,8 +15,14 @@ export function ChecklistButton({ isLanding = false }: ChecklistButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const currentTripId = searchParams.get("trip");
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const tripIdFromQuery = searchParams.get("trip");
+  const tripIdFromPath = location.pathname.startsWith("/trips/")
+    ? location.pathname.split("/")[2]
+    : null;
+  const currentTripId =
+    tripIdFromQuery || (tripIdFromPath && tripIdFromPath !== "new" ? tripIdFromPath : null);
   const { user } = useAuth();
 
   // Fetch user's trips
