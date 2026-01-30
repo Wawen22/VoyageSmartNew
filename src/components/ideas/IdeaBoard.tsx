@@ -22,7 +22,10 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Bacheca Idee</h2>
+          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+            <Lightbulb className="h-6 w-6 text-primary" />
+            Bacheca Idee
+          </h2>
           <p className="text-muted-foreground">
             Raccogli spunti, link e foto per il tuo viaggio.
           </p>

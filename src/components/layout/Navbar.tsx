@@ -13,7 +13,8 @@ import {
   Calendar,
   ClipboardList,
   LogOut,
-  User
+  User,
+  Lightbulb
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
@@ -22,6 +23,7 @@ import { ChecklistButton } from "@/components/checklist/ChecklistButton";
 const navLinks = [
   { href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
   { href: "/itinerary", label: "Itinerario", icon: Calendar, tripScoped: true },
+  { href: "/ideas", label: "Idee", icon: Lightbulb, tripScoped: true },
   { href: "/expenses", label: "Spese", icon: Wallet, tripScoped: true },
   { href: "/accommodations", label: "Alloggi", icon: Building2, tripScoped: true },
   { href: "/transports", label: "Trasporti", icon: Car, tripScoped: true },
@@ -39,6 +41,7 @@ export function Navbar() {
     "/expenses",
     "/accommodations",
     "/transports",
+    "/ideas",
   ]);
   const searchParams = new URLSearchParams(location.search);
   const tripIdFromQuery = searchParams.get("trip");
