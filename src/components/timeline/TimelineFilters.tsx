@@ -19,25 +19,36 @@ const filters = [
 
 export function TimelineFilters({ activeFilter, onFilterChange }: TimelineFiltersProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2">
+    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
       {filters.map((filter) => {
         const isActive = activeFilter === filter.id;
         return (
-          <Button
+          <motion.button
             key={filter.id}
-            variant={isActive ? "default" : "outline"}
-            size="sm"
             onClick={() => onFilterChange(filter.id)}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className={cn(
-              "flex items-center gap-2 whitespace-nowrap transition-all rounded-full px-4",
+              "flex items-center gap-2 whitespace-nowrap transition-all duration-300 rounded-full px-4 py-2",
+              "border font-medium text-sm",
               isActive
-                ? "shadow-[0_16px_32px_-22px_rgba(15,23,42,0.45)]"
-                : "bg-card/80 hover:bg-card border-border/60"
+                ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground border-primary shadow-lg shadow-primary/25"
+                : "bg-card/60 hover:bg-card/80 border-border/50 hover:border-border text-muted-foreground hover:text-foreground"
             )}
           >
-            <filter.icon className="w-4 h-4" />
+            <filter.icon className={cn(
+              "w-4 h-4 transition-colors",
+              isActive ? "text-primary-foreground" : ""
+            )} />
             {filter.label}
-          </Button>
+            {isActive && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent pointer-events-none"
+              />
+            )}
+          </motion.button>
         );
       })}
     </div>
