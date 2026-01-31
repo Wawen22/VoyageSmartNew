@@ -31,60 +31,59 @@ export function RichMessageRenderer({ content, contextData, tripId, onLinkClick 
     onLinkClick?.();
   };
 
-  // Regex to match [[TYPE:ID]] patterns
-  const parts = content.split(/(\[\[(?:accommodation|transport|activity|expense):.*?\]\])/g);
+  // Regex to match any [[TYPE:ID]] pattern
+  const parts = content.split(/(\[\[.*?:.*?\]\])/g);
 
   return (
     <div className="space-y-3 w-full max-w-full overflow-hidden">
       {parts.map((part, index) => {
-        const match = part.match(/^\[\[(accommodation|transport|activity|expense):(.*?)]]$/);
+        const match = part.match(/^\[\[(.*?):(.*?)]]$/);
 
         if (match) {
           const [, type, id] = match;
           
-          if (type === 'accommodation') {
-            const item = contextData.accommodations.find(a => a.id === id);
-            if (!item) return null;
+          // Strategy: Look up the ID in all lists to find the correct entity
+          // This makes it robust even if AI uses "sightseeing" instead of "activity" as type
+          
+          const accommodation = contextData.accommodations.find(a => a.id === id);
+          if (accommodation) {
             return (
               <ChatAccommodationCard 
                 key={index}
-                data={item}
+                data={accommodation}
                 onClick={() => handleNavigate(`/accommodations?trip=${tripId}`)}
               />
             );
           }
 
-          if (type === 'transport') {
-            const item = contextData.transports.find(t => t.id === id);
-            if (!item) return null;
+          const transport = contextData.transports.find(t => t.id === id);
+          if (transport) {
             return (
               <ChatTransportCard 
                 key={index}
-                data={item}
+                data={transport}
                 onClick={() => handleNavigate(`/transports?trip=${tripId}`)}
               />
             );
           }
 
-          if (type === 'expense') {
-            const item = contextData.expenses.find(e => e.id === id);
-            if (!item) return null;
+          const expense = contextData.expenses.find(e => e.id === id);
+          if (expense) {
             return (
               <ChatExpenseCard 
                 key={index}
-                data={item}
+                data={expense}
                 onClick={() => handleNavigate(`/expenses?trip=${tripId}`)}
               />
             );
           }
 
-          if (type === 'activity') {
-            const item = contextData.activities.find(a => a.id === id);
-            if (!item) return null;
+          const activity = contextData.activities.find(a => a.id === id);
+          if (activity) {
             return (
               <ChatActivityCard 
                 key={index}
-                data={item}
+                data={activity}
                 onClick={() => handleNavigate(`/itinerary?trip=${tripId}`)}
               />
             );

@@ -65,8 +65,8 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
     *   **Memoria Persistente** (✅ Completato): Salvataggio cronologia chat su database (Supabase) per sessioni multiple.
     *   **Rich UI Components** (✅ Completato): Visualizzazione di card interattive (Alloggi, Trasporti) direttamente nei messaggi.
     *   **Function Calling** (✅ Completato): Capacità dell'AI di eseguire azioni (es. "Aggiungi questa spesa") direttamente.
+    *   **Voice Mode** (✅ Completato): Input vocale per interagire con l'assistente senza digitare.
     *   **Suggerimenti Proattivi**: L'AI analizza meteo e orari per proporre modifiche all'itinerario spontaneamente.
-    *   **Voice Mode** (Prossimo): Input vocale per interagire con l'assistente senza digitare.
 *   **Dettagli:**
     *   Chatbot AI integrato che prende in contesto i dettagli del viaggio.
     *   Risposte personalizzate basate sul contesto del viaggio specifico.
