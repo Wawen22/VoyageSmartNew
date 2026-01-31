@@ -30,7 +30,7 @@ export const usePromoCode = () => {
 
   /**
    * Redeem a promo code
-   * Uses the secure Edge Function with rate limiting
+   * Uses the secure database function with server-side validation
    */
   const redeemCode = async (code: string): Promise<RedemptionResult> => {
     if (!code.trim()) {
@@ -41,27 +41,33 @@ export const usePromoCode = () => {
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke("redeem-promo-code", {
-        body: { code: code.trim() },
+      // Call the database function directly via RPC
+      const { data, error: rpcError } = await supabase.rpc("redeem_promo_code", {
+        p_code: code.trim(),
+        p_ip_address: null,
+        p_user_agent: navigator.userAgent || null,
       });
 
-      if (fnError) {
-        // Handle HTTP errors
-        const errorMessage = fnError.message || "Errore durante la redenzione del codice.";
+      if (rpcError) {
+        // Handle RPC errors
+        const errorMessage = rpcError.message || "Errore durante la redenzione del codice.";
         setError(errorMessage);
-        return { success: false, error: "FUNCTION_ERROR", message: errorMessage };
+        return { success: false, error: "RPC_ERROR", message: errorMessage };
       }
 
-      if (data?.success) {
+      // Parse the JSON result from the function
+      const result = data as unknown as RedemptionResult;
+
+      if (result?.success) {
         // Refresh profile to get updated subscription status
         await refreshProfile();
       }
 
-      if (!data?.success && data?.error) {
-        setError(data.message);
+      if (!result?.success && result?.error) {
+        setError(result.message);
       }
 
-      return data as RedemptionResult;
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Errore imprevisto.";
       setError(errorMessage);

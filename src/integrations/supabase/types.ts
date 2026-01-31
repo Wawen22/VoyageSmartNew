@@ -339,6 +339,7 @@ export type Database = {
           ai_usage_count: number | null
           trial_ends_at: string | null
           pro_source: string | null
+          role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
           avatar_url?: string | null
@@ -352,6 +353,7 @@ export type Database = {
           ai_usage_count?: number | null
           trial_ends_at?: string | null
           pro_source?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
           avatar_url?: string | null
@@ -365,6 +367,7 @@ export type Database = {
           ai_usage_count?: number | null
           trial_ends_at?: string | null
           pro_source?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
         }
         Relationships: []
       }
@@ -815,6 +818,68 @@ export type Database = {
         }
         Returns: Json
       }
+      is_admin: {
+        Args: Record<string, never>
+        Returns: boolean
+      }
+      get_admin_promo_codes: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          code: string
+          name: string
+          description: string | null
+          type: Database["public"]["Enums"]["promo_code_type"]
+          trial_days: number | null
+          discount_percent: number | null
+          lifetime_pro: boolean
+          max_total_uses: number | null
+          current_uses: number
+          max_uses_per_user: number
+          starts_at: string
+          expires_at: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          notes: string | null
+          usage_percentage: number | null
+        }[]
+      }
+      get_admin_promo_redemptions: {
+        Args: { p_code_id?: string | null }
+        Returns: {
+          id: string
+          user_id: string
+          user_email: string
+          user_fullname: string | null
+          promo_code: string
+          promo_code_name: string
+          redeemed_at: string
+          ip_address: string | null
+          trial_ends_at: string | null
+          discount_applied: number | null
+        }[]
+      }
+      update_promo_code: {
+        Args: {
+          p_id: string
+          p_name?: string | null
+          p_description?: string | null
+          p_max_total_uses?: number | null
+          p_expires_at?: string | null
+          p_is_active?: boolean | null
+          p_notes?: string | null
+        }
+        Returns: Json
+      }
+      delete_promo_code: {
+        Args: { p_id: string }
+        Returns: Json
+      }
+      get_promo_codes_stats: {
+        Args: Record<string, never>
+        Returns: Json
+      }
     }
     Enums: {
       expense_category:
@@ -828,6 +893,7 @@ export type Database = {
       promo_code_type: "trial" | "subscription" | "lifetime" | "discount"
       transport_type: "flight" | "train" | "bus" | "car" | "ferry" | "other"
       trip_member_role: "owner" | "admin" | "member"
+      user_role: "user" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -967,6 +1033,7 @@ export const Constants = {
       promo_code_type: ["trial", "subscription", "lifetime", "discount"],
       transport_type: ["flight", "train", "bus", "car", "ferry", "other"],
       trip_member_role: ["owner", "admin", "member"],
+      user_role: ["user", "admin"],
     },
   },
 } as const

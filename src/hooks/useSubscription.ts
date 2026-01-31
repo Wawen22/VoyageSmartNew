@@ -10,6 +10,11 @@ export const useSubscription = () => {
   const FREE_LIMIT = 5;
   const isLimitReached = !isPro && aiUsageCount >= FREE_LIMIT;
   const remainingMessages = Math.max(0, FREE_LIMIT - aiUsageCount);
+  
+  // Promo code subscription info
+  const proSource = profile?.pro_source || null;
+  const isPromoSubscription = proSource === 'promo_code';
+  const trialEndsAt = profile?.trial_ends_at || null;
 
   const incrementUsage = async () => {
     if (!profile?.user_id) return;
@@ -66,6 +71,10 @@ export const useSubscription = () => {
     incrementUsage,
     subscribe,
     manageSubscription,
-    loading
+    loading,
+    // Promo code info
+    proSource,
+    isPromoSubscription,
+    trialEndsAt,
   };
 };

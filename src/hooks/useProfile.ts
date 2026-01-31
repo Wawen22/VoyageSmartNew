@@ -18,6 +18,7 @@ export interface ProfileData {
   ai_usage_count?: number;
   trial_ends_at?: string | null;
   pro_source?: string | null;
+  role?: "user" | "admin";
 }
 
 export const useProfile = () => {

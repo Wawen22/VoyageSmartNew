@@ -4,6 +4,56 @@
 
 Il sistema di codici promozionali di VoyageSmart permette di distribuire codici speciali ad amici, parenti, affiliati e partner. Ogni codice può essere utilizzato una sola volta per utente e offre diversi tipi di benefici.
 
+## ⚠️ Setup Iniziale (IMPORTANTE)
+
+Prima di poter utilizzare il sistema di codici promozionali, **devi applicare le migrazioni al database**. Senza questo passaggio, le funzioni RPC non esisteranno e riceverai errori `400 Bad Request`.
+
+### Applicare le Migrazioni
+
+1. **Via Supabase CLI** (consigliato per sviluppo locale):
+   ```bash
+   # Assicurati di essere loggato
+   supabase login
+   
+   # Collega il progetto
+   supabase link --project-ref YOUR_PROJECT_REF
+   
+   # Applica le migrazioni
+   supabase db push
+   ```
+
+2. **Via Supabase Dashboard** (per produzione):
+   - Vai su https://supabase.com/dashboard
+   - Seleziona il tuo progetto → SQL Editor
+   - Copia il contenuto di `supabase/migrations/20260131180000_promo_codes.sql`
+   - Esegui lo script
+   - Poi copia il contenuto di `supabase/migrations/20260131190000_user_roles.sql`
+   - Esegui lo script
+
+3. **Verifica che le migrazioni siano state applicate**:
+   ```sql
+   -- Verifica che le tabelle esistano
+   SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'promo_codes');
+   SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'promo_code_redemptions');
+   
+   -- Verifica che le funzioni esistano
+   SELECT routine_name FROM information_schema.routines 
+   WHERE routine_schema = 'public' 
+   AND routine_name IN ('redeem_promo_code', 'create_promo_code', 'is_admin');
+   ```
+
+### Promuovere un Utente ad Admin
+
+Dopo aver applicato le migrazioni, devi promuovere almeno un utente ad admin:
+
+```sql
+-- Trova il tuo user_id
+SELECT id, email FROM auth.users WHERE email = 'tua@email.com';
+
+-- Promuovi ad admin
+UPDATE profiles SET role = 'admin' WHERE user_id = 'UUID_TROVATO_SOPRA';
+```
+
 ## Tipi di Codici
 
 ### 1. Trial (Prova)
@@ -22,6 +72,40 @@ Il sistema di codici promozionali di VoyageSmart permette di distribuire codici 
 ### 4. Discount (Sconto)
 - Percentuale di sconto sull'abbonamento
 - Ideale per: affiliati, sconti stagionali
+
+## Ruoli Utente
+
+Il sistema di codici promozionali utilizza un sistema di ruoli per controllare l'accesso:
+
+| Ruolo | Descrizione | Permessi |
+|-------|-------------|----------|
+| `user` | Utente normale (default) | Può riscattare codici, vedere i propri riscatti |
+| `admin` | Amministratore | Tutti i permessi + gestione codici nel pannello admin |
+
+### Promuovere un Utente ad Admin
+
+```sql
+-- Per email
+UPDATE profiles p
+SET role = 'admin'
+FROM auth.users u
+WHERE p.user_id = u.id
+  AND u.email = 'admin@example.com';
+
+-- Per user_id diretto
+UPDATE profiles
+SET role = 'admin'
+WHERE user_id = 'uuid-dell-utente';
+```
+
+### Verificare gli Admin
+
+```sql
+SELECT p.full_name, u.email, p.role
+FROM profiles p
+JOIN auth.users u ON p.user_id = u.id
+WHERE p.role = 'admin';
+```
 
 ## Sicurezza
 
@@ -46,7 +130,35 @@ Il sistema è progettato con molteplici livelli di sicurezza:
 
 ## Come Generare Codici
 
-### Metodo 1: SQL Diretto (Supabase SQL Editor)
+### Metodo 1: Admin Panel (Consigliato) 🆕
+
+VoyageSmart include un pannello di amministrazione completo per la gestione dei codici promozionali. Per accedervi:
+
+1. **Configura un utente admin**: Esegui questa query nel Supabase SQL Editor per promuovere un utente ad admin:
+   ```sql
+   UPDATE profiles
+   SET role = 'admin'
+   WHERE user_id = 'UUID_DELL_UTENTE';
+   ```
+
+2. **Accedi al pannello**: Una volta loggato come admin, vedrai un pulsante "Admin" nella navbar che ti porterà a `/admin/promo-codes`
+
+3. **Funzionalità disponibili**:
+   - 📊 **Dashboard**: Statistiche in tempo reale (codici totali, attivi, riscatti)
+   - ➕ **Crea Codice**: Form completo per creare nuovi codici con tutti i parametri
+   - ✏️ **Modifica Codice**: Aggiorna nome, descrizione, limiti e scadenza
+   - 🗑️ **Elimina Codice**: Rimuovi codici non più necessari
+   - 👁️ **Visualizza Riscatti**: Vedi chi ha usato ogni codice
+   - 🔄 **Aggiorna Dati**: Refresh in tempo reale
+
+#### Caratteristiche del Pannello Admin:
+
+- **Filtri avanzati**: Cerca per codice/nome, filtra per stato (attivo/inattivo/scaduto) e tipo
+- **Generatore codici**: Genera automaticamente codici casuali di 8 caratteri
+- **Progress bar utilizzo**: Visualizza graficamente la percentuale di utilizzo
+- **Storico riscatti**: Tab dedicata con tutti i riscatti e dettagli utente
+
+### Metodo 2: SQL Diretto (Supabase SQL Editor)
 
 Accedi al Supabase Dashboard → SQL Editor e esegui:
 
@@ -301,6 +413,42 @@ SELECT create_promo_code('VIPFOREVER', 'VIP Lifetime', 'lifetime', NULL, NULL, t
 -- 📱 App Review - 7 giorni trial
 SELECT create_promo_code('REVIEW7', 'App Review Trial', 'trial', 7, NULL, false, 1000, 1, NULL, '7 giorni per provare Pro', 'Per chi lascia recensioni');
 ```
+
+## Esperienza Utente Post-Riscatto
+
+Quando un utente riscatta con successo un codice promozionale, nella sezione **Profilo → Abbonamento** vedrà una card dedicata con:
+
+### Card Abbonamento Promo Code
+
+```
+┌────────────────────────────────────────┐
+│ VoyageSmart Pro               [ATTIVO] │
+│ 🎁 Attivato tramite Codice Promozionale│
+├────────────────────────────────────────┤
+│ ┌──────────────────────────────────┐   │
+│ │ Codice: Codice Amici 2024        │   │
+│ │ 🎁 Beneficio: 30 giorni di Pro   │   │
+│ │ 📅 Attivato il: 1 Febbraio 2026  │   │
+│ │ ⏰ Valido fino al: 2 Marzo 2026  │   │
+│ └──────────────────────────────────┘   │
+│                                        │
+│ ✅ AI Assistant Illimitato             │
+│ ✅ Export PDF & Calendario             │
+│ ✅ Supporto Prioritario                │
+└────────────────────────────────────────┘
+```
+
+### Per Codici Lifetime
+
+```
+│ ♾️ Validità: Lifetime / A vita         │
+```
+
+### Differenze con Abbonamento Stripe
+
+- **Nessun pulsante "Gestisci Abbonamento"** - i codici promo non usano Stripe
+- **Card verde** invece di viola/indigo per distinguere visivamente
+- **Dettagli del riscatto** visibili (data attivazione, scadenza, beneficio)
 
 ---
 

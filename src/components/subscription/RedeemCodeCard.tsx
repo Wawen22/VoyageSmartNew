@@ -195,7 +195,7 @@ export function RedeemCodeCard() {
                 "placeholder:normal-case placeholder:tracking-normal placeholder:font-sans",
                 error && "border-red-300 dark:border-red-700"
               )}
-              maxLength={30}
+              maxLength={100}
             />
           </div>
           <Button

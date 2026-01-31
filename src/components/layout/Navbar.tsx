@@ -14,13 +14,15 @@ import {
   ClipboardList,
   LogOut,
   Lightbulb,
-  MessageCircle
+  MessageCircle,
+  Shield
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ChecklistButton } from "@/components/checklist/ChecklistButton";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { useProfile } from "@/hooks/useProfile";
+import { useAdmin } from "@/hooks/useAdmin";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -40,6 +42,7 @@ export function Navbar() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
+  const { isAdmin } = useAdmin();
   const isLanding = location.pathname === "/";
   
   useEffect(() => {
@@ -180,6 +183,18 @@ export function Navbar() {
                     )}
                   </div>
                 </Link>
+                {isAdmin && (
+                  <Link to="/admin/promo-codes">
+                    <Button 
+                      variant={isDarkNav ? "heroOutline" : "outline"} 
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Shield className="w-4 h-4" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
                 <Button 
                   variant={isDarkNav ? "heroOutline" : "outline"} 
                   size="sm"
@@ -294,6 +309,14 @@ export function Navbar() {
                         </div>
                       </div>
                     </Link>
+                    {isAdmin && (
+                      <Link to="/admin/promo-codes" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" className="w-full gap-2">
+                          <Shield className="w-4 h-4" />
+                          Admin Panel
+                        </Button>
+                      </Link>
+                    )}
                     <Button 
                       variant="outline" 
                       className="w-full"
