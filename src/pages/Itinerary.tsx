@@ -5,7 +5,7 @@ import { ArrowLeft, Loader2, Clock, CalendarDays, Map, List } from "lucide-react
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useTimelineEvents } from "@/hooks/useTimelineEvents";
-import { useItinerary } from "@/hooks/useItinerary";
+import { useItinerary, type ItineraryActivity, type UpdateActivityData } from "@/hooks/useItinerary";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { TimelineDayNav } from "@/components/timeline/TimelineDayNav";
@@ -13,6 +13,7 @@ import { TimelineDaySection } from "@/components/timeline/TimelineDaySection";
 import { TimelineStats } from "@/components/timeline/TimelineStats";
 import { TimelineFilters, type TimelineFilterType } from "@/components/timeline/TimelineFilters";
 import { ItineraryMap } from "@/components/itinerary/ItineraryMap";
+import { ActivityDetailDialog } from "@/components/itinerary/ActivityDetailDialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -26,9 +27,11 @@ export default function Itinerary() {
   const [activeFilter, setActiveFilter] = useState<TimelineFilterType>("all");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [mapScope, setMapScope] = useState<"trip" | "day">("trip");
+  const [selectedActivity, setSelectedActivity] = useState<ItineraryActivity | null>(null);
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
 
   const { trip, timelineDays, stats, loading, refetch: refetchTimeline } = useTimelineEvents(tripId || undefined);
-  const { activities, loading: activitiesLoading, createActivity, deleteActivity } = useItinerary(tripId || undefined);
+  const { activities, loading: activitiesLoading, createActivity, deleteActivity, updateActivity } = useItinerary(tripId || undefined);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -89,6 +92,29 @@ export default function Itinerary() {
     const success = await deleteActivity(id);
     if (success) {
       await refetchTimeline();
+    }
+    return success;
+  };
+
+  const handleViewActivity = (activity: ItineraryActivity) => {
+    setSelectedActivity(activity);
+    setActivityDialogOpen(true);
+  };
+
+  const handleUpdateActivity = async (data: UpdateActivityData) => {
+    if (!selectedActivity) return false;
+    const success = await updateActivity(selectedActivity.id, data);
+    if (success) {
+      await refetchTimeline();
+      setActivityDialogOpen(false);
+    }
+    return success;
+  };
+
+  const handleDeleteActivityFromDialog = async (id: string) => {
+    const success = await handleDeleteActivity(id);
+    if (success) {
+      setActivityDialogOpen(false);
     }
     return success;
   };
@@ -174,20 +200,6 @@ export default function Itinerary() {
                           Mappa
                         </TabsTrigger>
                       </TabsList>
-                      {viewMode === "map" && (
-                        <ToggleGroup
-                          type="single"
-                          value={mapScope}
-                          onValueChange={(value) => value && setMapScope(value as "trip" | "day")}
-                          variant="outline"
-                          size="sm"
-                        >
-                          <ToggleGroupItem value="trip">Tutto il viaggio</ToggleGroupItem>
-                          <ToggleGroupItem value="day" disabled={!selectedDateStr}>
-                            Giorno selezionato
-                          </ToggleGroupItem>
-                        </ToggleGroup>
-                      )}
                     </div>
                   </div>
 
@@ -202,12 +214,29 @@ export default function Itinerary() {
                   />
 
                   {/* Filters */}
-                  <TimelineFilters
-                    activeFilter={activeFilter}
-                    onFilterChange={setActiveFilter}
-                  />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                    <TimelineFilters
+                      activeFilter={activeFilter}
+                      onFilterChange={setActiveFilter}
+                    />
+                    {viewMode === "map" && (
+                      <ToggleGroup
+                        type="single"
+                        value={mapScope}
+                        onValueChange={(value) => value && setMapScope(value as "trip" | "day")}
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0"
+                      >
+                        <ToggleGroupItem value="trip" className="text-xs">Tutto il viaggio</ToggleGroupItem>
+                        <ToggleGroupItem value="day" disabled={!selectedDateStr} className="text-xs">
+                          Giorno selezionato
+                        </ToggleGroupItem>
+                      </ToggleGroup>
+                    )}
+                  </div>
 
-                  <TabsContent value="list" className="mt-4">
+                  <TabsContent value="list" className="mt-0">
                     {/* Timeline content */}
                     <div className="space-y-2">
                       {displayDays.map((day, index) => (
@@ -219,6 +248,7 @@ export default function Itinerary() {
                           tripId={trip!.id}
                           onAddActivity={handleAddActivity}
                           onDeleteActivity={handleDeleteActivity}
+                          onViewActivity={handleViewActivity}
                         />
                       ))}
                     </div>
@@ -253,7 +283,11 @@ export default function Itinerary() {
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
                       </div>
                     ) : (
-                      <ItineraryMap activities={mapActivities} active={viewMode === "map"} />
+                      <ItineraryMap
+                        activities={mapActivities}
+                        active={viewMode === "map"}
+                        onViewActivity={handleViewActivity}
+                      />
                     )}
                   </TabsContent>
                 </Tabs>
@@ -262,6 +296,15 @@ export default function Itinerary() {
           </div>
         </div>
       </main>
+
+      {/* Activity Detail Dialog */}
+      <ActivityDetailDialog
+        activity={selectedActivity}
+        open={activityDialogOpen}
+        onOpenChange={setActivityDialogOpen}
+        onUpdate={handleUpdateActivity}
+        onDelete={handleDeleteActivityFromDialog}
+      />
     </AppLayout>
   );
 }

@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Plane, 
-  Train, 
-  Bus, 
-  Car, 
-  Ship, 
-  MapPin, 
-  Clock, 
-  LogIn, 
+import {
+  Plane,
+  Train,
+  Bus,
+  Car,
+  Ship,
+  MapPin,
+  Clock,
+  LogIn,
   LogOut,
   Utensils,
   Camera,
@@ -18,7 +18,9 @@ import {
   Building2,
   MoreHorizontal,
   Trash2,
-  Loader2
+  Loader2,
+  Eye,
+  Edit3
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,12 +36,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import type { TimelineEvent } from "@/hooks/useTimelineEvents";
+import type { ItineraryActivity } from "@/hooks/useItinerary";
 
 interface TimelineEventCardProps {
   event: TimelineEvent;
   isFirst?: boolean;
   isLast?: boolean;
   onDelete?: (id: string) => Promise<boolean>;
+  onViewActivity?: (activity: ItineraryActivity) => void;
 }
 
 const transportIcons: Record<string, React.ElementType> = {
@@ -118,7 +122,7 @@ const getIcon = (type: TimelineEvent["type"], category?: string) => {
   }
 };
 
-export function TimelineEventCard({ event, isFirst, isLast, onDelete }: TimelineEventCardProps) {
+export function TimelineEventCard({ event, isFirst, isLast, onDelete, onViewActivity }: TimelineEventCardProps) {
   const [deleting, setDeleting] = useState(false);
   const styles = getEventStyles(event.type, event.category);
   const Icon = getIcon(event.type, event.category);
@@ -131,6 +135,14 @@ export function TimelineEventCard({ event, isFirst, isLast, onDelete }: Timeline
     await onDelete(originalId);
     setDeleting(false);
   };
+
+  const handleViewActivity = () => {
+    if (event.type === "activity" && event.originalData && onViewActivity) {
+      onViewActivity(event.originalData as ItineraryActivity);
+    }
+  };
+
+  const isActivity = event.type === "activity";
 
   return (
     <motion.div
@@ -181,41 +193,58 @@ export function TimelineEventCard({ event, isFirst, isLast, onDelete }: Timeline
               <p className="text-sm text-muted-foreground truncate">{event.subtitle}</p>
             )}
           </div>
-          {/* Delete button for activities */}
-          {onDelete && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Eliminare questa attività?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    L'attività "{event.title}" verrà eliminata permanentemente.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annulla</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    disabled={deleting}
+          
+          {/* Action buttons */}
+          <div className="flex items-center gap-1">
+            {/* View/Edit button for activities */}
+            {isActivity && onViewActivity && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleViewActivity}
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary hover:bg-primary/10"
+                title="Visualizza dettagli"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            )}
+            
+            {/* Delete button for activities */}
+            {onDelete && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
-                    {deleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    Elimina
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Eliminare questa attività?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      L'attività "{event.title}" verrà eliminata permanentemente.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annulla</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      disabled={deleting}
+                    >
+                      {deleting ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : null}
+                      Elimina
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </div>
 
         {/* Location */}

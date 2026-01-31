@@ -35,6 +35,19 @@ interface CreateActivityData {
   notes?: string;
 }
 
+interface UpdateActivityData {
+  title?: string;
+  description?: string;
+  location?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  activity_date?: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  category?: string;
+  notes?: string;
+}
+
 export function useItinerary(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -116,6 +129,49 @@ export function useItinerary(tripId?: string) {
     }
   };
 
+  const updateActivity = async (id: string, data: UpdateActivityData): Promise<boolean> => {
+    if (!user) return false;
+
+    try {
+      const updateData: Record<string, any> = {};
+      
+      // Only include fields that are explicitly provided
+      if (data.title !== undefined) updateData.title = data.title;
+      if (data.description !== undefined) updateData.description = data.description || null;
+      if (data.location !== undefined) updateData.location = data.location || null;
+      if (data.latitude !== undefined) updateData.latitude = data.latitude;
+      if (data.longitude !== undefined) updateData.longitude = data.longitude;
+      if (data.activity_date !== undefined) updateData.activity_date = data.activity_date;
+      if (data.start_time !== undefined) updateData.start_time = data.start_time || null;
+      if (data.end_time !== undefined) updateData.end_time = data.end_time || null;
+      if (data.category !== undefined) updateData.category = data.category;
+      if (data.notes !== undefined) updateData.notes = data.notes || null;
+
+      const { error } = await supabase
+        .from("itinerary_activities")
+        .update(updateData)
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Attività aggiornata",
+        description: data.title || "Le modifiche sono state salvate"
+      });
+
+      await fetchActivities();
+      return true;
+    } catch (error: any) {
+      console.error("Error updating activity:", error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare l'attività",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
   const deleteActivity = async (id: string): Promise<boolean> => {
     try {
       const { error } = await supabase
@@ -176,7 +232,10 @@ export function useItinerary(tripId?: string) {
     activities,
     loading,
     createActivity,
+    updateActivity,
     deleteActivity,
     refetch: fetchActivities
   };
 }
+
+export type { UpdateActivityData };

@@ -5,6 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { TimelineEventCard } from "./TimelineEventCard";
 import { AddActivityDialog } from "@/components/itinerary/AddActivityDialog";
 import type { TimelineDay } from "@/hooks/useTimelineEvents";
+import type { ItineraryActivity } from "@/hooks/useItinerary";
 
 interface TimelineDaySectionProps {
   day: TimelineDay;
@@ -13,15 +14,17 @@ interface TimelineDaySectionProps {
   tripId: string;
   onAddActivity?: (data: any) => Promise<boolean>;
   onDeleteActivity?: (id: string) => Promise<boolean>;
+  onViewActivity?: (activity: ItineraryActivity) => void;
 }
 
-export function TimelineDaySection({ 
-  day, 
-  dayNumber, 
+export function TimelineDaySection({
+  day,
+  dayNumber,
   isToday,
   tripId,
   onAddActivity,
-  onDeleteActivity 
+  onDeleteActivity,
+  onViewActivity
 }: TimelineDaySectionProps) {
   const isEmpty = day.events.length === 0;
 
@@ -96,6 +99,7 @@ export function TimelineDaySection({
               isFirst={index === 0}
               isLast={index === day.events.length - 1}
               onDelete={event.type === "activity" && onDeleteActivity ? onDeleteActivity : undefined}
+              onViewActivity={event.type === "activity" && onViewActivity ? onViewActivity : undefined}
             />
           ))}
         </div>
