@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useTripAI } from "@/hooks/useTripAI";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, Send, Loader2, Sparkles, User, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RichMessageRenderer } from "./RichMessageRenderer";
+import { ActionProposalCard } from "./ActionProposalCard";
 
 interface TripAIAssistantProps {
   tripId: string;
@@ -20,7 +20,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  const { messages, sendMessage, isLoading, error, clearChat, contextData } = useTripAI({ 
+  const { messages, sendMessage, executeTool, isLoading, error, clearChat, contextData } = useTripAI({ 
     tripId, 
     tripDetails 
   });
@@ -142,7 +142,15 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
                         : "bg-white dark:bg-slate-800 border rounded-bl-none max-w-full w-auto"
                     )}
                   >
-                    {msg.role === "assistant" ? (
+                    {msg.toolCalls && msg.toolCalls.length > 0 ? (
+                      <ActionProposalCard 
+                        functionName={msg.toolCalls[0].name}
+                        args={msg.toolCalls[0].args}
+                        onConfirm={() => executeTool(msg.id!, msg.toolCalls![0])}
+                        onCancel={() => {}} 
+                        isExecuted={msg.isExecuted}
+                      />
+                    ) : msg.role === "assistant" ? (
                       <RichMessageRenderer 
                         content={msg.content}
                         contextData={contextData}

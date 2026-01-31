@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -65,18 +66,14 @@ interface CreateExpenseData {
 export function useExpenses(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [expenses, setExpenses] = useState<ExpenseWithSplits[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [balances, setBalances] = useState<Balance[]>([]);
+  const queryClient = useQueryClient();
 
-  const fetchExpenses = useCallback(async () => {
-    if (!tripId || !user) {
-      setExpenses([]);
-      setLoading(false);
-      return;
-    }
+  // Query for fetching expenses
+  const { data: expenses = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['expenses', tripId],
+    queryFn: async () => {
+      if (!tripId || !user) return [];
 
-    try {
       // Fetch expenses
       const { data: expensesData, error: expensesError } = await supabase
         .from("expenses")
@@ -116,92 +113,72 @@ export function useExpenses(tripId?: string) {
       }
 
       // Combine data
-      const expensesWithSplits: ExpenseWithSplits[] = (expensesData || []).map(expense => ({
+      return (expensesData || []).map(expense => ({
         ...expense,
         category: expense.category as ExpenseCategory,
         splits: splitsData.filter(s => s.expense_id === expense.id),
         paid_by_profile: profilesMap[expense.paid_by]
+      })) as ExpenseWithSplits[];
+    },
+    enabled: !!tripId && !!user,
+  });
+
+  // Calculate balances and stats
+  const { balances, totalSpent, userBalance } = useMemo(() => {
+    let balancesList: Balance[] = [];
+    let total = 0;
+    let uBalance = 0;
+
+    if (expenses.length > 0) {
+      const balanceMap: Record<string, number> = {};
+      const profilesMap: Record<string, { name: string, avatar: string | null }> = {};
+
+      expenses.forEach(expense => {
+        total += expense.amount;
+        
+        // Populate profile map from existing data if possible
+        if (expense.paid_by_profile) {
+           profilesMap[expense.paid_by] = { 
+             name: expense.paid_by_profile.full_name || "Utente", 
+             avatar: expense.paid_by_profile.avatar_url 
+           };
+        }
+
+        balanceMap[expense.paid_by] = (balanceMap[expense.paid_by] || 0) + expense.amount;
+        expense.splits.forEach(split => {
+          balanceMap[split.user_id] = (balanceMap[split.user_id] || 0) - split.amount;
+        });
+      });
+
+      balancesList = Object.entries(balanceMap).map(([userId, amount]) => ({
+        userId,
+        name: profilesMap[userId]?.name || "Utente",
+        avatarUrl: profilesMap[userId]?.avatar || null,
+        amount: Math.round(amount * 100) / 100
       }));
 
-      setExpenses(expensesWithSplits);
-      calculateBalances(expensesWithSplits, profilesMap);
-    } catch (error: any) {
-      console.error("Error fetching expenses:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare le spese",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [tripId, user, toast]);
-
-  const calculateBalances = async (
-    expensesList: ExpenseWithSplits[],
-    existingProfiles: Record<string, { full_name: string | null; avatar_url: string | null }>
-  ) => {
-    // Collect all unique user IDs
-    const allUserIds = new Set<string>();
-    expensesList.forEach(expense => {
-      allUserIds.add(expense.paid_by);
-      expense.splits.forEach(split => allUserIds.add(split.user_id));
-    });
-
-    // Fetch any missing profiles
-    const missingIds = [...allUserIds].filter(id => !existingProfiles[id]);
-    if (missingIds.length > 0) {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url")
-        .in("user_id", missingIds);
-
-      profiles?.forEach(p => {
-        existingProfiles[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url };
-      });
+      uBalance = balancesList.find(b => b.userId === user?.id)?.amount || 0;
     }
 
-    // Calculate net balance for each user
-    const balanceMap: Record<string, number> = {};
+    return { balances: balancesList, totalSpent: total, userBalance: uBalance };
+  }, [expenses, user]);
 
-    expensesList.forEach(expense => {
-      // The payer gets credited the total amount
-      balanceMap[expense.paid_by] = (balanceMap[expense.paid_by] || 0) + expense.amount;
-
-      // Each person in the split owes their share
-      expense.splits.forEach(split => {
-        balanceMap[split.user_id] = (balanceMap[split.user_id] || 0) - split.amount;
-      });
-    });
-
-    const balancesList: Balance[] = Object.entries(balanceMap).map(([userId, amount]) => ({
-      userId,
-      name: existingProfiles[userId]?.full_name || "Utente",
-      avatarUrl: existingProfiles[userId]?.avatar_url,
-      amount: Math.round(amount * 100) / 100 // Round to 2 decimals
-    }));
-
-    setBalances(balancesList);
-  };
-
-  const createExpense = async (data: CreateExpenseData): Promise<boolean> => {
-    if (!user) return false;
-
-    try {
-      // Create the expense
+  // Mutations
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateExpenseData) => {
       const { data: expense, error: expenseError } = await supabase
         .from("expenses")
         .insert({
           trip_id: data.trip_id,
           description: data.description,
           amount: data.amount,
-          currency: "EUR", // Always store normalized amount in EUR (or base currency)
+          currency: "EUR",
           original_amount: data.original_amount,
           original_currency: data.original_currency,
           exchange_rate: data.exchange_rate,
           category: data.category,
           paid_by: data.paid_by,
-          created_by: user.id,
+          created_by: user!.id,
           expense_date: data.expense_date || new Date().toISOString().split('T')[0],
           receipt_url: data.receipt_url || null
         })
@@ -210,11 +187,9 @@ export function useExpenses(tripId?: string) {
 
       if (expenseError) throw expenseError;
 
-      // Calculate split amounts
       const splitAmount = data.split_amounts || {};
       const equalSplit = data.amount / data.split_with.length;
 
-      // Create splits
       const splits = data.split_with.map(userId => ({
         expense_id: expense.id,
         user_id: userId,
@@ -226,36 +201,25 @@ export function useExpenses(tripId?: string) {
         .insert(splits);
 
       if (splitsError) throw splitsError;
-
-      toast({
-        title: "Spesa aggiunta",
-        description: `${data.description} - €${data.amount.toFixed(2)}`
-      });
-
-      await fetchExpenses();
-      return true;
-    } catch (error: any) {
-      console.error("Error creating expense:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile creare la spesa",
-        variant: "destructive"
-      });
-      return false;
+      return expense;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
+      toast({ title: "Spesa aggiunta" });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile creare la spesa", variant: "destructive" });
     }
-  };
+  });
 
-  const updateExpense = async (expenseId: string, data: CreateExpenseData): Promise<boolean> => {
-    if (!user) return false;
-
-    try {
-      // 1. Update the expense record
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: CreateExpenseData }) => {
       const { error: expenseError } = await supabase
         .from("expenses")
         .update({
           description: data.description,
           amount: data.amount,
-          // currency: "EUR" (base currency usually doesn't change unless we re-convert)
           original_amount: data.original_amount,
           original_currency: data.original_currency,
           exchange_rate: data.exchange_rate,
@@ -265,119 +229,67 @@ export function useExpenses(tripId?: string) {
           receipt_url: data.receipt_url || null,
           updated_at: new Date().toISOString()
         })
-        .eq("id", expenseId);
+        .eq("id", id);
 
       if (expenseError) throw expenseError;
 
-      // 2. Delete existing splits
-      const { error: deleteSplitsError } = await supabase
-        .from("expense_splits")
-        .delete()
-        .eq("expense_id", expenseId);
+      await supabase.from("expense_splits").delete().eq("expense_id", id);
 
-      if (deleteSplitsError) throw deleteSplitsError;
-
-      // 3. Create new splits
       const splitAmount = data.split_amounts || {};
       const equalSplit = data.amount / data.split_with.length;
 
       const splits = data.split_with.map(userId => ({
-        expense_id: expenseId,
+        expense_id: id,
         user_id: userId,
         amount: splitAmount[userId] || equalSplit
       }));
 
-      const { error: insertSplitsError } = await supabase
-        .from("expense_splits")
-        .insert(splits);
-
+      const { error: insertSplitsError } = await supabase.from("expense_splits").insert(splits);
       if (insertSplitsError) throw insertSplitsError;
-
-      toast({
-        title: "Spesa aggiornata",
-        description: `${data.description}`
-      });
-
-      await fetchExpenses();
-      return true;
-    } catch (error: any) {
-      console.error("Error updating expense:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare la spesa",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
+      toast({ title: "Spesa aggiornata" });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile aggiornare la spesa", variant: "destructive" });
     }
-  };
+  });
 
-  const deleteExpense = async (expenseId: string): Promise<boolean> => {
-    try {
-      const { error } = await supabase
-        .from("expenses")
-        .delete()
-        .eq("id", expenseId);
-
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("expenses").delete().eq("id", id);
       if (error) throw error;
-
-      toast({
-        title: "Spesa eliminata"
-      });
-
-      await fetchExpenses();
-      return true;
-    } catch (error: any) {
-      console.error("Error deleting expense:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare la spesa",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
+      toast({ title: "Spesa eliminata" });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile eliminare la spesa", variant: "destructive" });
     }
-  };
+  });
 
-  // Subscribe to realtime changes
+  // Realtime subscription
   useEffect(() => {
     if (!tripId) return;
 
-    fetchExpenses();
-
     const channel = supabase
       .channel(`expenses-${tripId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "expenses",
-          filter: `trip_id=eq.${tripId}`
-        },
-        () => {
-          fetchExpenses();
-        }
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "expense_splits"
-        },
-        () => {
-          fetchExpenses();
-        }
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "expenses", filter: `trip_id=eq.${tripId}` }, () => {
+        queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "expense_splits" }, () => {
+        queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tripId, fetchExpenses]);
-
-  // Calculate summary stats
-  const totalSpent = expenses.reduce((acc, exp) => acc + exp.amount, 0);
-  const userBalance = balances.find(b => b.userId === user?.id)?.amount || 0;
+  }, [tripId, queryClient]);
 
   return {
     expenses,
@@ -385,9 +297,18 @@ export function useExpenses(tripId?: string) {
     balances,
     totalSpent,
     userBalance,
-    createExpense,
-    updateExpense,
-    deleteExpense,
-    refetch: fetchExpenses
+    createExpense: async (data: CreateExpenseData) => {
+      await createMutation.mutateAsync(data);
+      return true;
+    },
+    updateExpense: async (id: string, data: CreateExpenseData) => {
+      await updateMutation.mutateAsync({ id, data });
+      return true;
+    },
+    deleteExpense: async (id: string) => {
+      await deleteMutation.mutateAsync(id);
+      return true;
+    },
+    refetch
   };
 }

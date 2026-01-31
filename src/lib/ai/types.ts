@@ -1,11 +1,21 @@
-
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
+export interface ToolCall {
+  id?: string;
+  name: string;
+  args: any;
+}
+
+export interface AIResponse {
+  content: string;
+  toolCalls?: ToolCall[];
+}
+
 export interface AIProvider {
-  generateResponse(messages: AIMessage[]): Promise<string>;
+  generateResponse(messages: AIMessage[], tools?: any[]): Promise<AIResponse>;
 }
 
 export type AIProviderType = 'gemini' | 'azure';

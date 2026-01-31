@@ -1,5 +1,5 @@
 
-import { AIProvider, AIConfig, AIMessage, AIProviderType } from "./types";
+import { AIProvider, AIConfig, AIMessage, AIProviderType, AIResponse } from "./types";
 import { GeminiProvider } from "./gemini";
 import { AzureOpenAIProvider } from "./azure";
 
@@ -38,8 +38,8 @@ export class AIService {
     return AIService.instance;
   }
 
-  public async sendMessage(messages: AIMessage[]): Promise<string> {
-    return this.provider.generateResponse(messages);
+  public async sendMessage(messages: AIMessage[], tools?: any[]): Promise<AIResponse> {
+    return this.provider.generateResponse(messages, tools);
   }
 }
 

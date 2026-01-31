@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -42,23 +43,13 @@ interface CreateAccommodationData {
 export function useAccommodations(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const toastRef = useRef(toast);
-  
-  useEffect(() => {
-    toastRef.current = toast;
-  }, [toast]);
+  const queryClient = useQueryClient();
 
-  const fetchAccommodations = useCallback(async () => {
-    if (!tripId || !user) {
-      setAccommodations([]);
-      setLoading(false);
-      return;
-    }
+  const { data: accommodations = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['accommodations', tripId],
+    queryFn: async () => {
+      if (!tripId || !user) return [];
 
-    try {
-      setLoading(true);
       const { data, error } = await supabase
         .from("accommodations")
         .select("*")
@@ -66,23 +57,13 @@ export function useAccommodations(tripId?: string) {
         .order("check_in", { ascending: true });
 
       if (error) throw error;
-      setAccommodations(data || []);
-    } catch (error: any) {
-      console.error("Error fetching accommodations:", error);
-      toastRef.current({
-        title: "Errore",
-        description: "Impossibile caricare gli alloggi",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [tripId, user]);
+      return (data || []) as Accommodation[];
+    },
+    enabled: !!tripId && !!user
+  });
 
-  const createAccommodation = async (data: CreateAccommodationData): Promise<boolean> => {
-    if (!user) return false;
-
-    try {
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateAccommodationData) => {
       const { error } = await supabase.from("accommodations").insert({
         trip_id: data.trip_id,
         name: data.name,
@@ -97,56 +78,38 @@ export function useAccommodations(tripId?: string) {
         booking_url: data.booking_url || null,
         notes: data.notes || null,
         document_url: data.document_url || null,
-        created_by: user.id
+        created_by: user!.id
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Alloggio aggiunto",
-        description: data.name
-      });
-
-      await fetchAccommodations();
-      return true;
-    } catch (error: any) {
-      console.error("Error creating accommodation:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile creare l'alloggio",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['accommodations', tripId] });
+      toast({ title: "Alloggio aggiunto", description: variables.name });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile creare l'alloggio", variant: "destructive" });
     }
-  };
+  });
 
-  const deleteAccommodation = async (id: string): Promise<boolean> => {
-    try {
-      const { error } = await supabase
-        .from("accommodations")
-        .delete()
-        .eq("id", id);
-
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("accommodations").delete().eq("id", id);
       if (error) throw error;
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accommodations', tripId] });
       toast({ title: "Alloggio eliminato" });
-      await fetchAccommodations();
-      return true;
-    } catch (error: any) {
-      console.error("Error deleting accommodation:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare l'alloggio",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile eliminare l'alloggio", variant: "destructive" });
     }
-  };
+  });
 
   useEffect(() => {
     if (!tripId) return;
-
-    fetchAccommodations();
 
     let debounceTimer: NodeJS.Timeout;
     
@@ -163,7 +126,7 @@ export function useAccommodations(tripId?: string) {
         () => {
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
-            fetchAccommodations();
+            queryClient.invalidateQueries({ queryKey: ['accommodations', tripId] });
           }, 300);
         }
       )
@@ -173,16 +136,22 @@ export function useAccommodations(tripId?: string) {
       clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
     };
-  }, [tripId, fetchAccommodations]);
+  }, [tripId, queryClient]);
 
-  const totalCost = accommodations.reduce((acc, a) => acc + (a.price || 0), 0);
+  const totalCost = useMemo(() => accommodations.reduce((acc, a) => acc + (a.price || 0), 0), [accommodations]);
 
   return {
     accommodations,
     loading,
     totalCost,
-    createAccommodation,
-    deleteAccommodation,
-    refetch: fetchAccommodations
+    createAccommodation: async (data: CreateAccommodationData) => {
+      await createMutation.mutateAsync(data);
+      return true;
+    },
+    deleteAccommodation: async (id: string) => {
+      await deleteMutation.mutateAsync(id);
+      return true;
+    },
+    refetch
   };
 }

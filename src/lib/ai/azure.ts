@@ -1,6 +1,6 @@
 
 import OpenAI from "openai";
-import { AIProvider, AIMessage } from "./types";
+import { AIProvider, AIMessage, AIResponse } from "./types";
 
 export class AzureOpenAIProvider implements AIProvider {
   private client: OpenAI;
@@ -17,17 +17,21 @@ export class AzureOpenAIProvider implements AIProvider {
     });
   }
 
-  async generateResponse(messages: AIMessage[]): Promise<string> {
+  async generateResponse(messages: AIMessage[], tools?: any[]): Promise<AIResponse> {
     try {
       const response = await this.client.chat.completions.create({
         messages: messages.map(m => ({
-          role: m.role,
+          role: m.role as 'system' | 'user' | 'assistant',
           content: m.content
         })),
-        model: this.deployment, // Azure uses deployment name as model usually, or strictly in URL
+        model: this.deployment,
+        // Tools implementation skipped for Azure for now
       });
 
-      return response.choices[0]?.message?.content || "No response generated.";
+      return {
+        content: response.choices[0]?.message?.content || "No response generated.",
+        toolCalls: []
+      };
     } catch (error) {
       console.error("Azure OpenAI Error:", error);
       throw error;

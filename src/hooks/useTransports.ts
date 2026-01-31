@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -42,23 +43,13 @@ interface CreateTransportData {
 export function useTransports(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [transports, setTransports] = useState<Transport[]>([]);
-  const [loading, setLoading] = useState(true);
-  const toastRef = useRef(toast);
-  
-  useEffect(() => {
-    toastRef.current = toast;
-  }, [toast]);
+  const queryClient = useQueryClient();
 
-  const fetchTransports = useCallback(async () => {
-    if (!tripId || !user) {
-      setTransports([]);
-      setLoading(false);
-      return;
-    }
+  const { data: transports = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['transports', tripId],
+    queryFn: async () => {
+      if (!tripId || !user) return [];
 
-    try {
-      setLoading(true);
       const { data, error } = await supabase
         .from("transports")
         .select("*")
@@ -66,23 +57,13 @@ export function useTransports(tripId?: string) {
         .order("departure_datetime", { ascending: true });
 
       if (error) throw error;
-      setTransports((data || []) as Transport[]);
-    } catch (error: any) {
-      console.error("Error fetching transports:", error);
-      toastRef.current({
-        title: "Errore",
-        description: "Impossibile caricare i trasporti",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [tripId, user]);
+      return (data || []) as Transport[];
+    },
+    enabled: !!tripId && !!user
+  });
 
-  const createTransport = async (data: CreateTransportData): Promise<boolean> => {
-    if (!user) return false;
-
-    try {
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateTransportData) => {
       const { error } = await supabase.from("transports").insert({
         trip_id: data.trip_id,
         transport_type: data.transport_type,
@@ -96,56 +77,38 @@ export function useTransports(tripId?: string) {
         currency: data.currency || "EUR",
         notes: data.notes || null,
         document_url: data.document_url || null,
-        created_by: user.id
+        created_by: user!.id
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Trasporto aggiunto",
-        description: `${data.departure_location} → ${data.arrival_location}`
-      });
-
-      await fetchTransports();
-      return true;
-    } catch (error: any) {
-      console.error("Error creating transport:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile creare il trasporto",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['transports', tripId] });
+      toast({ title: "Trasporto aggiunto", description: `${variables.departure_location} → ${variables.arrival_location}` });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile creare il trasporto", variant: "destructive" });
     }
-  };
+  });
 
-  const deleteTransport = async (id: string): Promise<boolean> => {
-    try {
-      const { error } = await supabase
-        .from("transports")
-        .delete()
-        .eq("id", id);
-
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("transports").delete().eq("id", id);
       if (error) throw error;
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transports', tripId] });
       toast({ title: "Trasporto eliminato" });
-      await fetchTransports();
-      return true;
-    } catch (error: any) {
-      console.error("Error deleting transport:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare il trasporto",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile eliminare il trasporto", variant: "destructive" });
     }
-  };
+  });
 
   useEffect(() => {
     if (!tripId) return;
-
-    fetchTransports();
 
     let debounceTimer: NodeJS.Timeout;
     
@@ -162,7 +125,7 @@ export function useTransports(tripId?: string) {
         () => {
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
-            fetchTransports();
+            queryClient.invalidateQueries({ queryKey: ['transports', tripId] });
           }, 300);
         }
       )
@@ -172,16 +135,22 @@ export function useTransports(tripId?: string) {
       clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
     };
-  }, [tripId, fetchTransports]);
+  }, [tripId, queryClient]);
 
-  const totalCost = transports.reduce((acc, t) => acc + (t.price || 0), 0);
+  const totalCost = useMemo(() => transports.reduce((acc, t) => acc + (t.price || 0), 0), [transports]);
 
   return {
     transports,
     loading,
     totalCost,
-    createTransport,
-    deleteTransport,
-    refetch: fetchTransports
+    createTransport: async (data: CreateTransportData) => {
+      await createMutation.mutateAsync(data);
+      return true;
+    },
+    deleteTransport: async (id: string) => {
+      await deleteMutation.mutateAsync(id);
+      return true;
+    },
+    refetch
   };
 }

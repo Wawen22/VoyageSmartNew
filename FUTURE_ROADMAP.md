@@ -63,8 +63,9 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 *   **Prossimi Step:**
     *   **Formattazione Markdown** (✅ Completato): Supporto per liste, grassetto e link.
     *   **Memoria Persistente** (✅ Completato): Salvataggio cronologia chat su database (Supabase) per sessioni multiple.
-    *   **Rich UI Components** (🔄 In Sviluppo): Visualizzazione di card interattive (Alloggi, Trasporti) direttamente nei messaggi.
-    *   **Function Calling**: Capacità dell'AI di eseguire azioni (es. "Aggiungi questa spesa") direttamente.
+    *   **Rich UI Components** (✅ Completato): Visualizzazione di card interattive (Alloggi, Trasporti) direttamente nei messaggi.
+    *   **Function Calling** (🔄 In Testing): Capacità dell'AI di eseguire azioni (es. "Aggiungi questa spesa") direttamente.
+    *   **Suggerimenti Proattivi**: L'AI analizza meteo e orari per proporre modifiche all'itinerario spontaneamente.
 *   **Dettagli:**
     *   Chatbot AI integrato che prende in contesto i dettagli del viaggio.
     *   Risposte personalizzate basate sul contesto del viaggio specifico.

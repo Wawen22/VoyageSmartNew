@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -51,24 +52,13 @@ interface UpdateActivityData {
 export function useItinerary(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [activities, setActivities] = useState<ItineraryActivity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const toastRef = useRef(toast);
-  
-  // Keep toast ref updated without triggering re-renders
-  useEffect(() => {
-    toastRef.current = toast;
-  }, [toast]);
+  const queryClient = useQueryClient();
 
-  const fetchActivities = useCallback(async () => {
-    if (!tripId || !user) {
-      setActivities([]);
-      setLoading(false);
-      return;
-    }
+  const { data: activities = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['itinerary', tripId],
+    queryFn: async () => {
+      if (!tripId || !user) return [];
 
-    try {
-      setLoading(true);
       const { data, error } = await supabase
         .from("itinerary_activities")
         .select("*")
@@ -77,23 +67,13 @@ export function useItinerary(tripId?: string) {
         .order("start_time", { ascending: true, nullsFirst: false });
 
       if (error) throw error;
-      setActivities((data || []) as ItineraryActivity[]);
-    } catch (error: any) {
-      console.error("Error fetching activities:", error);
-      toastRef.current({
-        title: "Errore",
-        description: "Impossibile caricare le attività",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [tripId, user]);
+      return (data || []) as ItineraryActivity[];
+    },
+    enabled: !!tripId && !!user
+  });
 
-  const createActivity = async (data: CreateActivityData): Promise<boolean> => {
-    if (!user) return false;
-
-    try {
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateActivityData) => {
       const { error } = await supabase.from("itinerary_activities").insert({
         trip_id: data.trip_id,
         title: data.title,
@@ -106,36 +86,25 @@ export function useItinerary(tripId?: string) {
         end_time: data.end_time || null,
         category: data.category || "activity",
         notes: data.notes || null,
-        created_by: user.id
+        created_by: user!.id
       });
 
       if (error) throw error;
-
-      toast({
-        title: "Attività aggiunta",
-        description: data.title
-      });
-
-      await fetchActivities();
-      return true;
-    } catch (error: any) {
-      console.error("Error creating activity:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile creare l'attività",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['itinerary', tripId] });
+      toast({ title: "Attività aggiunta", description: variables.title });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile creare l'attività", variant: "destructive" });
     }
-  };
+  });
 
-  const updateActivity = async (id: string, data: UpdateActivityData): Promise<boolean> => {
-    if (!user) return false;
-
-    try {
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateActivityData }) => {
       const updateData: Record<string, any> = {};
       
-      // Only include fields that are explicitly provided
       if (data.title !== undefined) updateData.title = data.title;
       if (data.description !== undefined) updateData.description = data.description || null;
       if (data.location !== undefined) updateData.location = data.location || null;
@@ -153,54 +122,40 @@ export function useItinerary(tripId?: string) {
         .eq("id", id);
 
       if (error) throw error;
-
-      toast({
-        title: "Attività aggiornata",
-        description: data.title || "Le modifiche sono state salvate"
-      });
-
-      await fetchActivities();
-      return true;
-    } catch (error: any) {
-      console.error("Error updating activity:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare l'attività",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['itinerary', tripId] });
+      toast({ title: "Attività aggiornata" });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile aggiornare l'attività", variant: "destructive" });
     }
-  };
+  });
 
-  const deleteActivity = async (id: string): Promise<boolean> => {
-    try {
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
       const { error } = await supabase
         .from("itinerary_activities")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
-
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['itinerary', tripId] });
       toast({ title: "Attività eliminata" });
-      await fetchActivities();
-      return true;
-    } catch (error: any) {
-      console.error("Error deleting activity:", error);
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare l'attività",
-        variant: "destructive"
-      });
-      return false;
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile eliminare l'attività", variant: "destructive" });
     }
-  };
+  });
 
   useEffect(() => {
     if (!tripId) return;
 
-    fetchActivities();
-
-    // Debounced realtime subscription to prevent multiple rapid refetches
+    // Realtime subscription
     let debounceTimer: NodeJS.Timeout;
     
     const channel = supabase
@@ -216,7 +171,7 @@ export function useItinerary(tripId?: string) {
         () => {
           clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
-            fetchActivities();
+            queryClient.invalidateQueries({ queryKey: ['itinerary', tripId] });
           }, 300);
         }
       )
@@ -226,15 +181,24 @@ export function useItinerary(tripId?: string) {
       clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
     };
-  }, [tripId, fetchActivities]);
+  }, [tripId, queryClient]);
 
   return {
     activities,
     loading,
-    createActivity,
-    updateActivity,
-    deleteActivity,
-    refetch: fetchActivities
+    createActivity: async (data: CreateActivityData) => {
+      await createMutation.mutateAsync(data);
+      return true;
+    },
+    updateActivity: async (id: string, data: UpdateActivityData) => {
+      await updateMutation.mutateAsync({ id, data });
+      return true;
+    },
+    deleteActivity: async (id: string) => {
+      await deleteMutation.mutateAsync(id);
+      return true;
+    },
+    refetch
   };
 }
 
