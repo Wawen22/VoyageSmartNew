@@ -15,6 +15,7 @@ export interface TripIdea {
   created_at: string;
   // Extended fields
   votes_count?: number;
+  comments_count?: number;
   has_voted?: boolean;
 }
 
@@ -28,7 +29,7 @@ export const useTripIdeas = (tripId: string) => {
       // 1. Fetch Ideas
       const { data: ideasData, error: ideasError } = await supabase
         .from('trip_ideas')
-        .select('*')
+        .select('*, comments:trip_idea_comments(count)')
         .eq('trip_id', tripId)
         .order('created_at', { ascending: false });
 
@@ -52,6 +53,7 @@ export const useTripIdeas = (tripId: string) => {
         return {
           ...idea,
           votes_count: ideaVotes.length,
+          comments_count: idea.comments?.[0]?.count || 0,
           has_voted: hasVoted
         } as TripIdea;
       });

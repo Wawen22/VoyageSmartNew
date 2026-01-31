@@ -4,23 +4,7 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 
 ## 🔥 Priorità Alta
 
-### 1. Sistema di Gamification & Badge (Livelli Viaggiatore) 🏆
-*   **Stato:** 🚧 In lavorazione.
-*   **Dettagli:**
-    *   Interfaccia utente per visualizzare i badge sbloccati (Profilo).
-    *   Barra di progresso per ogni badge (es. "Paesi visitati: 2/5").
-    *   Notifiche celebrative allo sblocco di un nuovo badge.
-    *   Logica backend per il calcolo in tempo reale dei progressi.
-
-### 2. Trip Ideas: Votazioni & Promozione 🗳️
-*   **Stato:** 🚧 In lavorazione.
-*   **Dettagli:**
-    *   Sistema di **Voto/Like** per le idee proposte.
-    *   Possibilità di **Promuovere** un'idea direttamente nell'itinerario (es. "Trasforma in attività").
-    *   Ordinamento delle idee per popolarità.
-    *   Commenti sulle card delle idee per discutere dettagli specifici.
-
-### 3. Mappa Itinerario Interattiva 🗺️
+### 1. Mappa Itinerario Interattiva 🗺️
 *   **Stato:** Pianificato.
 *   **Dettagli:**
     *   Visualizzazione su mappa dei pin giornalieri collegati da linee di percorso.
@@ -46,26 +30,34 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
     *   Conversione automatica in valuta base.
     *   Grafici di bilancio e gestione debiti/crediti.
 
-### 3. Profilo Pubblico & Avatar (✅ Completato)
+### 3. Profilo Pubblico & Gamification (✅ Completato)
 *   **Stato:** Implementato.
 *   **Dettagli:**
     *   Gestione Avatar utente personalizzato.
     *   Visualizzazione coerente in Navbar e Menu Mobile.
     *   Passaporto Digitale e Mappa dei viaggi.
+    *   Sistema di Badge dinamici (Primi Passi, Globetrotter, ecc.) con progress bar.
+    *   Statistiche (Km percorsi, Paesi visitati).
 
-### 4. Idea Board & Scrapbook Collaborativo 💡 (✅ Completato)
-*   **Stato:** Implementato (Base).
+### 4. Trip Ideas & Scrapbook Collaborativo 💡 (✅ Completato)
+*   **Stato:** Implementato.
 *   **Dettagli:**
     *   Bacheca condivisa per note, link e foto.
-    *   Visualizzazione a griglia.
+    *   Sistema di votazione (Like).
+    *   Promozione diretta in attività dell'itinerario.
 
 ---
 
 ## 📅 Funzionalità Future (Backlog)
 
-### 5. Offline Mode & PWA 📶
-### 6. Galleria Foto Condivisa 📸
-### 7. Integrazione Calendari Esterni 📅
-### 8. Meteo Avanzato & Avvisi ☀️
-### 9. Dark Mode System 🌙
-### 10. Traduttore & Convertitore Rapido 🧰
+### 5. Commenti sulle Idee 💬
+*   **Stato:** Pianificato (Database pronto).
+*   **Dettagli:**
+    *   Discussioni threaded su ogni idea.
+
+### 6. Offline Mode & PWA 📶
+### 7. Galleria Foto Condivisa 📸
+### 8. Integrazione Calendari Esterni 📅
+### 9. Meteo Avanzato & Avvisi ☀️
+### 10. Dark Mode System 🌙
+### 11. Traduttore & Convertitore Rapido 🧰

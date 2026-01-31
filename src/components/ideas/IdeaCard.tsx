@@ -2,12 +2,13 @@ import { useState } from "react";
 import { TripIdea } from "@/hooks/useTripIdeas";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2, Heart, ArrowUpCircle, Info } from "lucide-react";
+import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2, Heart, ArrowUpCircle, Info, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { IdeaFormDialog } from "./IdeaFormDialog";
 import { PromoteIdeaDialog } from "./PromoteIdeaDialog";
+import { IdeaComments } from "./IdeaComments";
 
 interface IdeaCardProps {
   idea: TripIdea;
@@ -56,7 +57,7 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
               <ExternalLink className="h-3 w-3 ml-auto opacity-50" />
             </div>
             {idea.content && (
-              <p className="text-sm text-muted-foreground line-clamp-3 mt-1">
+              <p className="text-sm text-muted-foreground line-clamp-3 mt-1 cursor-pointer" onClick={() => setIsViewOpen(true)}>
                 {idea.content}
               </p>
             )}
@@ -66,8 +67,9 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
       default:
         return (
           <div 
-            className="text-sm text-muted-foreground h-full overflow-hidden prose prose-sm max-w-none dark:prose-invert"
+            className="text-sm text-muted-foreground h-full overflow-hidden prose prose-sm max-w-none dark:prose-invert cursor-pointer"
             dangerouslySetInnerHTML={{ __html: idea.content || '' }}
+            onClick={() => setIsViewOpen(true)}
           />
         );
     }
@@ -85,7 +87,7 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
     <>
       <Card className="flex flex-col h-[320px] hover:shadow-md transition-shadow relative group">
         <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between space-y-0 gap-2 shrink-0">
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-0 cursor-pointer" onClick={() => setIsViewOpen(true)}>
             {getIcon()}
             <h3 className="font-medium text-sm truncate" title={idea.title || "Idea"}>
               {idea.title || (idea.type === 'NOTE' ? "Nota" : idea.type === 'IMAGE' ? "Immagine" : "Link")}
@@ -139,6 +141,16 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
              >
                <Heart className={`w-4 h-4 ${idea.has_voted ? "fill-current" : ""}`} />
                <span className="font-semibold">{idea.votes_count || 0}</span>
+             </Button>
+
+             <Button
+               variant="ghost"
+               size="sm"
+               onClick={() => setIsViewOpen(true)}
+               className="h-8 gap-1.5 text-muted-foreground hover:text-primary"
+             >
+               <MessageSquare className="w-4 h-4" />
+               <span className="font-semibold">{idea.comments_count || 0}</span>
              </Button>
 
              <div className="flex items-center gap-1">
@@ -214,6 +226,8 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
                />
             )}
           </div>
+
+          <IdeaComments ideaId={idea.id} tripId={tripId} />
           
           <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
              <Button variant="outline" onClick={() => { setIsViewOpen(false); setIsEditOpen(true); }}>
