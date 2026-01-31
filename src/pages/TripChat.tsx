@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 export default function TripChat() {
   const [searchParams] = useSearchParams();
   const tripId = searchParams.get("trip");
@@ -99,12 +101,21 @@ export default function TripChat() {
                       {!isMe && (
                         <div className="w-8 shrink-0 flex flex-col justify-end">
                           {showAvatar ? (
-                            <Avatar className="w-8 h-8 border">
-                              <AvatarImage src={sender?.avatar_url || ""} />
-                              <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                {sender?.full_name?.charAt(0) || "U"}
-                              </AvatarFallback>
-                            </Avatar>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Avatar className="w-8 h-8 border cursor-pointer hover:opacity-80 transition-opacity">
+                                    <AvatarImage src={sender?.avatar_url || ""} />
+                                    <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                                      {sender?.full_name?.charAt(0) || "U"}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{sender?.full_name || sender?.username || "Utente"}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           ) : <div className="w-8" />}
                         </div>
                       )}

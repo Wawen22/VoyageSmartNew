@@ -27,14 +27,35 @@ export const useTripChat = (tripId: string) => {
     if (!tripId) return;
     
     const fetchMembers = async () => {
-      const { data } = await supabase
+      // First fetch member IDs
+      const { data: membersData } = await supabase
         .from('trip_members')
-        .select('user_id, profiles(full_name, username, avatar_url)')
+        .select('user_id')
         .eq('trip_id', tripId);
       
+      if (!membersData || membersData.length === 0) return;
+
+      const userIds = membersData.map(m => m.user_id);
+
+      // Then fetch profiles
+      const { data: profilesData, error } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, username, avatar_url')
+        .in('user_id', userIds);
+
+      if (error) {
+        console.error("Error fetching profiles:", error);
+      }
+
       const membersMap: Record<string, ChatMemberProfile> = {};
-      data?.forEach((m: any) => {
-        if (m.profiles) membersMap[m.user_id] = m.profiles;
+      profilesData?.forEach((p) => {
+        if (p.user_id) {
+          membersMap[p.user_id] = {
+            full_name: p.full_name,
+            username: p.username,
+            avatar_url: p.avatar_url
+          };
+        }
       });
       setMembers(membersMap);
     };
@@ -46,6 +67,9 @@ export const useTripChat = (tripId: string) => {
     if (!tripId) return;
 
     const fetchMessages = async () => {
+      // Mark as read immediately when loading chat
+      await supabase.rpc('mark_trip_chat_read', { p_trip_id: tripId });
+
       const { data, error } = await supabase
         .from('trip_messages')
         .select('*')
@@ -70,10 +94,12 @@ export const useTripChat = (tripId: string) => {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'trip_messages', filter: `trip_id=eq.${tripId}` },
-        (payload) => {
+        async (payload) => {
           const newMessage = payload.new as ChatMessage;
           setMessages((prev) => [...prev, newMessage]);
           scrollToBottom();
+          // Mark as read when receiving a new message while in chat
+          await supabase.rpc('mark_trip_chat_read', { p_trip_id: tripId });
         }
       )
       .subscribe();

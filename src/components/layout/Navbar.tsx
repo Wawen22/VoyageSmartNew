@@ -20,6 +20,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ChecklistButton } from "@/components/checklist/ChecklistButton";
+import { useUnreadChat } from "@/hooks/useUnreadChat";
 
 const navLinks = [
   { href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
@@ -51,6 +52,9 @@ export function Navbar() {
     : null;
   const activeTripId =
     tripIdFromQuery || (tripIdFromPath && tripIdFromPath !== "new" ? tripIdFromPath : null);
+
+  const unreadCount = useUnreadChat(activeTripId);
+
   const navLinksWithTrip = navLinks.map((link) => {
     if (!tripDetailLinks.has(link.href)) return link;
     if (!activeTripId) {
@@ -132,6 +136,11 @@ export function Navbar() {
                       isLanding ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
                     }`}>
                       <MessageCircle className="w-5 h-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground animate-in zoom-in">
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                      )}
                       <span className="sr-only">Chat Viaggio</span>
                     </div>
                   </Link>
@@ -175,10 +184,15 @@ export function Navbar() {
           <div className="flex lg:hidden items-center gap-1">
             {user && activeTripId && (
               <Link to={`/chat?trip=${activeTripId}`}>
-                <div className={`p-2 rounded-xl transition-colors ${
+                <div className={`p-2 rounded-xl transition-colors relative ${
                   isLanding ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
                 }`}>
                   <MessageCircle className="w-6 h-6" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground animate-in zoom-in">
+                      {unreadCount > 9 ? "9+" : unreadCount}
+                    </span>
+                  )}
                 </div>
               </Link>
             )}
