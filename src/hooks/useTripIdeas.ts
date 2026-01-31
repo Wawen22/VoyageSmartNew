@@ -13,6 +13,9 @@ export interface TripIdea {
   type: IdeaType;
   media_url: string | null;
   created_at: string;
+  // Extended fields
+  votes_count?: number;
+  has_voted?: boolean;
 }
 
 export const useTripIdeas = (tripId: string) => {
@@ -22,14 +25,38 @@ export const useTripIdeas = (tripId: string) => {
   const { data: ideas, isLoading } = useQuery({
     queryKey: ['trip-ideas', tripId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // 1. Fetch Ideas
+      const { data: ideasData, error: ideasError } = await supabase
         .from('trip_ideas')
         .select('*')
         .eq('trip_id', tripId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      return data as TripIdea[];
+      if (ideasError) throw ideasError;
+
+      // 2. Fetch Votes for this trip
+      const { data: votesData, error: votesError } = await supabase
+        .from('trip_idea_votes')
+        .select('idea_id, user_id')
+        .eq('trip_id', tripId);
+
+      if (votesError) throw votesError;
+
+      // 3. Map votes to ideas
+      const user = (await supabase.auth.getUser()).data.user;
+      
+      const ideasWithVotes = ideasData.map((idea) => {
+        const ideaVotes = votesData.filter(v => v.idea_id === idea.id);
+        const hasVoted = user ? ideaVotes.some(v => v.user_id === user.id) : false;
+        
+        return {
+          ...idea,
+          votes_count: ideaVotes.length,
+          has_voted: hasVoted
+        } as TripIdea;
+      });
+
+      return ideasWithVotes;
     },
     enabled: !!tripId,
   });
@@ -74,7 +101,7 @@ export const useTripIdeas = (tripId: string) => {
           trip_id: tripId,
           created_by: (await supabase.auth.getUser()).data.user?.id,
           title,
-          content: type === 'LINK' ? null : content, // Don't duplicate URL in content for links
+          content: type === 'LINK' ? null : content,
           type,
           media_url
         })
@@ -176,11 +203,50 @@ export const useTripIdeas = (tripId: string) => {
     },
   });
 
+  const toggleVote = useMutation({
+    mutationFn: async ({ ideaId, hasVoted }: { ideaId: string, hasVoted: boolean }) => {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) throw new Error("Utente non autenticato");
+
+      if (hasVoted) {
+        // Remove vote
+        const { error } = await supabase
+          .from('trip_idea_votes')
+          .delete()
+          .eq('idea_id', ideaId)
+          .eq('user_id', user.id);
+        if (error) throw error;
+      } else {
+        // Add vote
+        const { error } = await supabase
+          .from('trip_idea_votes')
+          .insert({
+            trip_id: tripId,
+            idea_id: ideaId,
+            user_id: user.id
+          });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trip-ideas', tripId] });
+    },
+    onError: (error) => {
+      console.error('Error toggling vote:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile registrare il voto.",
+        variant: "destructive",
+      });
+    }
+  });
+
   return {
     ideas,
     isLoading,
     createIdea,
     deleteIdea,
-    updateIdea
+    updateIdea,
+    toggleVote
   };
 };

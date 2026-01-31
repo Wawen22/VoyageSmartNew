@@ -2,22 +2,26 @@ import { useState } from "react";
 import { TripIdea } from "@/hooks/useTripIdeas";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2 } from "lucide-react";
+import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2, Heart, ArrowUpCircle, Info } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { IdeaFormDialog } from "./IdeaFormDialog";
+import { PromoteIdeaDialog } from "./PromoteIdeaDialog";
 
 interface IdeaCardProps {
   idea: TripIdea;
   onDelete: (id: string) => void;
+  onVote: (id: string, hasVoted: boolean) => void;
   tripId: string;
 }
 
-export function IdeaCard({ idea, onDelete, tripId }: IdeaCardProps) {
+export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
   const { user } = useAuth();
   const isCreator = user?.id === idea.created_by;
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isPromoteOpen, setIsPromoteOpen] = useState(false);
 
   const renderContentPreview = () => {
     switch (idea.type) {
@@ -79,7 +83,7 @@ export function IdeaCard({ idea, onDelete, tripId }: IdeaCardProps) {
 
   return (
     <>
-      <Card className="flex flex-col h-[280px] hover:shadow-md transition-shadow relative group">
+      <Card className="flex flex-col h-[320px] hover:shadow-md transition-shadow relative group">
         <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between space-y-0 gap-2 shrink-0">
           <div className="flex items-center gap-2 min-w-0">
             {getIcon()}
@@ -116,11 +120,50 @@ export function IdeaCard({ idea, onDelete, tripId }: IdeaCardProps) {
            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
         </CardContent>
         
-        <CardFooter className="p-3 text-xs text-muted-foreground border-t bg-muted/5 mt-auto flex justify-between items-center shrink-0">
-          <span>{new Date(idea.created_at).toLocaleDateString('it-IT')}</span>
-          <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 hover:bg-background hover:text-primary" onClick={() => setIsViewOpen(true)}>
-            <Maximize2 className="h-3 w-3" /> Apri
-          </Button>
+        <CardFooter className="p-3 border-t bg-muted/5 mt-auto flex flex-col gap-2 shrink-0">
+           {/* Date and Actions */}
+           <div className="w-full flex justify-between items-center text-xs text-muted-foreground">
+              <span>{new Date(idea.created_at).toLocaleDateString('it-IT')}</span>
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs gap-1 hover:bg-background hover:text-primary" onClick={() => setIsViewOpen(true)}>
+                <Maximize2 className="h-3 w-3" /> Apri
+              </Button>
+           </div>
+           
+           {/* Interactions */}
+           <div className="w-full flex justify-between items-center pt-2 border-t border-border/50">
+             <Button
+               variant="ghost"
+               size="sm"
+               onClick={() => onVote(idea.id, !!idea.has_voted)}
+               className={`h-8 gap-1.5 ${idea.has_voted ? "text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100" : "text-muted-foreground hover:text-red-500"}`}
+             >
+               <Heart className={`w-4 h-4 ${idea.has_voted ? "fill-current" : ""}`} />
+               <span className="font-semibold">{idea.votes_count || 0}</span>
+             </Button>
+
+             <div className="flex items-center gap-1">
+               <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  onClick={() => setIsPromoteOpen(true)}
+               >
+                  <ArrowUpCircle className="w-4 h-4" />
+                  <span className="text-xs font-medium">Promuovi</span>
+               </Button>
+               
+               <TooltipProvider>
+                 <Tooltip>
+                   <TooltipTrigger asChild>
+                     <Info className="w-3.5 h-3.5 text-muted-foreground/50 cursor-help hover:text-muted-foreground transition-colors" />
+                   </TooltipTrigger>
+                   <TooltipContent>
+                     <p className="text-xs">Trasforma questa idea in un'attività reale nel tuo itinerario</p>
+                   </TooltipContent>
+                 </Tooltip>
+               </TooltipProvider>
+             </div>
+           </div>
         </CardFooter>
       </Card>
 
@@ -129,6 +172,13 @@ export function IdeaCard({ idea, onDelete, tripId }: IdeaCardProps) {
         open={isEditOpen} 
         onOpenChange={setIsEditOpen} 
         initialData={idea} 
+      />
+
+      <PromoteIdeaDialog
+        tripId={tripId}
+        idea={idea}
+        open={isPromoteOpen}
+        onOpenChange={setIsPromoteOpen}
       />
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>

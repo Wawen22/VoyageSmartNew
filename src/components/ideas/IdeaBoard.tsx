@@ -8,7 +8,7 @@ interface IdeaBoardProps {
 }
 
 export function IdeaBoard({ tripId }: IdeaBoardProps) {
-  const { ideas, isLoading, deleteIdea } = useTripIdeas(tripId);
+  const { ideas, isLoading, deleteIdea, toggleVote } = useTripIdeas(tripId);
 
   if (isLoading) {
     return (
@@ -51,6 +51,7 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
               <IdeaCard 
                 idea={idea} 
                 onDelete={(id) => deleteIdea.mutate(id)} 
+                onVote={(id, hasVoted) => toggleVote.mutate({ ideaId: id, hasVoted })}
                 tripId={tripId}
               />
             </div>
