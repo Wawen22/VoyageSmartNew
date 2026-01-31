@@ -1,11 +1,15 @@
 
 import { useState } from "react";
-import { Calendar, Loader2, Download } from "lucide-react";
+import { Calendar, Loader2, Download, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { generateICS, downloadICS } from "@/utils/calendarExport";
 import { useToast } from "@/hooks/use-toast";
 import { parseISO, setHours, setMinutes } from "date-fns";
+import { useSubscription } from "@/hooks/useSubscription";
+import { SubscriptionDialog } from "@/components/subscription/SubscriptionDialog";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface ExportCalendarButtonProps {
   tripId: string;
@@ -23,9 +27,16 @@ export function ExportCalendarButton({
   className
 }: ExportCalendarButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
+  const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const { toast } = useToast();
+  const { isPro } = useSubscription();
 
   const handleExport = async () => {
+    if (!isPro) {
+      setShowSubscriptionDialog(true);
+      return;
+    }
+
     setIsExporting(true);
     try {
       // 1. Fetch Data
@@ -140,9 +151,31 @@ export function ExportCalendarButton({
   };
 
   return (
-    <Button variant={variant} size={size} className={className} onClick={handleExport} disabled={isExporting}>
-      {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calendar className="w-4 h-4 mr-2" />}
-      {size !== "icon" && "Esporta Calendario"}
-    </Button>
+    <>
+      <Button 
+        variant={variant} 
+        size={size} 
+        className={cn(
+          className,
+          "gap-2 transition-all",
+          !isPro && "border-dashed text-muted-foreground hover:text-amber-700 hover:border-amber-300 hover:bg-amber-50/50 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+        )} 
+        onClick={handleExport} 
+        disabled={isExporting}
+      >
+        {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calendar className="w-4 h-4" />}
+        {size !== "icon" && "Esporta Calendario"}
+        {!isPro && (
+          <Badge variant="secondary" className="ml-1 h-5 px-1 text-[9px] bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+            PRO
+          </Badge>
+        )}
+      </Button>
+      
+      <SubscriptionDialog 
+        open={showSubscriptionDialog} 
+        onOpenChange={setShowSubscriptionDialog} 
+      />
+    </>
   );
 }

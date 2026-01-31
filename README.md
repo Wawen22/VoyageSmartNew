@@ -20,6 +20,10 @@
 *   **Collaborazione Real-time:** Invita amici e pianifica insieme con sincronizzazione istantanea.
 *   **Export Intelligente:** Scarica il tuo viaggio in formato PDF professionale o esporta il calendario (.ics).
 
+### 💎 Piani & Monetizzazione
+*   **Piano Free:** Accesso completo alla pianificazione, AI limitata (5 msg), funzionalità base.
+*   **Piano Pro:** AI illimitata, Export PDF/Calendario sbloccati, Supporto prioritario.
+
 ## 🛠️ Tecnologie Utilizzate
 
 *   **Frontend:** React + TypeScript + Vite

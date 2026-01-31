@@ -13,6 +13,9 @@ export interface ProfileData {
   website: string | null;
   created_at: string;
   updated_at: string;
+  is_pro?: boolean;
+  stripe_customer_id?: string | null;
+  ai_usage_count?: number;
 }
 
 export const useProfile = () => {

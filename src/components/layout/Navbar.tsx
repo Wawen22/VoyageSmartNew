@@ -22,6 +22,7 @@ import { ChecklistButton } from "@/components/checklist/ChecklistButton";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { useProfile } from "@/hooks/useProfile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 const navLinks = [
   { href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
@@ -172,6 +173,11 @@ export function Navbar() {
                     <span className={`text-sm font-medium ${isDarkNav ? "text-white" : "text-foreground"}`}>
                       {profile?.full_name || user?.email?.split("@")[0]}
                     </span>
+                    {profile?.is_pro ? (
+                      <Badge className="h-5 px-1.5 text-[9px] bg-gradient-to-r from-indigo-500 to-purple-500 border-0 shadow-sm text-white hover:opacity-90">PRO</Badge>
+                    ) : (
+                      <Badge variant="secondary" className="h-5 px-1.5 text-[9px] bg-slate-200 text-slate-600 hover:bg-slate-300 border-0">FREE</Badge>
+                    )}
                   </div>
                 </Link>
                 <Button 
@@ -272,9 +278,16 @@ export function Navbar() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                          <span className="text-sm font-semibold text-foreground">
-                            {profile?.full_name || "Il mio Profilo"}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-foreground">
+                              {profile?.full_name || "Il mio Profilo"}
+                            </span>
+                            {profile?.is_pro ? (
+                              <Badge className="h-5 px-1.5 text-[9px] bg-gradient-to-r from-indigo-500 to-purple-500 border-0 shadow-sm text-white">PRO</Badge>
+                            ) : (
+                              <Badge variant="secondary" className="h-5 px-1.5 text-[9px] bg-slate-200 text-slate-600 border-0">FREE</Badge>
+                            )}
+                          </div>
                           <span className="text-xs opacity-70">
                             {user?.email}
                           </span>

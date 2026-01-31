@@ -75,21 +75,14 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 *   **Stato:** Pianificato.
 *   **Dettagli:** Notifiche native per attività imminenti, messaggi e inviti.
 
-### 8. Monetizzazione & Abbonamenti (Stripe) 💳
-*   **Stato:** Pianificato.
-*   **Priorità:** Alta.
-*   **Dettagli:**
-    *   Integrazione **Stripe** per gestione pagamenti e abbonamenti ricorrenti.
-    *   **Piano FREE:**
-        *   Massimo 5 messaggi AI totali/mensili.
-        *   Funzionalità base (Itinerario, Spese).
-        *   Pubblicità o limiti su upload file.
-    *   **Piano PRO (€4.99/mese o €49.99/anno):**
-        *   AI Assistant illimitato.
-        *   Export PDF & Calendario illimitati.
-        *   Documenti e allegati illimitati.
-        *   Supporto prioritario.
-    *   Implementazione tramite Supabase Edge Functions (Webhook & Checkout).
+### 8. Monetizzazione & Abbonamenti (Stripe) 💳 (✅ Completato)
+*   **Stato:** Implementato.
+*   **Funzionalità PRO attive:**
+    *   AI Assistant Illimitato (Free: max 5 msg).
+    *   Badge Pro nel profilo.
+*   **Prossimi Blocchi (Da Implementare):**
+    *   **Export Lock:** Limitare l'export PDF e Calendario ai soli utenti Pro.
+    *   **Media Limit:** Limitare numero di upload foto per utenti Free.
 
 ### 9. Analytics & Insights 📊
 *   **Stato:** Pianificato.
