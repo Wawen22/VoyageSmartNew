@@ -9,7 +9,7 @@
 ### 🗺️ Pianificazione & Itinerario
 *   **Gestione Viaggi:** Crea viaggi, imposta date, destinazioni e carica immagini di copertina personalizzate.
 *   **Itinerario Intelligente:** Organizza le tue giornate con un'interfaccia drag-and-drop. Aggiungi attività, pause e note.
-*   **Mappe Interattive:** Visualizza il tuo percorso su mappe dinamiche (basate su Mapbox) con tutti i tuoi stop.
+*   **Mappa Itinerario Interattiva:** Visualizza il tuo percorso su mappa dinamica con pin giornalieri collegati da linee di percorso, calcolo tempi di percorrenza e integrazione Mapbox.
 
 ### 💰 Finanze & Budget (Smart Finance)
 *   **Tracciamento Spese:** Registra ogni spesa, categorizzala e assegnala a chi l'ha pagata.
@@ -25,6 +25,12 @@
 *   **Alloggi & Trasporti:** Tieni traccia di hotel, voli, treni e noleggi in sezioni dedicate.
 *   **Documenti:** Carica e archivia biglietti, prenotazioni e documenti importanti in cloud.
 *   **Checklist:** Liste condivise per non dimenticare nulla a casa.
+
+### 💡 Trip Ideas & Scrapbook Collaborativo
+*   **Bacheca Condivisa:** Crea e condividi idee, note, link e foto con il tuo gruppo di viaggio.
+*   **Sistema di Votazione:** Vota le idee preferite per decidere insieme cosa fare.
+*   **Commenti Threaded:** Discuti ogni idea con commenti dettagliati e conversazioni strutturate.
+*   **Promozione ad Attività:** Converti le idee approvate direttamente in attività dell'itinerario con un click.
 
 ### 🏆 Gamification & Profilo (Novità!)
 *   **Passaporto Digitale:** Un profilo utente arricchito che mostra statistiche di viaggio (km percorsi, paesi visitati).

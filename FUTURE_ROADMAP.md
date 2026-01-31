@@ -4,13 +4,6 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 
 ## 🔥 Priorità Alta
 
-### 1. Mappa Itinerario Interattiva 🗺️
-*   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Visualizzazione su mappa dei pin giornalieri collegati da linee di percorso.
-    *   Calcolo e visualizzazione tempi di percorrenza stimati tra le tappe.
-    *   Integrazione con Mapbox/Google Maps.
-
 ---
 
 ## ✅ Completati
@@ -46,18 +39,101 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
     *   Sistema di votazione (Like).
     *   Promozione diretta in attività dell'itinerario.
 
+### 5. Commenti sulle Idee 💬 (✅ Completato)
+*   **Stato:** Implementato.
+*   **Dettagli:**
+    *   Discussioni threaded su ogni idea.
+    *   Sistema di notifiche per nuovi commenti.
+    *   Supporto per risposte annidate.
+
+### 6. Mappa Itinerario Interattiva 🗺️ (✅ Completato)
+*   **Stato:** Implementato.
+*   **Dettagli:**
+    *   Visualizzazione su mappa dei pin giornalieri collegati da linee di percorso.
+    *   Calcolo e visualizzazione tempi di percorrenza stimati tra le tappe.
+    *   Integrazione con Mapbox GL JS.
+    *   Zoom e navigazione interattiva.
+
 ---
 
 ## 📅 Funzionalità Future (Backlog)
 
-### 5. Commenti sulle Idee 💬
-*   **Stato:** Pianificato (Database pronto).
+### 1. AI ChatBot Assistente di Viaggio 🤖
+*   **Stato:** Pianificato.
+*   **Priorità:** Alta.
 *   **Dettagli:**
-    *   Discussioni threaded su ogni idea.
+    *   Chatbot AI integrato che prende in contesto i dettagli del viaggio (destinazione, date, itinerario, Alloggi, Trasporti, Idee preferenze, spese ecc.).
+    *   Risposte personalizzate basate sul contesto del viaggio specifico.
+    *   Supporto multi-provider per flessibilità e costi:
+      *   **Gemini API** (Google) - Modelli gratuiti e a pagamento
+      *   **OpenAI API**
+      *   **Azure OpenAI** - Per enterprise e compliance
+    *   Sistema di switch dinamico tra modelli (gratuito/pagato) tramite configurazione.
+    *   Funzionalità suggerite:
+      *   Raccomandazioni di attività basate su interessi
+      *   Suggerimenti ristoranti locali
+      *   Consigli su logistica e trasporti
+      *   Informazioni culturali e storiche sulla destinazione
+      *   Traduzione in tempo reale
+    *   Memoria conversazionale per mantenere il contesto durante la chat.
+    *   Integrazione con itinerario esistente per suggerimenti contestuali.
 
-### 6. Offline Mode & PWA 📶
-### 7. Galleria Foto Condivisa 📸
-### 8. Integrazione Calendari Esterni 📅
-### 9. Meteo Avanzato & Avvisi ☀️
-### 10. Dark Mode System 🌙
-### 11. Traduttore & Convertitore Rapido 🧰
+### 2. Offline Mode & PWA 📶
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Supporto PWA per installazione su dispositivi mobili.
+    *   Cache intelligente per accesso offline ai dati essenziali.
+    *   Sincronizzazione automatica quando torna online.
+
+### 3. Galleria Foto Condivisa 📸
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Upload e organizzazione foto di gruppo.
+    *   Album automatici per ogni giorno/attività.
+    *   Tagging persone e luoghi.
+
+### 4. Integrazione Calendari Esterni 📅
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Export/import con Google Calendar, Apple Calendar, Outlook.
+    *   Sincronizzazione bidirezionale.
+
+### 5. Meteo Avanzato & Avvisi ☀️
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Previsioni orarie dettagliate.
+    *   Avvisi meteo in tempo reale.
+    *   Suggerimenti automatici basati sul meteo.
+
+### 6. Dark Mode System 🌙
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Tema scuro completo per tutto l'applicativo.
+    *   Switch automatico basato su preferenze di sistema.
+
+### 7. Traduttore & Convertitore Rapido 🧰
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Traduzione istantanea di testi e frasi.
+    *   Convertitore valuta, unità di misura, orari.
+
+### 8. Notifiche Push 🔔
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Notifiche per attività imminenti.
+    *   Avvisi per nuovi messaggi, commenti e inviti.
+    *   Promemoria per scadenze importanti.
+
+### 9. Analytics & Insights 📊
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Statistiche dettagliate sui viaggi passati.
+    *   Analisi spese per categoria e destinazione.
+    *   Grafici e report personalizzabili.
+
+### 10. Integrazione Social Media 📱
+*   **Stato:** Pianificato.
+*   **Dettagli:**
+    *   Condivisione diretta su Instagram, Facebook, Twitter.
+    *   Generazione automatica di post per viaggi.
+    *   Importazione foto da social media.
