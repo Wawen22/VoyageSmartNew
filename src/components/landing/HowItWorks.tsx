@@ -1,38 +1,37 @@
 import { motion } from "framer-motion";
-import { MapPin, Sparkles, Users, Plane } from "lucide-react";
+import { MapPin, Bot, Users, Plane } from "lucide-react";
 
 const steps = [
   {
     number: "01",
     icon: MapPin,
-    title: "Choose Your Destination",
-    description: "Tell us where you want to go, when, and who's joining. We'll handle the rest.",
+    title: "Start Your Journey",
+    description: "Create a trip, set your dates, and invite your friends. The adventure begins here.",
   },
   {
     number: "02",
-    icon: Sparkles,
-    title: "AI Generates Your Itinerary",
-    description: "Our AI creates a personalized day-by-day plan with activities, restaurants, and hidden gems.",
+    icon: Bot,
+    title: "Chat with Voyage AI",
+    description: "Ask your personal assistant to suggest activities, find hotels, or manage your budget instantly.",
   },
   {
     number: "03",
     icon: Users,
-    title: "Collaborate & Customize",
-    description: "Invite travel buddies to vote on activities, add ideas, and fine-tune the plan together.",
+    title: "Collaborate in Real-Time",
+    description: "Vote on ideas, split expenses automatically, and build the perfect itinerary together.",
   },
   {
     number: "04",
     icon: Plane,
-    title: "Travel & Track",
-    description: "Access your itinerary offline, track expenses, and create memories that last forever.",
+    title: "Travel Stress-Free",
+    description: "Access all your docs, tickets, and plans offline. Focus on the experience, not the logistics.",
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section className="py-24 lg:py-32 bg-muted/50 relative overflow-hidden">
+    <section className="py-24 bg-muted/30 relative overflow-hidden">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -44,11 +43,10 @@ export function HowItWorks() {
             How It <span className="text-gradient-sunset">Works</span>
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            From inspiration to destination in four simple steps
+            Your journey from idea to reality in four simple steps
           </p>
         </motion.div>
 
-        {/* Steps */}
         <div className="max-w-5xl mx-auto">
           {steps.map((step, index) => (
             <motion.div
@@ -61,17 +59,15 @@ export function HowItWorks() {
                 index % 2 === 1 ? "md:flex-row-reverse" : ""
               }`}
             >
-              {/* Number & Icon */}
               <div className="flex-shrink-0 relative">
-                <div className="w-24 h-24 lg:w-32 lg:h-32 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-ocean">
-                  <step.icon className="w-10 h-10 lg:w-14 lg:h-14 text-white" />
+                <div className="w-20 h-20 lg:w-28 lg:h-28 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-lg transform rotate-3">
+                  <step.icon className="w-8 h-8 lg:w-12 lg:h-12 text-white" />
                 </div>
-                <div className="absolute -top-3 -right-3 w-10 h-10 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-sm shadow-sunset">
+                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-sm shadow-md">
                   {step.number}
                 </div>
               </div>
 
-              {/* Content */}
               <div className={`flex-1 text-center md:text-left ${index % 2 === 1 ? "md:text-right" : ""}`}>
                 <h3 className="text-2xl font-bold text-foreground mb-3">
                   {step.title}
@@ -81,9 +77,8 @@ export function HowItWorks() {
                 </p>
               </div>
 
-              {/* Connector Line (hidden on last item) */}
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute left-1/2 w-0.5 h-16 bg-gradient-to-b from-primary/30 to-transparent" style={{ top: "100%" }} />
+                <div className="hidden md:block absolute left-1/2 w-0.5 h-16 bg-gradient-to-b from-primary/20 to-transparent" style={{ top: "100%" }} />
               )}
             </motion.div>
           ))}

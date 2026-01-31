@@ -6,48 +6,11 @@ import {
   Map, 
   Calendar, 
   Shield,
-  Plane,
-  Globe
+  Bot,
+  MessageSquareText,
+  Zap
 } from "lucide-react";
-
-const features = [
-  {
-    icon: Sparkles,
-    title: "AI-Powered Planning",
-    description: "Let AI generate personalized itineraries based on your preferences, budget, and travel style.",
-    color: "from-primary to-accent",
-  },
-  {
-    icon: Users,
-    title: "Collaborative Trips",
-    description: "Plan together in real-time. Vote on activities, share ideas, and keep everyone in sync.",
-    color: "from-secondary to-sunset-warm",
-  },
-  {
-    icon: Wallet,
-    title: "Smart Expense Splitting",
-    description: "Track expenses, split costs fairly, and settle debts easily. Like Splitwise, but better.",
-    color: "from-forest to-accent",
-  },
-  {
-    icon: Map,
-    title: "Interactive Maps",
-    description: "Visualize your entire trip with beautiful maps. Plan routes and discover hidden gems.",
-    color: "from-primary to-ocean-light",
-  },
-  {
-    icon: Calendar,
-    title: "Day-by-Day Itineraries",
-    description: "Organize activities by day with smart scheduling. Never miss a reservation again.",
-    color: "from-sunset-warm to-sunset-glow",
-  },
-  {
-    icon: Shield,
-    title: "Secure & Private",
-    description: "Your travel data is encrypted and protected. Share trips only with people you trust.",
-    color: "from-ocean-deep to-primary",
-  },
-];
+import { Button } from "@/components/ui/button";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -70,88 +33,116 @@ const itemVariants = {
 
 export function Features() {
   return (
-    <section className="py-24 lg:py-32 bg-background relative overflow-hidden">
-      {/* Background Decoration */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/5 rounded-full blur-3xl" />
-
+    <section className="py-24 bg-background relative overflow-hidden">
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-3xl mx-auto mb-16"
-        >
+        <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
-            <Globe className="w-4 h-4" />
-            <span className="text-sm font-medium">Everything You Need</span>
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-medium">Power Features</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-            One Platform,{" "}
-            <span className="text-gradient-ocean">Endless Possibilities</span>
+            Everything You Need for the
+            <br />
+            <span className="text-gradient-ocean">Perfect Trip</span>
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            From AI-powered itinerary generation to expense splitting, 
-            VoyageSmart has everything you need for the perfect trip.
+            VoyageSmart combines powerful AI assistance with intuitive planning tools.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Features Grid */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto"
         >
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              variants={itemVariants}
-              className="group relative bg-card rounded-2xl p-6 lg:p-8 shadow-card hover:shadow-lg transition-all duration-300 border border-border hover:border-primary/20"
-            >
-              {/* Icon */}
-              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                <feature.icon className="w-7 h-7 text-white" />
-              </div>
-
-              {/* Content */}
-              <h3 className="text-xl font-semibold text-foreground mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {feature.description}
-              </p>
-
-              {/* Hover Effect */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Stats Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-20 grid grid-cols-2 lg:grid-cols-4 gap-8"
-        >
-          {[
-            { value: "50K+", label: "Trips Planned" },
-            { value: "120+", label: "Countries" },
-            { value: "$2M+", label: "Expenses Tracked" },
-            { value: "4.9★", label: "User Rating" },
-          ].map((stat) => (
-            <div key={stat.label} className="text-center">
-              <div className="text-3xl lg:text-4xl font-bold text-gradient-ocean mb-2">
-                {stat.value}
-              </div>
-              <div className="text-muted-foreground">{stat.label}</div>
+          {/* Main Feature: AI Assistant (Span 2 cols on md) */}
+          <motion.div 
+            variants={itemVariants}
+            className="md:col-span-2 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-indigo-500/20 transition-all"
+          >
+            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Bot className="w-40 h-40 text-indigo-500" />
             </div>
-          ))}
+            
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-6 text-indigo-600">
+                <Bot className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Voyage AI Assistant</h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Your personal travel agent in your pocket. Ask for recommendations, 
+                add expenses ("Add lunch €20"), or create activities just by chatting. 
+                It knows your itinerary and budget inside out.
+              </p>
+              
+              <div className="flex gap-3 flex-wrap">
+                <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
+                  <MessageSquareText className="w-3.5 h-3.5 text-indigo-500" />
+                  Context Aware
+                </div>
+                <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-amber-500" />
+                  Action Mode
+                </div>
+                <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
+                  <Wallet className="w-3.5 h-3.5 text-emerald-500" />
+                  Expense Tracking
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Feature: Smart Finance */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group"
+          >
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
+              <Wallet className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Smart Splitting</h3>
+            <p className="text-muted-foreground">
+              Track who paid for what and let us calculate who owes who. 
+              Supports multiple currencies with auto-conversion.
+            </p>
+          </motion.div>
+
+          {/* Feature: Interactive Maps */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group"
+          >
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-600 group-hover:scale-110 transition-transform">
+              <Map className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Interactive Maps</h3>
+            <p className="text-muted-foreground">
+              Visualize your route on a dynamic map. 
+              See daily pins, travel times, and explore nearby attractions.
+            </p>
+          </motion.div>
+
+          {/* Feature: Collaboration */}
+          <motion.div 
+            variants={itemVariants}
+            className="md:col-span-2 bg-gradient-to-br from-orange-500/5 to-pink-500/5 border border-orange-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-orange-500/20 transition-all"
+          >
+             <div className="absolute bottom-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Users className="w-40 h-40 text-orange-500" />
+            </div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6 text-orange-600">
+                <Users className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Real-time Collaboration</h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Plan together without the chaos. Vote on ideas, comment on activities, 
+                and see changes instantly as your friends make them.
+              </p>
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

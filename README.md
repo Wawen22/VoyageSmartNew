@@ -39,9 +39,10 @@
 
 ### 🤖 AI Travel Assistant (Novità!)
 *   **Assistente Intelligente:** Un chatbot integrato basato su **Gemini 2.5 Flash** che conosce ogni dettaglio del tuo viaggio.
+*   **Action Mode (Function Calling):** Chiedi all'AI di "Aggiungere una spesa di 20€" o "Creare un'attività" e lei lo farà per te.
+*   **Rich UI:** Risposte visive con card interattive per alloggi, trasporti e spese.
 *   **Contesto Dinamico:** Risponde a domande su itinerario, alloggi, trasporti e spese in tempo reale.
-*   **Memoria Persistente:** La cronologia delle conversazioni viene salvata su database, permettendoti di riprendere la chat dove l'avevi lasciata.
-*   **Formattazione Markdown:** Supporto completo per liste, tabelle e link nelle risposte dell'AI.
+*   **Memoria Persistente:** La cronologia delle conversazioni viene salvata su database.
 
 ## 🛠️ Tecnologie Utilizzate
 
