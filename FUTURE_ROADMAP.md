@@ -58,11 +58,15 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 
 ## 📅 Funzionalità Future (Backlog)
 
-### 1. AI ChatBot Assistente di Viaggio 🤖
-*   **Stato:** Pianificato.
-*   **Priorità:** Alta.
+### 1. AI ChatBot Assistente di Viaggio 🤖 (🔄 In Sviluppo)
+*   **Stato:** Implementazione base completata.
+*   **Prossimi Step:**
+    *   **Formattazione Markdown** (✅ Completato): Supporto per liste, grassetto e link.
+    *   **Memoria Persistente**: Salvataggio cronologia chat su database (Supabase) per sessioni multiple.
+    *   **Function Calling**: Capacità dell'AI di eseguire azioni (es. "Aggiungi questa spesa") direttamente.
+    *   **Rich UI Components**: Visualizzazione di card interattive (Alloggi, Trasporti) direttamente nei messaggi.
 *   **Dettagli:**
-    *   Chatbot AI integrato che prende in contesto i dettagli del viaggio (destinazione, date, itinerario, Alloggi, Trasporti, Idee preferenze, spese ecc.).
+    *   Chatbot AI integrato che prende in contesto i dettagli del viaggio.
     *   Risposte personalizzate basate sul contesto del viaggio specifico.
     *   Supporto multi-provider per flessibilità e costi:
       *   **Gemini API** (Google) - Modelli gratuiti e a pagamento

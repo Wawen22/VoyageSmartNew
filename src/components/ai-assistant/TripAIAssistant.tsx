@@ -8,6 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, Send, Loader2, Sparkles, User, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface TripAIAssistantProps {
   tripId: string;
@@ -138,10 +140,26 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
                       "rounded-2xl px-4 py-3 max-w-[80%] text-sm shadow-sm leading-relaxed",
                       msg.role === "user"
                         ? "bg-indigo-600 text-white rounded-br-none"
-                        : "bg-white dark:bg-slate-800 border rounded-bl-none"
+                        : "bg-white dark:bg-slate-800 border rounded-bl-none prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-slate-100 dark:prose-pre:bg-slate-900"
                     )}
                   >
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    {msg.role === "assistant" ? (
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          ul: ({node, ...props}) => <ul className="list-disc ml-4 space-y-1" {...props} />,
+                          ol: ({node, ...props}) => <ol className="list-decimal ml-4 space-y-1" {...props} />,
+                          li: ({node, ...props}) => <li className="mb-0" {...props} />,
+                          p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
+                          a: ({node, ...props}) => <a className="text-indigo-600 dark:text-indigo-400 underline" target="_blank" rel="noopener noreferrer" {...props} />,
+                          code: ({node, ...props}) => <code className="bg-muted px-1 py-0.5 rounded text-xs" {...props} />,
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    ) : (
+                      <div className="whitespace-pre-wrap">{msg.content}</div>
+                    )}
                   </div>
 
                   {msg.role === "user" && (
