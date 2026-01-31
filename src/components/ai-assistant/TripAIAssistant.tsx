@@ -5,12 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Send, Loader2, Sparkles, User, Trash2, X, Mic, MicOff, Volume2, StopCircle } from "lucide-react";
+import { Bot, Send, Loader2, Sparkles, User, Trash2, X, Mic, MicOff, Volume2, StopCircle, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RichMessageRenderer } from "./RichMessageRenderer";
 import { ActionProposalCard } from "./ActionProposalCard";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useSubscription } from "@/hooks/useSubscription";
+import { SubscriptionDialog } from "@/components/subscription/SubscriptionDialog";
+import { Badge } from "@/components/ui/badge";
 
 interface TripAIAssistantProps {
   tripId: string;
@@ -20,12 +23,15 @@ interface TripAIAssistantProps {
 export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   
   const { messages, sendMessage, executeTool, isLoading, error, clearChat, contextData } = useTripAI({ 
     tripId, 
     tripDetails 
   });
+
+  const { isPro, remainingMessages, isLimitReached } = useSubscription();
 
   const { speak, cancel: cancelSpeech, isSpeaking } = useTextToSpeech();
   
@@ -52,6 +58,10 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
 
   const handleSend = () => {
     if (!input.trim()) return;
+    if (isLimitReached) {
+      setShowSubscriptionDialog(true);
+      return;
+    }
     sendMessage(input);
     setInput("");
     if (isListening) stopListening();
@@ -98,10 +108,28 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
               </div>
               <div>
                 <SheetTitle className="text-xl">Voyage AI</SheetTitle>
-                <SheetDescription>Il tuo assistente di viaggio personale</SheetDescription>
+                <div className="flex items-center gap-2">
+                  <SheetDescription>Il tuo assistente personale</SheetDescription>
+                  {!isPro && (
+                    <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-indigo-50 text-indigo-600 border-indigo-100">
+                      {remainingMessages} rimasti
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-1">
+              {!isPro && (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="h-8 gap-1.5 text-indigo-600 border-indigo-200 bg-indigo-50/50 hover:bg-indigo-100"
+                  onClick={() => setShowSubscriptionDialog(true)}
+                >
+                  <Zap className="w-3.5 h-3.5 fill-current" />
+                  <span className="hidden sm:inline">Upgrade</span>
+                </Button>
+              )}
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -274,6 +302,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
                   isListening ? "bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 animate-pulse" : "text-muted-foreground hover:bg-slate-100"
                 )}
                 onClick={toggleListening}
+                disabled={isLimitReached}
               >
                 {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
               </Button>
@@ -283,27 +312,45 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isListening ? "Parla ora..." : "Scrivi un messaggio..."}
+              placeholder={isLimitReached ? "Limite raggiunto. Passa a Pro!" : (isListening ? "Parla ora..." : "Scrivi un messaggio...")}
               className={cn(
                 "flex-1 rounded-full border-0 focus-visible:ring-indigo-500 transition-colors",
-                isListening ? "bg-red-50 placeholder:text-red-400" : "bg-slate-100 dark:bg-slate-800"
+                isListening ? "bg-red-50 placeholder:text-red-400" : "bg-slate-100 dark:bg-slate-800",
+                isLimitReached && "opacity-50 cursor-not-allowed"
               )}
-              disabled={isLoading}
+              disabled={isLoading || isLimitReached}
             />
-            <Button 
-              type="submit" 
-              size="icon" 
-              className={cn("rounded-full h-10 w-10 shrink-0", input.trim() ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-200 text-slate-400 hover:bg-slate-200 dark:bg-slate-800")}
-              disabled={!input.trim() || isLoading}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+            {isLimitReached ? (
+              <Button 
+                type="button" 
+                size="icon" 
+                className="rounded-full shrink-0 bg-indigo-600 hover:bg-indigo-700 animate-pulse"
+                onClick={() => setShowSubscriptionDialog(true)}
+              >
+                <Zap className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button 
+                type="button"
+                onClick={handleSend}
+                size="icon" 
+                className={cn("rounded-full h-10 w-10 shrink-0", input.trim() ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-200 text-slate-400 hover:bg-slate-200 dark:bg-slate-800")}
+                disabled={!input.trim() || isLoading}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            )}
           </form>
           <div className="text-[10px] text-center text-muted-foreground mt-2">
             AI può commettere errori. Verifica le informazioni importanti.
           </div>
         </div>
       </SheetContent>
+      
+      <SubscriptionDialog 
+        open={showSubscriptionDialog} 
+        onOpenChange={setShowSubscriptionDialog} 
+      />
     </Sheet>
   );
 }

@@ -11,6 +11,7 @@ import { it } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { TRIP_TOOLS } from "@/lib/ai/tools";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface UseTripAIProps {
   tripId: string;
@@ -31,6 +32,7 @@ export interface ChatMessage extends AIMessage {
 
 export function useTripAI({ tripId, tripDetails }: UseTripAIProps) {
   const { user } = useAuth();
+  const { isLimitReached, incrementUsage } = useSubscription();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -142,6 +144,11 @@ Istruzioni:
   const sendMessage = async (content: string) => {
     if (!content.trim() || !user) return;
 
+    if (isLimitReached) {
+      setError("Hai raggiunto il limite di messaggi gratuiti. Passa a Pro per continuare!");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -192,6 +199,9 @@ Istruzioni:
       if (savedMsg) {
         setMessages(prev => prev.map((m, i) => i === prev.length - 1 ? { ...m, id: savedMsg.id } : m));
       }
+
+      // Increment usage count
+      await incrementUsage();
 
     } catch (err) {
       console.error("AI Error:", err);
@@ -271,6 +281,7 @@ Istruzioni:
     isLoading,
     error,
     clearChat,
+    isLimitReached,
     contextData: {
       activities,
       expenses,
