@@ -27,12 +27,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 const navLinks = [
-  { href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
-  { href: "/itinerary", label: "Itinerario", icon: Calendar, tripScoped: true },
-  { href: "/ideas", label: "Idee", icon: Lightbulb, tripScoped: true },
-  { href: "/expenses", label: "Spese", icon: Wallet, tripScoped: true },
-  { href: "/accommodations", label: "Alloggi", icon: Building2, tripScoped: true },
-  { href: "/transports", label: "Trasporti", icon: Car, tripScoped: true },
+  { id: "trips", href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
+  { id: "itinerary", href: "/itinerary", label: "Itinerario", icon: Calendar, tripScoped: true },
+  { id: "ideas", href: "/ideas", label: "Idee", icon: Lightbulb, tripScoped: true },
+  { id: "expenses", href: "/expenses", label: "Spese", icon: Wallet, tripScoped: true },
+  { id: "accommodations", href: "/accommodations", label: "Alloggi", icon: Building2, tripScoped: true },
+  { id: "transports", href: "/transports", label: "Trasporti", icon: Car, tripScoped: true },
 ];
 
 export function Navbar() {
@@ -125,7 +125,7 @@ export function Navbar() {
               const isActive = location.pathname === linkPath;
               return (
                 <Link
-                  key={link.href}
+                  key={link.id}
                   to={link.href}
                   className={`px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 ${
                     isDarkNav
@@ -267,7 +267,7 @@ export function Navbar() {
                 const isActive = location.pathname === linkPath;
                 return (
                 <Link
-                  key={link.href}
+                  key={link.id}
                   to={link.href}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
