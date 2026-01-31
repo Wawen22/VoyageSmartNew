@@ -37,11 +37,18 @@
 *   **Collezione Badge:** Sblocca obiettivi come "Globetrotter" o "Weekend Warrior" viaggiando di più.
 *   **Mappa dei Timbri:** Visualizza le bandiere di tutti i paesi che hai visitato.
 
+### 🤖 AI Travel Assistant (Novità!)
+*   **Assistente Intelligente:** Un chatbot integrato basato su **Gemini 2.5 Flash** che conosce ogni dettaglio del tuo viaggio.
+*   **Contesto Dinamico:** Risponde a domande su itinerario, alloggi, trasporti e spese in tempo reale.
+*   **Memoria Persistente:** La cronologia delle conversazioni viene salvata su database, permettendoti di riprendere la chat dove l'avevi lasciata.
+*   **Formattazione Markdown:** Supporto completo per liste, tabelle e link nelle risposte dell'AI.
+
 ## 🛠️ Tecnologie Utilizzate
 
 Il progetto è costruito con uno stack moderno per garantire performance, scalabilità e un'ottima esperienza sviluppatore.
 
 *   **Frontend:** [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) + [Vite](https://vitejs.dev/)
+*   **AI:** [Google Gemini API](https://ai.google.dev/) (Modello 1.5/2.5 Flash)
 *   **UI/UX:** [Tailwind CSS](https://tailwindcss.com/) + [Shadcn/ui](https://ui.shadcn.com/) + [Framer Motion](https://www.framer.com/motion/)
 *   **Backend & Database:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Storage, Realtime)
 *   **Mappe:** [Mapbox GL JS](https://www.mapbox.com/)
@@ -55,6 +62,7 @@ Il progetto è costruito con uno stack moderno per garantire performance, scalab
 *   Node.js (v18+)
 *   Account Supabase
 *   Account Mapbox
+*   Google AI Studio API Key (per Gemini)
 
 ### 1. Clona la repository
 ```bash
@@ -76,6 +84,8 @@ Crea un file `.env` nella root del progetto e aggiungi le tue chiavi:
 VITE_SUPABASE_URL=la-tua-url-supabase
 VITE_SUPABASE_ANON_KEY=la-tua-chiave-anon-supabase
 VITE_MAPBOX_TOKEN=il-tuo-token-mapbox
+VITE_GEMINI_API_KEY=la-tua-chiave-gemini
+VITE_AI_DEFAULT_PROVIDER=gemini
 ```
 
 ### 4. Avvia il server di sviluppo
