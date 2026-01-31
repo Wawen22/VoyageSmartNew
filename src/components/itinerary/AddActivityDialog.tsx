@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus } from "lucide-react";
+import { searchPlace } from "@/lib/mapbox";
+import { LocationInput } from "@/components/ui/LocationInput";
 
 interface AddActivityDialogProps {
   tripId: string;
@@ -15,6 +17,8 @@ interface AddActivityDialogProps {
     title: string;
     description?: string;
     location?: string;
+    latitude?: number | null;
+    longitude?: number | null;
     activity_date: string;
     start_time?: string;
     end_time?: string;
@@ -39,6 +43,7 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
+  const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [category, setCategory] = useState("activity");
@@ -48,6 +53,7 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
     setTitle("");
     setDescription("");
     setLocation("");
+    setLocationCoords(null);
     setStartTime("");
     setEndTime("");
     setCategory("activity");
@@ -59,11 +65,23 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
     if (!title.trim()) return;
 
     setLoading(true);
+    let coords = locationCoords;
+    const trimmedLocation = location.trim();
+
+    if (trimmedLocation && !coords) {
+      const result = await searchPlace(trimmedLocation);
+      if (result) {
+        coords = { lat: result.lat, lng: result.lng };
+      }
+    }
+
     const success = await onAdd({
       trip_id: tripId,
       title: title.trim(),
       description: description.trim() || undefined,
-      location: location.trim() || undefined,
+      location: trimmedLocation || undefined,
+      latitude: coords?.lat ?? null,
+      longitude: coords?.lng ?? null,
       activity_date: selectedDate,
       start_time: startTime || undefined,
       end_time: endTime || undefined,
@@ -124,13 +142,34 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Luogo</Label>
-            <Input
-              id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="Es. Piazza del Colosseo, Roma"
-            />
+            <Label>Luogo</Label>
+            <div className="space-y-2">
+              <LocationInput
+                value={location}
+                onChange={(value, coords) => {
+                  setLocation(value);
+                  setLocationCoords(coords ?? null);
+                }}
+                placeholder="Cerca e seleziona un luogo"
+              />
+              {location && (
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    {locationCoords ? "Coordinate salvate" : "Senza coordinate"}
+                  </span>
+                  <button
+                    type="button"
+                    className="text-primary hover:underline"
+                    onClick={() => {
+                      setLocation("");
+                      setLocationCoords(null);
+                    }}
+                  >
+                    Pulisci
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">

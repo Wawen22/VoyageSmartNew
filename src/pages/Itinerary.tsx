@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { isToday as isDateToday } from "date-fns";
-import { ArrowLeft, Loader2, Clock, CalendarDays } from "lucide-react";
+import { ArrowLeft, Loader2, Clock, CalendarDays, Map, List } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useTimelineEvents } from "@/hooks/useTimelineEvents";
@@ -12,6 +12,9 @@ import { TimelineDayNav } from "@/components/timeline/TimelineDayNav";
 import { TimelineDaySection } from "@/components/timeline/TimelineDaySection";
 import { TimelineStats } from "@/components/timeline/TimelineStats";
 import { TimelineFilters, type TimelineFilterType } from "@/components/timeline/TimelineFilters";
+import { ItineraryMap } from "@/components/itinerary/ItineraryMap";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function Itinerary() {
   const [searchParams] = useSearchParams();
@@ -21,9 +24,11 @@ export default function Itinerary() {
 
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<TimelineFilterType>("all");
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [mapScope, setMapScope] = useState<"trip" | "day">("trip");
 
-  const { trip, timelineDays, stats, loading } = useTimelineEvents(tripId || undefined);
-  const { createActivity, deleteActivity } = useItinerary(tripId || undefined);
+  const { trip, timelineDays, stats, loading, refetch: refetchTimeline } = useTimelineEvents(tripId || undefined);
+  const { activities, loading: activitiesLoading, createActivity, deleteActivity } = useItinerary(tripId || undefined);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -58,6 +63,35 @@ export default function Itinerary() {
     if (selectedDayIndex === null) return filteredDays;
     return filteredDays.slice(selectedDayIndex, selectedDayIndex + 1);
   }, [filteredDays, selectedDayIndex]);
+
+  const selectedDateStr = useMemo(() => {
+    if (selectedDayIndex === null) return null;
+    return timelineDays[selectedDayIndex]?.dateStr ?? null;
+  }, [selectedDayIndex, timelineDays]);
+
+  const mapActivities = useMemo(() => {
+    if (mapScope === "day") {
+      if (!selectedDateStr) return [];
+      return activities.filter((activity) => activity.activity_date === selectedDateStr);
+    }
+    return activities;
+  }, [activities, mapScope, selectedDateStr]);
+
+  const handleAddActivity = async (data: Parameters<typeof createActivity>[0]) => {
+    const success = await createActivity(data);
+    if (success) {
+      await refetchTimeline();
+    }
+    return success;
+  };
+
+  const handleDeleteActivity = async (id: string) => {
+    const success = await deleteActivity(id);
+    if (success) {
+      await refetchTimeline();
+    }
+    return success;
+  };
 
   // Loading states
   if (authLoading) {
@@ -104,22 +138,6 @@ export default function Itinerary() {
 
           {/* Main Card */}
           <div className="bg-card rounded-xl border shadow-sm p-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                  <CalendarDays className="h-6 w-6 text-primary" />
-                  Itinerario
-                </h2>
-                {trip && (
-                  <p className="text-muted-foreground">
-                    {trip.destination} • Pianifica le attività giorno per giorno
-                  </p>
-                )}
-              </div>
-              {/* Qui potremmo mettere un bottone "Aggiungi Attività" generico se necessario, 
-                  ma l'itinerario ha l'aggiunta per singolo giorno */}
-            </div>
-
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -129,54 +147,116 @@ export default function Itinerary() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                {/* Stats */}
-                <TimelineStats stats={stats} daysCount={timelineDays.length} />
-
-                {/* Day Navigation */}
-                <TimelineDayNav
-                  days={timelineDays}
-                  selectedDayIndex={selectedDayIndex}
-                  onDaySelect={(index) => setSelectedDayIndex(index === -1 ? null : index)}
-                />
-
-                {/* Filters */}
-                <TimelineFilters
-                  activeFilter={activeFilter}
-                  onFilterChange={setActiveFilter}
-                />
-
-                {/* Timeline content */}
-                <div className="space-y-2 mt-6">
-                  {displayDays.map((day, index) => (
-                    <TimelineDaySection
-                      key={day.dateStr}
-                      day={day}
-                      dayNumber={selectedDayIndex !== null ? selectedDayIndex + 1 : index + 1}
-                      isToday={isDateToday(day.date)}
-                      tripId={trip!.id}
-                      onAddActivity={createActivity}
-                      onDeleteActivity={deleteActivity}
-                    />
-                  ))}
-                </div>
-
-                {/* Empty state for filtered results */}
-                {displayDays.every((d) => d.events.length === 0) && activeFilter !== "all" && (
-                  <div className="text-center py-12">
-                    <div className="p-4 rounded-full bg-muted inline-block mb-4">
-                      <Clock className="h-8 w-8 text-muted-foreground" />
+                <Tabs
+                  value={viewMode}
+                  onValueChange={(value) => setViewMode(value as "list" | "map")}
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                      <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                        <CalendarDays className="h-6 w-6 text-primary" />
+                        Itinerario
+                      </h2>
+                      {trip && (
+                        <p className="text-muted-foreground">
+                          {trip.destination} • Pianifica le attività giorno per giorno
+                        </p>
+                      )}
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Nessun evento trovato
-                    </h3>
-                    <p className="text-muted-foreground mb-4">
-                      Non ci sono eventi di tipo "{activeFilter}" per i giorni selezionati
-                    </p>
-                    <Button variant="outline" onClick={() => setActiveFilter("all")}>
-                      Mostra tutti gli eventi
-                    </Button>
+                    <div className="flex items-center gap-3">
+                      <TabsList>
+                        <TabsTrigger value="list" className="gap-2">
+                          <List className="h-4 w-4" />
+                          Lista
+                        </TabsTrigger>
+                        <TabsTrigger value="map" className="gap-2">
+                          <Map className="h-4 w-4" />
+                          Mappa
+                        </TabsTrigger>
+                      </TabsList>
+                      {viewMode === "map" && (
+                        <ToggleGroup
+                          type="single"
+                          value={mapScope}
+                          onValueChange={(value) => value && setMapScope(value as "trip" | "day")}
+                          variant="outline"
+                          size="sm"
+                        >
+                          <ToggleGroupItem value="trip">Tutto il viaggio</ToggleGroupItem>
+                          <ToggleGroupItem value="day" disabled={!selectedDateStr}>
+                            Giorno selezionato
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      )}
+                    </div>
                   </div>
-                )}
+
+                  {/* Stats */}
+                  <TimelineStats stats={stats} daysCount={timelineDays.length} />
+
+                  {/* Day Navigation */}
+                  <TimelineDayNav
+                    days={timelineDays}
+                    selectedDayIndex={selectedDayIndex}
+                    onDaySelect={(index) => setSelectedDayIndex(index === -1 ? null : index)}
+                  />
+
+                  {/* Filters */}
+                  <TimelineFilters
+                    activeFilter={activeFilter}
+                    onFilterChange={setActiveFilter}
+                  />
+
+                  <TabsContent value="list" className="mt-4">
+                    {/* Timeline content */}
+                    <div className="space-y-2">
+                      {displayDays.map((day, index) => (
+                        <TimelineDaySection
+                          key={day.dateStr}
+                          day={day}
+                          dayNumber={selectedDayIndex !== null ? selectedDayIndex + 1 : index + 1}
+                          isToday={isDateToday(day.date)}
+                          tripId={trip!.id}
+                          onAddActivity={handleAddActivity}
+                          onDeleteActivity={handleDeleteActivity}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Empty state for filtered results */}
+                    {displayDays.every((d) => d.events.length === 0) && activeFilter !== "all" && (
+                      <div className="text-center py-12">
+                        <div className="p-4 rounded-full bg-muted inline-block mb-4">
+                          <Clock className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                          Nessun evento trovato
+                        </h3>
+                        <p className="text-muted-foreground mb-4">
+                          Non ci sono eventi di tipo "{activeFilter}" per i giorni selezionati
+                        </p>
+                        <Button variant="outline" onClick={() => setActiveFilter("all")}>
+                          Mostra tutti gli eventi
+                        </Button>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  <TabsContent value="map" className="mt-4">
+                    {mapScope === "day" && !selectedDateStr && (
+                      <div className="text-xs text-muted-foreground mb-3">
+                        Seleziona un giorno nella barra sopra per visualizzare solo quel giorno.
+                      </div>
+                    )}
+                    {activitiesLoading ? (
+                      <div className="flex items-center justify-center py-12">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    ) : (
+                      <ItineraryMap activities={mapActivities} active={viewMode === "map"} />
+                    )}
+                  </TabsContent>
+                </Tabs>
               </motion.div>
             ) : null}
           </div>

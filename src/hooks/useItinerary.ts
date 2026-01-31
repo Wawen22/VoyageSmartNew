@@ -9,6 +9,8 @@ export interface ItineraryActivity {
   title: string;
   description: string | null;
   location: string | null;
+  latitude: number | null;
+  longitude: number | null;
   activity_date: string;
   start_time: string | null;
   end_time: string | null;
@@ -24,6 +26,8 @@ interface CreateActivityData {
   title: string;
   description?: string;
   location?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   activity_date: string;
   start_time?: string;
   end_time?: string;
@@ -82,6 +86,8 @@ export function useItinerary(tripId?: string) {
         title: data.title,
         description: data.description || null,
         location: data.location || null,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
         activity_date: data.activity_date,
         start_time: data.start_time || null,
         end_time: data.end_time || null,

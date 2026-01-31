@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO, isWithinInterval, isSameDay, eachDayOfInterval } from "date-fns";
 
@@ -45,125 +45,127 @@ export function useTimelineEvents(tripId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const toastRef = useRef<any>(null);
 
-  useEffect(() => {
+  const fetchAllData = useCallback(async () => {
     if (!tripId) {
+      setTrip(null);
+      setEvents([]);
       setLoading(false);
       return;
     }
 
-    const fetchAllData = async () => {
-      try {
-        setLoading(true);
+    try {
+      setLoading(true);
 
-        // Fetch all data in parallel
-        const [tripResult, activitiesResult, transportsResult, accommodationsResult] = await Promise.all([
-          supabase.from("trips").select("id, title, destination, start_date, end_date").eq("id", tripId).maybeSingle(),
-          supabase.from("itinerary_activities").select("*").eq("trip_id", tripId).order("activity_date", { ascending: true }),
-          supabase.from("transports").select("*").eq("trip_id", tripId).order("departure_datetime", { ascending: true }),
-          supabase.from("accommodations").select("*").eq("trip_id", tripId).order("check_in", { ascending: true }),
-        ]);
+      // Fetch all data in parallel
+      const [tripResult, activitiesResult, transportsResult, accommodationsResult] = await Promise.all([
+        supabase.from("trips").select("id, title, destination, start_date, end_date").eq("id", tripId).maybeSingle(),
+        supabase.from("itinerary_activities").select("*").eq("trip_id", tripId).order("activity_date", { ascending: true }),
+        supabase.from("transports").select("*").eq("trip_id", tripId).order("departure_datetime", { ascending: true }),
+        supabase.from("accommodations").select("*").eq("trip_id", tripId).order("check_in", { ascending: true }),
+      ]);
 
-        if (tripResult.error) throw tripResult.error;
-        setTrip(tripResult.data);
+      if (tripResult.error) throw tripResult.error;
+      setTrip(tripResult.data);
 
-        const allEvents: TimelineEvent[] = [];
+      const allEvents: TimelineEvent[] = [];
 
-        // Process activities
-        const activities = activitiesResult.data || [];
-        activities.forEach((activity) => {
-          allEvents.push({
-            id: `activity-${activity.id}`,
-            type: "activity",
-            date: activity.activity_date,
-            time: activity.start_time || undefined,
-            endTime: activity.end_time || undefined,
-            title: activity.title,
-            subtitle: activity.description || undefined,
-            location: activity.location || undefined,
-            category: activity.category || "activity",
-            details: {
-              notes: activity.notes || undefined,
-            },
-            originalData: activity,
-          });
+      // Process activities
+      const activities = activitiesResult.data || [];
+      activities.forEach((activity) => {
+        allEvents.push({
+          id: `activity-${activity.id}`,
+          type: "activity",
+          date: activity.activity_date,
+          time: activity.start_time || undefined,
+          endTime: activity.end_time || undefined,
+          title: activity.title,
+          subtitle: activity.description || undefined,
+          location: activity.location || undefined,
+          category: activity.category || "activity",
+          details: {
+            notes: activity.notes || undefined,
+          },
+          originalData: activity,
+        });
+      });
+
+      // Process transports
+      const transports = transportsResult.data || [];
+      transports.forEach((transport) => {
+        const depDate = new Date(transport.departure_datetime);
+        allEvents.push({
+          id: `transport-${transport.id}`,
+          type: "transport",
+          date: format(depDate, "yyyy-MM-dd"),
+          time: format(depDate, "HH:mm"),
+          endTime: transport.arrival_datetime ? format(new Date(transport.arrival_datetime), "HH:mm") : undefined,
+          title: `${transport.departure_location} → ${transport.arrival_location}`,
+          subtitle: transport.carrier || undefined,
+          location: transport.departure_location,
+          category: transport.transport_type,
+          details: {
+            price: transport.price || undefined,
+            currency: transport.currency,
+            carrier: transport.carrier || undefined,
+            bookingReference: transport.booking_reference || undefined,
+            notes: transport.notes || undefined,
+            transportType: transport.transport_type,
+          },
+          originalData: transport,
+        });
+      });
+
+      // Process accommodations (generate check-in and check-out events)
+      const accommodations = accommodationsResult.data || [];
+      accommodations.forEach((acc) => {
+        // Check-in event
+        allEvents.push({
+          id: `checkin-${acc.id}`,
+          type: "accommodation-checkin",
+          date: acc.check_in,
+          time: acc.check_in_time || "15:00",
+          title: acc.name,
+          subtitle: "Check-in",
+          location: acc.address || undefined,
+          category: "accommodation",
+          details: {
+            price: acc.price || undefined,
+            currency: acc.currency,
+            bookingReference: acc.booking_reference || undefined,
+            notes: acc.notes || undefined,
+          },
+          originalData: acc,
         });
 
-        // Process transports
-        const transports = transportsResult.data || [];
-        transports.forEach((transport) => {
-          const depDate = new Date(transport.departure_datetime);
-          allEvents.push({
-            id: `transport-${transport.id}`,
-            type: "transport",
-            date: format(depDate, "yyyy-MM-dd"),
-            time: format(depDate, "HH:mm"),
-            endTime: transport.arrival_datetime ? format(new Date(transport.arrival_datetime), "HH:mm") : undefined,
-            title: `${transport.departure_location} → ${transport.arrival_location}`,
-            subtitle: transport.carrier || undefined,
-            location: transport.departure_location,
-            category: transport.transport_type,
-            details: {
-              price: transport.price || undefined,
-              currency: transport.currency,
-              carrier: transport.carrier || undefined,
-              bookingReference: transport.booking_reference || undefined,
-              notes: transport.notes || undefined,
-              transportType: transport.transport_type,
-            },
-            originalData: transport,
-          });
+        // Check-out event
+        allEvents.push({
+          id: `checkout-${acc.id}`,
+          type: "accommodation-checkout",
+          date: acc.check_out,
+          time: acc.check_out_time || "11:00",
+          title: acc.name,
+          subtitle: "Check-out",
+          location: acc.address || undefined,
+          category: "accommodation",
+          details: {
+            price: acc.price || undefined,
+            currency: acc.currency,
+            bookingReference: acc.booking_reference || undefined,
+            notes: acc.notes || undefined,
+          },
+          originalData: acc,
         });
+      });
 
-        // Process accommodations (generate check-in and check-out events)
-        const accommodations = accommodationsResult.data || [];
-        accommodations.forEach((acc) => {
-          // Check-in event
-          allEvents.push({
-            id: `checkin-${acc.id}`,
-            type: "accommodation-checkin",
-            date: acc.check_in,
-            time: acc.check_in_time || "15:00",
-            title: acc.name,
-            subtitle: "Check-in",
-            location: acc.address || undefined,
-            category: "accommodation",
-            details: {
-              price: acc.price || undefined,
-              currency: acc.currency,
-              bookingReference: acc.booking_reference || undefined,
-              notes: acc.notes || undefined,
-            },
-            originalData: acc,
-          });
+      setEvents(allEvents);
+    } catch (error) {
+      console.error("Error fetching timeline data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [tripId]);
 
-          // Check-out event
-          allEvents.push({
-            id: `checkout-${acc.id}`,
-            type: "accommodation-checkout",
-            date: acc.check_out,
-            time: acc.check_out_time || "11:00",
-            title: acc.name,
-            subtitle: "Check-out",
-            location: acc.address || undefined,
-            category: "accommodation",
-            details: {
-              price: acc.price || undefined,
-              currency: acc.currency,
-              bookingReference: acc.booking_reference || undefined,
-              notes: acc.notes || undefined,
-            },
-            originalData: acc,
-          });
-        });
-
-        setEvents(allEvents);
-      } catch (error) {
-        console.error("Error fetching timeline data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  useEffect(() => {
     fetchAllData();
 
     // Set up real-time subscriptions with debounce
@@ -194,7 +196,7 @@ export function useTimelineEvents(tripId: string | undefined) {
       supabase.removeChannel(transportsChannel);
       supabase.removeChannel(accommodationsChannel);
     };
-  }, [tripId]);
+  }, [fetchAllData, tripId]);
 
   // Organize events by day
   const timelineDays = useMemo<TimelineDay[]>(() => {
@@ -244,5 +246,6 @@ export function useTimelineEvents(tripId: string | undefined) {
     timelineDays,
     stats,
     loading,
+    refetch: fetchAllData,
   };
 }

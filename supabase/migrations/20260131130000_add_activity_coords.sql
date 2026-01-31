@@ -1,0 +1,4 @@
+-- Add coordinates to itinerary_activities
+ALTER TABLE public.itinerary_activities
+ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION,
+ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
