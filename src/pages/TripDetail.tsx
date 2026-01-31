@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { CoverImageUpload } from "@/components/trips/CoverImageUpload";
 import { TripMembersList } from "@/components/trips/TripMembersList";
 import { ExportPDFButton } from "@/components/trips/ExportPDFButton";
+import { ExportCalendarButton } from "@/components/trips/ExportCalendarButton";
 import { ShareTripDialog } from "@/components/trips/ShareTripDialog";
 import { TripDashboard } from "@/components/dashboard/TripDashboard";
 import { useTripStats } from "@/hooks/useTripStats";
@@ -404,6 +405,7 @@ export default function TripDetail() {
                         onUpdate={fetchTrip}
                       />
                       <ExportPDFButton tripId={trip.id} tripTitle={trip.title} />
+                      <ExportCalendarButton tripId={trip.id} tripTitle={trip.title} />
                   </div>
                 </div>
              </div>
