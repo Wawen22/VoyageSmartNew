@@ -103,14 +103,14 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
                     </p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto">
-                    <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Qual è il programma di oggi?")}>
-                      📅 Programma di oggi?
+                    <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Quali sono i miei alloggi?")}>
+                      🏨 I miei alloggi?
+                    </Button>
+                    <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Quali sono i miei trasporti?")}>
+                      ✈️ I miei trasporti?
                     </Button>
                     <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Quanto abbiamo speso finora?")}>
                       💰 Spese totali?
-                    </Button>
-                    <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Consigliami un ristorante per stasera")}>
-                      🍝 Ristorante per cena?
                     </Button>
                     <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Cosa non devo dimenticare?")}>
                       📋 Oggetti da portare?
