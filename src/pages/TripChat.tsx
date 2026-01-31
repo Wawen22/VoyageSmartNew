@@ -12,6 +12,8 @@ import { format } from "date-fns";
 import { it } from "date-fns/locale";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
+import { useTripDetails } from "@/hooks/useTripDetails";
 
 export default function TripChat() {
   const [searchParams] = useSearchParams();
@@ -23,6 +25,7 @@ export default function TripChat() {
   const [newMessage, setNewMessage] = useState("");
   
   const { messages, loading, members, sendMessage, scrollRef } = useTripChat(tripId || "");
+  const { data: tripDetails } = useTripDetails(tripId);
 
   // Fetch trip title
   useEffect(() => {
@@ -165,6 +168,7 @@ export default function TripChat() {
           </div>
         </div>
       </main>
+      {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
 }

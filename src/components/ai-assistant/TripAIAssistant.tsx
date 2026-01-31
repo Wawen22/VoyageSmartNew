@@ -3,10 +3,10 @@ import { useState, useEffect, useRef } from "react";
 import { useTripAI } from "@/hooks/useTripAI";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Send, Loader2, Sparkles, User, Trash2 } from "lucide-react";
+import { Bot, Send, Loader2, Sparkles, User, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TripAIAssistantProps {
@@ -55,7 +55,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
           <span className="sr-only">Apri Assistente AI</span>
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-[95%] sm:w-[540px] flex flex-col p-0 h-full border-l-2 border-indigo-100 dark:border-indigo-900">
+      <SheetContent className="w-[95%] sm:w-[540px] flex flex-col p-0 h-full border-l-2 border-indigo-100 dark:border-indigo-900 [&>button]:hidden">
         <SheetHeader className="p-6 border-b bg-muted/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -67,9 +67,26 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
                 <SheetDescription>Il tuo assistente di viaggio personale</SheetDescription>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={clearChat} title="Cancella chat">
-              <Trash2 className="h-4 w-4 text-muted-foreground" />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={clearChat} 
+                title="Cancella chat"
+                className="h-9 w-9 rounded-full hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 transition-colors"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <SheetClose asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="h-9 w-9 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <X className="h-5 w-5 text-muted-foreground" />
+                </Button>
+              </SheetClose>
+            </div>
           </div>
         </SheetHeader>
         

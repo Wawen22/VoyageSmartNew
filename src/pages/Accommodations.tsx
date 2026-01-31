@@ -10,6 +10,8 @@ import { AddAccommodationDialog } from "@/components/accommodations/AddAccommoda
 import { AccommodationCard } from "@/components/accommodations/AccommodationCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
+import { useTripDetails } from "@/hooks/useTripDetails";
 
 interface Trip {
   id: string;
@@ -27,6 +29,7 @@ export default function Accommodations() {
   const [tripsLoading, setTripsLoading] = useState(true);
 
   const { accommodations, loading, totalCost, createAccommodation, deleteAccommodation } = useAccommodations(tripId);
+  const { data: tripDetails } = useTripDetails(tripId);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -181,6 +184,7 @@ export default function Accommodations() {
           </div>
         </div>
       </main>
+      {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
 }

@@ -14,6 +14,7 @@ import { TimelineStats } from "@/components/timeline/TimelineStats";
 import { TimelineFilters, type TimelineFilterType } from "@/components/timeline/TimelineFilters";
 import { ItineraryMap } from "@/components/itinerary/ItineraryMap";
 import { ActivityDetailDialog } from "@/components/itinerary/ActivityDetailDialog";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
@@ -305,6 +306,7 @@ export default function Itinerary() {
         onUpdate={handleUpdateActivity}
         onDelete={handleDeleteActivityFromDialog}
       />
+      {tripId && <TripAIAssistant tripId={tripId} tripDetails={trip} />}
     </AppLayout>
   );
 }

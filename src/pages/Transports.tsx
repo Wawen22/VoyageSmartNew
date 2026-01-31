@@ -10,6 +10,8 @@ import { AddTransportDialog } from "@/components/transports/AddTransportDialog";
 import { TransportCard } from "@/components/transports/TransportCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
+import { useTripDetails } from "@/hooks/useTripDetails";
 
 interface Trip {
   id: string;
@@ -27,6 +29,7 @@ export default function Transports() {
   const [tripsLoading, setTripsLoading] = useState(true);
 
   const { transports, loading, totalCost, createTransport, deleteTransport } = useTransports(tripId);
+  const { data: tripDetails } = useTripDetails(tripId);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -181,6 +184,7 @@ export default function Transports() {
           </div>
         </div>
       </main>
+      {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
 }

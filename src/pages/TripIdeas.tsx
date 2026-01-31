@@ -5,12 +5,15 @@ import { IdeaBoard } from "@/components/ideas/IdeaBoard";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
+import { useTripDetails } from "@/hooks/useTripDetails";
 
 export default function TripIdeas() {
   const [searchParams] = useSearchParams();
   const tripId = searchParams.get("trip");
   const navigate = useNavigate();
   const [tripTitle, setTripTitle] = useState("");
+  const { data: tripDetails } = useTripDetails(tripId);
 
   useEffect(() => {
     if (!tripId) {
@@ -53,6 +56,7 @@ export default function TripIdeas() {
           </div>
         </div>
       </main>
+      {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
 }

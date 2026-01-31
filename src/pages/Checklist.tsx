@@ -8,6 +8,8 @@ import { useChecklist } from "@/hooks/useChecklist";
 import { ChecklistSection } from "@/components/checklist/ChecklistSection";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
+import { useTripDetails } from "@/hooks/useTripDetails";
 
 export default function Checklist() {
   const [searchParams] = useSearchParams();
@@ -26,6 +28,8 @@ export default function Checklist() {
     groupStats,
     personalStats,
   } = useChecklist(tripId);
+
+  const { data: tripDetails } = useTripDetails(tripId);
 
   useEffect(() => {
     async function fetchTripTitle() {
@@ -127,6 +131,7 @@ export default function Checklist() {
           </div>
         </div>
       </main>
+      {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
 }

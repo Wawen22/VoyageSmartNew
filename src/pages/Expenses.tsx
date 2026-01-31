@@ -29,6 +29,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ExpenseCard } from "@/components/expenses/ExpenseCard";
 import { BalancesSidebar } from "@/components/expenses/BalancesSidebar";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
+import { useTripDetails } from "@/hooks/useTripDetails";
 
 interface Trip {
   id: string;
@@ -72,6 +74,8 @@ export default function Expenses() {
     createSettlement,
     deleteSettlement
   } = useSettlements(selectedTripId);
+
+  const { data: tripDetails } = useTripDetails(selectedTripId);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -394,6 +398,7 @@ export default function Expenses() {
         expenseToEdit={editingExpense}
         onSubmit={handleSaveExpense}
       />
+      {selectedTripId && <TripAIAssistant tripId={selectedTripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
 }
