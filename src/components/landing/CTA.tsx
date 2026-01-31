@@ -1,86 +1,101 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Globe, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function CTA() {
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden">
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-hero" />
-      
-      {/* Decorative Elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-10 left-10 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 rounded-full bg-accent/20 blur-3xl" />
-      </div>
-
+    <section className="py-24 lg:py-32 relative overflow-hidden bg-white dark:bg-slate-950">
       <div className="container mx-auto px-4 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-4xl mx-auto"
-        >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm mb-8">
-            <Sparkles className="w-4 h-4 text-sunset-glow" />
-            <span className="text-white/90 text-sm font-medium">
-              Start Your Journey Today
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-6 leading-tight">
-            Ready to Plan Your
-            <br />
-            <span className="text-sunset-glow">Dream Adventure?</span>
-          </h2>
-
-          {/* Description */}
-          <p className="text-lg sm:text-xl text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Join thousands of travelers who plan smarter, save money, 
-            and create unforgettable memories with VoyageSmart.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/auth?signup=true">
-              <Button variant="sunset" size="xl" className="w-full sm:w-auto">
-                Get Started Free
-                <ArrowRight className="w-5 h-5" />
-              </Button>
-            </Link>
-            <Link to="/trips">
-              <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
-                Explore Trips
-              </Button>
-            </Link>
-          </div>
-
-          {/* Trust Badges */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-white/60">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>Free to start</span>
+        <div className="max-w-6xl mx-auto">
+          <div className="relative rounded-[2.5rem] overflow-hidden bg-slate-900 px-8 py-16 md:px-16 md:py-24 text-center">
+            
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]" />
             </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>No credit card required</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span>Cancel anytime</span>
+            
+            {/* Animated Glows */}
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500 rounded-full blur-[100px] opacity-20" />
+            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-purple-500 rounded-full blur-[100px] opacity-20" />
+
+            <div className="relative z-10 max-w-3xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8"
+              >
+                <Sparkles className="w-4 h-4 text-indigo-400" />
+                <span className="text-white/90 text-sm font-medium">Ready to start?</span>
+              </motion.div>
+
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+                className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight tracking-tight"
+              >
+                The future of travel is <br />
+                <span className="text-gradient-sunset italic">already here.</span>
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="text-slate-400 text-lg md:text-xl mb-12 leading-relaxed"
+              >
+                Experience the first travel companion that combines contextual AI intelligence 
+                with real-time collaboration. Start planning your next trip for free.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              >
+                <Link to="/auth?signup=true" className="w-full sm:w-auto">
+                  <Button size="xl" className="w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-100 rounded-2xl group text-lg px-10 h-16">
+                    Get Started Free
+                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Link to="/trips" className="w-full sm:w-auto">
+                  <Button variant="ghost" size="xl" className="w-full sm:w-auto text-white border border-white/10 hover:bg-white/5 rounded-2xl text-lg px-10 h-16">
+                    Browse Trips
+                  </Button>
+                </Link>
+              </motion.div>
+
+              {/* Feature Badges */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+                className="mt-16 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-slate-500 text-sm font-medium"
+              >
+                <div className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  <span>Available Worldwide</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4" />
+                  <span>Secure & Private</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4" />
+                  <span>No Card Required</span>
+                </div>
+              </motion.div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

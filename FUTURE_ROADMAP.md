@@ -10,136 +10,67 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 
 ### 1. Chat di Gruppo Real-time 💬 (✅ Completato)
 *   **Stato:** Implementato.
-*   **Dettagli:**
-    *   Chat dedicata per ogni viaggio.
-    *   Supporto Realtime con Supabase.
-    *   Badge notifiche messaggi non letti nella Navbar.
-    *   Visualizzazione Avatar e Nome mittente con tooltip.
+*   **Dettagli:** Supporto Realtime con Supabase e notifiche non lette.
 
 ### 2. Gestione Spese Multi-Valuta (Smart Finance) 💱 (✅ Completato)
 *   **Stato:** Implementato.
-*   **Dettagli:**
-    *   Input spese in qualsiasi valuta.
-    *   Conversione automatica in valuta base.
-    *   Grafici di bilancio e gestione debiti/crediti.
+*   **Dettagli:** Input spese in qualsiasi valuta, conversione automatica e grafici di bilancio.
 
 ### 3. Profilo Pubblico & Gamification (✅ Completato)
 *   **Stato:** Implementato.
-*   **Dettagli:**
-    *   Gestione Avatar utente personalizzato.
-    *   Visualizzazione coerente in Navbar e Menu Mobile.
-    *   Passaporto Digitale e Mappa dei viaggi.
-    *   Sistema di Badge dinamici (Primi Passi, Globetrotter, ecc.) con progress bar.
-    *   Statistiche (Km percorsi, Paesi visitati).
+*   **Dettagli:** Badge dinamici, statistiche e mappa dei viaggi.
 
 ### 4. Trip Ideas & Scrapbook Collaborativo 💡 (✅ Completato)
 *   **Stato:** Implementato.
-*   **Dettagli:**
-    *   Bacheca condivisa per note, link e foto.
-    *   Sistema di votazione (Like).
-    *   Promozione diretta in attività dell'itinerario.
+*   **Dettagli:** Bacheca condivisa, votazione e promozione ad attività.
 
-### 5. Commenti sulle Idee 💬 (✅ Completato)
-*   **Stato:** Implementato.
-*   **Dettagli:**
-    *   Discussioni threaded su ogni idea.
-    *   Sistema di notifiche per nuovi commenti.
-    *   Supporto per risposte annidate.
+### 5. AI ChatBot Assistente di Viaggio 🤖 (✅ Completato)
+*   **Stato:** Implementato (V1).
+*   **Funzionalità Core:**
+    *   **Context Aware**: Conosce itinerario, spese, alloggi e trasporti del viaggio specifico.
+    *   **Formattazione Markdown**: Supporto per liste, grassetto e link.
+    *   **Memoria Persistente**: Salvataggio cronologia chat su database.
+    *   **Rich UI Components**: Visualizzazione di card interattive per alloggi, trasporti e spese direttamente nei messaggi.
+    *   **Function Calling**: Capacità di eseguire azioni (es. "Aggiungi questa spesa") direttamente tramite chat.
+    *   **Voice Mode**: Integrazione completa Speech-to-Text e Text-to-Speech.
 
-### 6. Mappa Itinerario Interattiva 🗺️ (✅ Completato)
+### 6. Integrazione Calendari Esterni 📅 (✅ Completato)
 *   **Stato:** Implementato.
-*   **Dettagli:**
-    *   Visualizzazione su mappa dei pin giornalieri collegati da linee di percorso.
-    *   Calcolo e visualizzazione tempi di percorrenza stimati tra le tappe.
-    *   Integrazione con Mapbox GL JS.
-    *   Zoom e navigazione interattiva.
+*   **Dettagli:** Export feed `.ics` per importazione in Google Calendar, Outlook e Apple Calendar.
+
+### 7. Mappa Itinerario Interattiva 🗺️ (✅ Completato)
+*   **Stato:** Implementato.
+*   **Dettagli:** Visualizzazione su mappa dinamica Mapbox con percorsi e tempi stimati.
 
 ---
 
 ## 📅 Funzionalità Future (Backlog)
 
-### 1. AI ChatBot Assistente di Viaggio 🤖 (🔄 In Sviluppo)
-*   **Stato:** Implementazione base completata.
-*   **Prossimi Step:**
-    *   **Formattazione Markdown** (✅ Completato): Supporto per liste, grassetto e link.
-    *   **Memoria Persistente** (✅ Completato): Salvataggio cronologia chat su database (Supabase) per sessioni multiple.
-    *   **Rich UI Components** (✅ Completato): Visualizzazione di card interattive (Alloggi, Trasporti) direttamente nei messaggi.
-    *   **Function Calling** (✅ Completato): Capacità dell'AI di eseguire azioni (es. "Aggiungi questa spesa") direttamente.
-    *   **Voice Mode** (✅ Completato): Input vocale per interagire con l'assistente senza digitare.
-    *   **Suggerimenti Proattivi**: L'AI analizza meteo e orari per proporre modifiche all'itinerario spontaneamente.
-*   **Dettagli:**
-    *   Chatbot AI integrato che prende in contesto i dettagli del viaggio.
-    *   Risposte personalizzate basate sul contesto del viaggio specifico.
-    *   Supporto multi-provider per flessibilità e costi:
-      *   **Gemini API** (Google) - Modelli gratuiti e a pagamento
-      *   **OpenAI API**
-      *   **Azure OpenAI** - Per enterprise e compliance
-    *   Sistema di switch dinamico tra modelli (gratuito/pagato) tramite configurazione.
-    *   Funzionalità suggerite:
-      *   Raccomandazioni di attività basate su interessi
-      *   Suggerimenti ristoranti locali
-      *   Consigli su logistica e trasporti
-      *   Informazioni culturali e storiche sulla destinazione
-      *   Traduzione in tempo reale
-    *   Memoria conversazionale per mantenere il contesto durante la chat.
-    *   Integrazione con itinerario esistente per suggerimenti contestuali.
+### 1. Suggerimenti Proattivi (Meteo & AI) 🌤️
+*   **Stato:** Pianificato.
+*   **Priorità:** Alta.
+*   **Dettagli:** L'AI analizza meteo e orari liberi per proporre modifiche all'itinerario spontaneamente (es. "Domani piove, vuoi visitare un museo?").
 
 ### 2. Offline Mode & PWA 📶
 *   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Supporto PWA per installazione su dispositivi mobili.
-    *   Cache intelligente per accesso offline ai dati essenziali.
-    *   Sincronizzazione automatica quando torna online.
+*   **Dettagli:** Supporto per installazione mobile e cache intelligente per accesso ai dati offline.
 
 ### 3. Galleria Foto Condivisa 📸
 *   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Upload e organizzazione foto di gruppo.
-    *   Album automatici per ogni giorno/attività.
-    *   Tagging persone e luoghi.
+*   **Dettagli:** Upload foto di gruppo, album automatici e tagging AI dei luoghi.
 
-### 4. Integrazione Calendari Esterni 📅
+### 4. Meteo Avanzato & Avvisi ☀️
 *   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Export/import con Google Calendar, Apple Calendar, Outlook.
-    *   Sincronizzazione bidirezionale.
+*   **Dettagli:** Previsioni orarie dettagliate e avvisi meteo in tempo reale.
 
-### 5. Meteo Avanzato & Avvisi ☀️
+### 5. Dark Mode System 🌙
 *   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Previsioni orarie dettagliate.
-    *   Avvisi meteo in tempo reale.
-    *   Suggerimenti automatici basati sul meteo.
+*   **Dettagli:** Tema scuro completo per tutta l'app con switch automatico.
 
-### 6. Dark Mode System 🌙
+### 6. Traduttore & Convertitore Rapido 🧰
 *   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Tema scuro completo per tutto l'applicativo.
-    *   Switch automatico basato su preferenze di sistema.
+*   **Dettagli:** Traduzione istantanea e convertitore di unità/misure rapido.
 
-### 7. Traduttore & Convertitore Rapido 🧰
+### 7. Notifiche Push 🔔
 *   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Traduzione istantanea di testi e frasi.
-    *   Convertitore valuta, unità di misura, orari.
-
-### 8. Notifiche Push 🔔
-*   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Notifiche per attività imminenti.
-    *   Avvisi per nuovi messaggi, commenti e inviti.
-    *   Promemoria per scadenze importanti.
-
-### 9. Analytics & Insights 📊
-*   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Statistiche dettagliate sui viaggi passati.
-    *   Analisi spese per categoria e destinazione.
-    *   Grafici e report personalizzabili.
-
-### 10. Integrazione Social Media 📱
-*   **Stato:** Pianificato.
-*   **Dettagli:**
-    *   Condivisione diretta su Instagram, Facebook, Twitter.
-    *   Generazione automatica di post per viaggi.
-    *   Importazione foto da social media.
+*   **Dettagli:** Notifiche native per attività imminenti, messaggi e inviti.

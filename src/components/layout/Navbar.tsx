@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -34,11 +34,21 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const isLanding = location.pathname === "/";
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const isTripsIndex = location.pathname === "/trips";
   const tripDetailLinks = new Set([
     "/itinerary",
@@ -73,11 +83,13 @@ export function Navbar() {
     navigate("/");
   };
 
+  const isDarkNav = isLanding && !scrolled;
+
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isLanding
-        ? "bg-transparent"
-        : "bg-background/75 backdrop-blur-xl border-b border-border/60 shadow-[0_12px_30px_-24px_rgba(15,23,42,0.35)]"
+      isDarkNav
+        ? "bg-transparent py-2"
+        : "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm py-0"
     }`}>
       <div className="container mx-auto px-4">
         <nav className="flex items-center justify-between h-16 lg:h-20">
@@ -87,16 +99,16 @@ export function Navbar() {
             className="flex items-center gap-2 group"
           >
             <div className={`p-2 rounded-xl transition-all duration-300 ${
-              isLanding 
+              isDarkNav 
                 ? "bg-white/10 backdrop-blur-sm group-hover:bg-white/20" 
                 : "bg-primary/10 group-hover:bg-primary/15"
             }`}>
               <Plane className={`w-5 h-5 transition-transform group-hover:rotate-12 ${
-                isLanding ? "text-white" : "text-primary"
+                isDarkNav ? "text-white" : "text-primary"
               }`} />
             </div>
-            <span className={`text-xl font-bold ${
-              isLanding ? "text-white" : "text-foreground"
+            <span className={`text-xl font-bold transition-colors ${
+              isDarkNav ? "text-white" : "text-foreground"
             }`}>
               VoyageSmart
             </span>
@@ -112,10 +124,10 @@ export function Navbar() {
                   key={link.href}
                   to={link.href}
                   className={`px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 ${
-                    isLanding
+                    isDarkNav
                       ? "text-white/80 hover:text-white hover:bg-white/10"
                       : isActive
-                      ? "text-primary bg-primary/10 shadow-[0_8px_20px_-16px_rgba(59,130,246,0.45)]"
+                      ? "text-primary bg-primary/10"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                   }`}
                 >
@@ -130,12 +142,12 @@ export function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             {user ? (
               <>
-                <ChecklistButton isLanding={isLanding} />
-                <NotificationBell isLanding={isLanding} />
+                <ChecklistButton isLanding={isDarkNav} />
+                <NotificationBell isLanding={isDarkNav} />
                 {activeTripId && (
                   <Link to={`/chat?trip=${activeTripId}`}>
                     <div className={`p-2 rounded-full transition-colors relative group ${
-                      isLanding ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
+                      isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
                     }`}>
                       <MessageCircle className="w-5 h-5" />
                       {unreadCount > 0 && (
@@ -149,7 +161,7 @@ export function Navbar() {
                 )}
                 <Link to="/profile">
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors ${
-                    isLanding ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
+                    isDarkNav ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
                   }`}>
                     <Avatar className="w-6 h-6 border-none">
                       <AvatarImage src={profile?.avatar_url || ""} />
@@ -157,13 +169,13 @@ export function Navbar() {
                         {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-                    <span className={`text-sm font-medium ${isLanding ? "text-white" : "text-foreground"}`}>
+                    <span className={`text-sm font-medium ${isDarkNav ? "text-white" : "text-foreground"}`}>
                       {profile?.full_name || user?.email?.split("@")[0]}
                     </span>
                   </div>
                 </Link>
                 <Button 
-                  variant={isLanding ? "heroOutline" : "outline"} 
+                  variant={isDarkNav ? "heroOutline" : "outline"} 
                   size="sm"
                   onClick={handleSignOut}
                 >
@@ -174,12 +186,12 @@ export function Navbar() {
             ) : (
               <>
                 <Link to="/auth">
-                  <Button variant={isLanding ? "heroOutline" : "ghost"} size="sm">
+                  <Button variant={isDarkNav ? "heroOutline" : "ghost"} size="sm">
                     Sign In
                   </Button>
                 </Link>
                 <Link to="/auth?signup=true">
-                  <Button variant={isLanding ? "hero" : "default"} size="sm">
+                  <Button variant={isDarkNav ? "hero" : "default"} size="sm">
                     Get Started
                   </Button>
                 </Link>
@@ -192,7 +204,7 @@ export function Navbar() {
             {user && activeTripId && (
               <Link to={`/chat?trip=${activeTripId}`}>
                 <div className={`p-2 rounded-xl transition-colors relative ${
-                  isLanding ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
+                  isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
                 }`}>
                   <MessageCircle className="w-6 h-6" />
                   {unreadCount > 0 && (
@@ -203,12 +215,12 @@ export function Navbar() {
                 </div>
               </Link>
             )}
-            {user && <ChecklistButton isLanding={isLanding} />}
-            {user && <NotificationBell isLanding={isLanding} />}
+            {user && <ChecklistButton isLanding={isDarkNav} />}
+            {user && <NotificationBell isLanding={isDarkNav} />}
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={`p-2 rounded-xl transition-colors ${
-                isLanding 
+                isDarkNav 
                   ? "text-white hover:bg-white/10" 
                   : "text-foreground hover:bg-muted/70"
               }`}

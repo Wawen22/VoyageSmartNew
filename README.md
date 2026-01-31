@@ -1,117 +1,38 @@
 # VoyageSmart - Il Compagno di Viaggio Definitivo 🌍✈️
 
-**VoyageSmart** è l'applicazione web moderna e all-in-one pensata per pianificare, gestire e condividere i tuoi viaggi con facilità e stile. Dimentica fogli di calcolo sparsi, note disordinate e chat di gruppo caotiche: VoyageSmart centralizza tutto in un'unica piattaforma intuitiva e collaborativa.
+**VoyageSmart** è l'applicazione web moderna pensata per pianificare, gestire e condividere i tuoi viaggi con l'intelligenza artificiale al tuo fianco. Centralizza tutto in un'unica piattaforma intuitiva e collaborativa.
 
 ![VoyageSmart Hero](./src/assets/hero-travel.jpg)
 
-## 🚀 Funzionalità Principali
+## 🚀 Funzionalità AI (Novità!)
 
-### 🗺️ Pianificazione & Itinerario
-*   **Gestione Viaggi:** Crea viaggi, imposta date, destinazioni e carica immagini di copertina personalizzate.
-*   **Itinerario Intelligente:** Organizza le tue giornate con un'interfaccia drag-and-drop. Aggiungi attività, pause e note.
-*   **Mappa Itinerario Interattiva:** Visualizza il tuo percorso su mappa dinamica con pin giornalieri collegati da linee di percorso, calcolo tempi di percorrenza e integrazione Mapbox.
+### 🤖 AI Travel Assistant
+*   **Contextual Agent:** Un assistente che conosce ogni dettaglio del tuo viaggio (itinerario, hotel, budget).
+*   **Action Mode:** Aggiungi spese o attività all'itinerario semplicemente chattando.
+*   **Rich UI:** Ricevi risposte visive con card interattive cliccabili.
+*   **Voice Mode:** Parla con l'assistente e ascolta le sue risposte grazie all'integrazione vocale.
+*   **Persistent Memory:** La chat ricorda tutto, anche dopo aver ricaricato la pagina.
 
-### 💰 Finanze & Budget (Smart Finance)
-*   **Tracciamento Spese:** Registra ogni spesa, categorizzala e assegnala a chi l'ha pagata.
-*   **Gestione Debiti (Settle Up):** Calcolo automatico di "chi deve a chi" per semplificare i rimborsi a fine viaggio.
-*   **Budgeting:** Imposta un budget totale e monitora l'andamento delle spese in tempo reale con grafici chiari.
+## 🗺️ Pianificazione & Organizzazione
 
-### 🤝 Collaborazione & Social
-*   **Viaggi di Gruppo:** Invita amici e compagni di viaggio tramite email.
-*   **Collaborazione Real-time:** Le modifiche sono sincronizzate istantaneamente per tutti i partecipanti.
-*   **Condivisione Pubblica:** Condividi il link del tuo viaggio con chi è rimasto a casa tramite una vista "solo lettura".
-
-### 🎒 Organizzazione
-*   **Alloggi & Trasporti:** Tieni traccia di hotel, voli, treni e noleggi in sezioni dedicate.
-*   **Documenti:** Carica e archivia biglietti, prenotazioni e documenti importanti in cloud.
-*   **Checklist:** Liste condivise per non dimenticare nulla a casa.
-
-### 💡 Trip Ideas & Scrapbook Collaborativo
-*   **Bacheca Condivisa:** Crea e condividi idee, note, link e foto con il tuo gruppo di viaggio.
-*   **Sistema di Votazione:** Vota le idee preferite per decidere insieme cosa fare.
-*   **Commenti Threaded:** Discuti ogni idea con commenti dettagliati e conversazioni strutturate.
-*   **Promozione ad Attività:** Converti le idee approvate direttamente in attività dell'itinerario con un click.
-
-### 🏆 Gamification & Profilo (Novità!)
-*   **Passaporto Digitale:** Un profilo utente arricchito che mostra statistiche di viaggio (km percorsi, paesi visitati).
-*   **Collezione Badge:** Sblocca obiettivi come "Globetrotter" o "Weekend Warrior" viaggiando di più.
-*   **Mappa dei Timbri:** Visualizza le bandiere di tutti i paesi che hai visitato.
-
-### 🤖 AI Travel Assistant (Novità!)
-*   **Assistente Intelligente:** Un chatbot integrato basato su **Gemini 2.5 Flash** che conosce ogni dettaglio del tuo viaggio.
-*   **Action Mode (Function Calling):** Chiedi all'AI di "Aggiungere una spesa di 20€" o "Creare un'attività" e lei lo farà per te.
-*   **Rich UI:** Risposte visive con card interattive per alloggi, trasporti e spese.
-*   **Contesto Dinamico:** Risponde a domande su itinerario, alloggi, trasporti e spese in tempo reale.
-*   **Memoria Persistente:** La cronologia delle conversazioni viene salvata su database.
+*   **Mappa Itinerario Interattiva:** Visualizza il tuo percorso su mappa dinamica con calcolo tempi di percorrenza.
+*   **Smart Finance:** Tracciamento spese multi-valuta, conversione automatica e gestione debiti.
+*   **Collaborazione Real-time:** Invita amici e pianifica insieme con sincronizzazione istantanea.
+*   **Export Intelligente:** Scarica il tuo viaggio in formato PDF professionale o esporta il calendario (.ics).
 
 ## 🛠️ Tecnologie Utilizzate
 
-Il progetto è costruito con uno stack moderno per garantire performance, scalabilità e un'ottima esperienza sviluppatore.
+*   **Frontend:** React + TypeScript + Vite
+*   **AI Engine:** Google Gemini 2.5 Flash
+*   **Styling:** Tailwind CSS + Shadcn/ui + Framer Motion
+*   **Backend:** Supabase (PostgreSQL, Realtime, Auth, Storage)
+*   **Mappe:** Mapbox GL JS
 
-*   **Frontend:** [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) + [Vite](https://vitejs.dev/)
-*   **AI:** [Google Gemini API](https://ai.google.dev/) (Modello 1.5/2.5 Flash)
-*   **UI/UX:** [Tailwind CSS](https://tailwindcss.com/) + [Shadcn/ui](https://ui.shadcn.com/) + [Framer Motion](https://www.framer.com/motion/)
-*   **Backend & Database:** [Supabase](https://supabase.com/) (PostgreSQL, Auth, Storage, Realtime)
-*   **Mappe:** [Mapbox GL JS](https://www.mapbox.com/)
-*   **Grafici:** [Recharts](https://recharts.org/)
-*   **Gestione Date:** [date-fns](https://date-fns.org/)
-*   **Export:** Generazione PDF integrata per itinerari e spese.
+## 📦 Setup Rapido
 
-## 📦 Installazione e Setup
+1. **Installa dipendenze:** `npm install`
+2. **Configura .env:** Aggiungi le chiavi per Supabase, Mapbox e Gemini.
+3. **Avvia:** `npm run dev`
 
-### Prerequisiti
-*   Node.js (v18+)
-*   Account Supabase
-*   Account Mapbox
-*   Google AI Studio API Key (per Gemini)
-
-### 1. Clona la repository
-```bash
-git clone https://github.com/tuo-username/VoyageSmart.git
-cd VoyageSmart
-```
-
-### 2. Installa le dipendenze
-```bash
-npm install
-# oppure
-bun install
-```
-
-### 3. Configura le variabili d'ambiente
-Crea un file `.env` nella root del progetto e aggiungi le tue chiavi:
-
-```env
-VITE_SUPABASE_URL=la-tua-url-supabase
-VITE_SUPABASE_ANON_KEY=la-tua-chiave-anon-supabase
-VITE_MAPBOX_TOKEN=il-tuo-token-mapbox
-VITE_GEMINI_API_KEY=la-tua-chiave-gemini
-VITE_AI_DEFAULT_PROVIDER=gemini
-```
-
-### 4. Avvia il server di sviluppo
-```bash
-npm run dev
-```
-
-L'applicazione sarà disponibile su `http://localhost:8080`.
-
-## 🗂️ Struttura del Progetto
-
-```
-src/
-├── assets/         # Immagini e risorse statiche
-├── components/     # Componenti React riutilizzabili (UI, Dashboard, Maps...)
-├── hooks/          # Custom Hooks (useAuth, useItinerary, etc.)
-├── integrations/   # Configurazione client Supabase
-├── lib/            # Utility functions (mapbox, weather, utils)
-├── pages/          # Pagine principali dell'applicazione (Router)
-├── utils/          # Logica di business (gamification, pdfExport)
-└── App.tsx         # Root component e configurazione Routing
-```
-
-## 🤝 Contribuire
-Siamo aperti a contributi! Se hai idee per nuove funzionalità o hai trovato un bug, apri una issue o invia una pull request. Vedi `FUTURE_ROADMAP.md` per le funzionalità pianificate.
-
-## 📄 Licenza
-Questo progetto è distribuito sotto licenza MIT.
+---
+Progetto distribuito sotto licenza MIT.
