@@ -13,7 +13,6 @@ import {
   Calendar,
   ClipboardList,
   LogOut,
-  User,
   Lightbulb,
   MessageCircle
 } from "lucide-react";
@@ -21,6 +20,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ChecklistButton } from "@/components/checklist/ChecklistButton";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
+import { useProfile } from "@/hooks/useProfile";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navLinks = [
   { href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
@@ -36,6 +37,7 @@ export function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   const isLanding = location.pathname === "/";
   const isTripsIndex = location.pathname === "/trips";
   const tripDetailLinks = new Set([
@@ -149,9 +151,14 @@ export function Navbar() {
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors ${
                     isLanding ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
                   }`}>
-                    <User className={`w-4 h-4 ${isLanding ? "text-white" : "text-foreground"}`} />
+                    <Avatar className="w-6 h-6 border-none">
+                      <AvatarImage src={profile?.avatar_url || ""} />
+                      <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                        {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className={`text-sm font-medium ${isLanding ? "text-white" : "text-foreground"}`}>
-                      {user.email?.split("@")[0]}
+                      {profile?.full_name || user?.email?.split("@")[0]}
                     </span>
                   </div>
                 </Link>
@@ -245,9 +252,21 @@ export function Navbar() {
                 {user ? (
                   <>
                     <Link to="/profile" onClick={() => setIsOpen(false)}>
-                      <div className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
-                        <User className="w-5 h-5" />
-                        <span>{user.email}</span>
+                      <div className="flex items-center gap-3 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={profile?.avatar_url || ""} />
+                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                            {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold text-foreground">
+                            {profile?.full_name || "Il mio Profilo"}
+                          </span>
+                          <span className="text-xs opacity-70">
+                            {user?.email}
+                          </span>
+                        </div>
                       </div>
                     </Link>
                     <Button 
