@@ -13,6 +13,8 @@ import { motion } from "framer-motion";
 import { ProfileMap } from "@/components/maps/ProfileMap";
 import { searchPlace } from "@/lib/mapbox";
 import { DigitalPassport } from "@/components/profile/DigitalPassport";
+import { SubscriptionCard } from "@/components/profile/SubscriptionCard";
+import { RedeemCodeCard } from "@/components/subscription/RedeemCodeCard";
 import { calculateUserStats, getBadges, UserStats, Badge } from "@/utils/gamification";
 
 export default function Profile() {
@@ -229,14 +231,22 @@ export default function Profile() {
           )}
 
           <Tabs defaultValue="passport" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:w-[500px]">
+            <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
               <TabsTrigger value="passport">Passaporto</TabsTrigger>
               <TabsTrigger value="trips">I miei Viaggi</TabsTrigger>
+              <TabsTrigger value="subscription">Abbonamento</TabsTrigger>
               <TabsTrigger value="about">Info</TabsTrigger>
             </TabsList>
             
             <TabsContent value="passport" className="mt-6">
               <DigitalPassport stats={stats} badges={badges} loading={tripsLoading && !stats.totalTrips} />
+            </TabsContent>
+
+            <TabsContent value="subscription" className="mt-6">
+              <div className="max-w-xl mx-auto space-y-6">
+                <SubscriptionCard />
+                <RedeemCodeCard />
+              </div>
             </TabsContent>
 
             <TabsContent value="trips" className="mt-6 space-y-6">

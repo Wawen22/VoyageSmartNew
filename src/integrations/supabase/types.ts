@@ -334,6 +334,11 @@ export type Database = {
           id: string
           updated_at: string
           user_id: string
+          is_pro: boolean | null
+          stripe_customer_id: string | null
+          ai_usage_count: number | null
+          trial_ends_at: string | null
+          pro_source: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -342,6 +347,11 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id: string
+          is_pro?: boolean | null
+          stripe_customer_id?: string | null
+          ai_usage_count?: number | null
+          trial_ends_at?: string | null
+          pro_source?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -350,8 +360,123 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+          is_pro?: boolean | null
+          stripe_customer_id?: string | null
+          ai_usage_count?: number | null
+          trial_ends_at?: string | null
+          pro_source?: string | null
         }
         Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          id: string
+          code: string
+          code_hash: string
+          name: string
+          description: string | null
+          type: Database["public"]["Enums"]["promo_code_type"]
+          trial_days: number | null
+          discount_percent: number | null
+          lifetime_pro: boolean
+          max_total_uses: number | null
+          current_uses: number
+          max_uses_per_user: number
+          starts_at: string
+          expires_at: string | null
+          is_active: boolean
+          created_by: string | null
+          created_at: string
+          updated_at: string
+          notes: string | null
+        }
+        Insert: {
+          id?: string
+          code: string
+          code_hash: string
+          name: string
+          description?: string | null
+          type?: Database["public"]["Enums"]["promo_code_type"]
+          trial_days?: number | null
+          discount_percent?: number | null
+          lifetime_pro?: boolean
+          max_total_uses?: number | null
+          current_uses?: number
+          max_uses_per_user?: number
+          starts_at?: string
+          expires_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+          notes?: string | null
+        }
+        Update: {
+          id?: string
+          code?: string
+          code_hash?: string
+          name?: string
+          description?: string | null
+          type?: Database["public"]["Enums"]["promo_code_type"]
+          trial_days?: number | null
+          discount_percent?: number | null
+          lifetime_pro?: boolean
+          max_total_uses?: number | null
+          current_uses?: number
+          max_uses_per_user?: number
+          starts_at?: string
+          expires_at?: string | null
+          is_active?: boolean
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
+      promo_code_redemptions: {
+        Row: {
+          id: string
+          user_id: string
+          promo_code_id: string
+          redeemed_at: string
+          ip_address: string | null
+          user_agent: string | null
+          trial_ends_at: string | null
+          discount_applied: number | null
+          metadata: Json
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          promo_code_id: string
+          redeemed_at?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          trial_ends_at?: string | null
+          discount_applied?: number | null
+          metadata?: Json
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          promo_code_id?: string
+          redeemed_at?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          trial_ends_at?: string | null
+          discount_applied?: number | null
+          metadata?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_code_redemptions_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       settlements: {
         Row: {
@@ -654,6 +779,42 @@ export type Database = {
         }
         Returns: undefined
       }
+      redeem_promo_code: {
+        Args: {
+          p_code: string
+          p_ip_address?: string | null
+          p_user_agent?: string | null
+        }
+        Returns: Json
+      }
+      get_user_redemptions: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          code_name: string
+          code_type: Database["public"]["Enums"]["promo_code_type"]
+          redeemed_at: string
+          trial_ends_at: string | null
+          discount_applied: number | null
+          benefit: string
+        }[]
+      }
+      create_promo_code: {
+        Args: {
+          p_code: string
+          p_name: string
+          p_type: Database["public"]["Enums"]["promo_code_type"]
+          p_trial_days?: number | null
+          p_discount_percent?: number | null
+          p_lifetime_pro?: boolean
+          p_max_total_uses?: number | null
+          p_max_uses_per_user?: number
+          p_expires_at?: string | null
+          p_description?: string | null
+          p_notes?: string | null
+        }
+        Returns: Json
+      }
     }
     Enums: {
       expense_category:
@@ -664,6 +825,7 @@ export type Database = {
         | "shopping"
         | "other"
       invitation_status: "pending" | "accepted" | "declined"
+      promo_code_type: "trial" | "subscription" | "lifetime" | "discount"
       transport_type: "flight" | "train" | "bus" | "car" | "ferry" | "other"
       trip_member_role: "owner" | "admin" | "member"
     }
@@ -802,6 +964,7 @@ export const Constants = {
         "other",
       ],
       invitation_status: ["pending", "accepted", "declined"],
+      promo_code_type: ["trial", "subscription", "lifetime", "discount"],
       transport_type: ["flight", "train", "bus", "car", "ferry", "other"],
       trip_member_role: ["owner", "admin", "member"],
     },

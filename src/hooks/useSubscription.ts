@@ -44,6 +44,20 @@ export const useSubscription = () => {
     }
   };
 
+  const manageSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session", {
+        body: { returnUrl: window.location.href },
+      });
+
+      if (error) throw error;
+      if (data?.url) window.location.href = data.url;
+    } catch (error) {
+      console.error("Manage subscription error:", error);
+      throw error;
+    }
+  };
+
   return {
     isPro,
     aiUsageCount,
@@ -51,6 +65,7 @@ export const useSubscription = () => {
     remainingMessages,
     incrementUsage,
     subscribe,
+    manageSubscription,
     loading
   };
 };

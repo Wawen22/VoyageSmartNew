@@ -16,6 +16,8 @@ export interface ProfileData {
   is_pro?: boolean;
   stripe_customer_id?: string | null;
   ai_usage_count?: number;
+  trial_ends_at?: string | null;
+  pro_source?: string | null;
 }
 
 export const useProfile = () => {
