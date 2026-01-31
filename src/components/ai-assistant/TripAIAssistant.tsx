@@ -8,8 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bot, Send, Loader2, Sparkles, User, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import { RichMessageRenderer } from "./RichMessageRenderer";
 
 interface TripAIAssistantProps {
   tripId: string;
@@ -21,7 +20,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   
-  const { messages, sendMessage, isLoading, error, clearChat } = useTripAI({ 
+  const { messages, sendMessage, isLoading, error, clearChat, contextData } = useTripAI({ 
     tripId, 
     tripDetails 
   });
@@ -93,10 +92,10 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
         </SheetHeader>
         
         <div className="flex-1 overflow-hidden relative bg-slate-50 dark:bg-slate-950/50">
-          <ScrollArea className="h-full p-6">
-            <div className="space-y-6 pb-4">
+          <ScrollArea className="h-full">
+            <div className="space-y-6 p-4 pb-4">
               {messages.length === 0 && (
-                <div className="text-center space-y-4 py-10 px-4">
+                <div className="text-center space-y-4 py-6 px-2">
                   <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border inline-block">
                     <Sparkles className="h-8 w-8 text-indigo-500 mx-auto mb-3" />
                     <h3 className="font-semibold text-lg mb-2">Come posso aiutarti?</h3>
@@ -130,33 +129,26 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
                   )}
                 >
                   {msg.role === "assistant" && (
-                    <Avatar className="h-8 w-8 border bg-indigo-100 dark:bg-indigo-900/50">
+                    <Avatar className="h-8 w-8 border bg-indigo-100 dark:bg-indigo-900/50 flex-shrink-0">
                       <AvatarFallback><Bot className="h-4 w-4 text-indigo-600" /></AvatarFallback>
                     </Avatar>
                   )}
                   
                   <div
                     className={cn(
-                      "rounded-2xl px-4 py-3 max-w-[80%] text-sm shadow-sm leading-relaxed",
+                      "rounded-2xl px-4 py-3 text-sm shadow-sm leading-relaxed overflow-hidden",
                       msg.role === "user"
-                        ? "bg-indigo-600 text-white rounded-br-none"
-                        : "bg-white dark:bg-slate-800 border rounded-bl-none prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-slate-100 dark:prose-pre:bg-slate-900"
+                        ? "bg-indigo-600 text-white rounded-br-none max-w-[90%]"
+                        : "bg-white dark:bg-slate-800 border rounded-bl-none max-w-full w-auto"
                     )}
                   >
                     {msg.role === "assistant" ? (
-                      <ReactMarkdown 
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                          ul: ({node, ...props}) => <ul className="list-disc ml-4 space-y-1" {...props} />,
-                          ol: ({node, ...props}) => <ol className="list-decimal ml-4 space-y-1" {...props} />,
-                          li: ({node, ...props}) => <li className="mb-0" {...props} />,
-                          p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                          a: ({node, ...props}) => <a className="text-indigo-600 dark:text-indigo-400 underline" target="_blank" rel="noopener noreferrer" {...props} />,
-                          code: ({node, ...props}) => <code className="bg-muted px-1 py-0.5 rounded text-xs" {...props} />,
-                        }}
-                      >
-                        {msg.content}
-                      </ReactMarkdown>
+                      <RichMessageRenderer 
+                        content={msg.content}
+                        contextData={contextData}
+                        tripId={tripId}
+                        onLinkClick={() => setIsOpen(false)}
+                      />
                     ) : (
                       <div className="whitespace-pre-wrap">{msg.content}</div>
                     )}

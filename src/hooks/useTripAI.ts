@@ -77,7 +77,7 @@ Contesto Attuale:
     if (activities && activities.length > 0) {
       context += `
 Itinerario (${activities.length} attività):
-${activities.map(a => `- [${format(new Date(a.activity_date), "d MMM")}] ${a.title} (${a.category})`).join("\n")}
+${activities.map(a => `- [ID: ${a.id}] [${format(new Date(a.activity_date), "d MMM")}] ${a.title} (${a.category})`).join("\n")}
 `;
     }
 
@@ -85,7 +85,7 @@ ${activities.map(a => `- [${format(new Date(a.activity_date), "d MMM")}] ${a.tit
     if (accommodations && accommodations.length > 0) {
       context += `
 Alloggi:
-${accommodations.map(a => `- ${a.name} (${a.check_in_date} - ${a.check_out_date})`).join("\n")}
+${accommodations.map(a => `- [ID: ${a.id}] ${a.name} (${a.check_in_date} - ${a.check_out_date})`).join("\n")}
 `;
     }
 
@@ -93,7 +93,7 @@ ${accommodations.map(a => `- ${a.name} (${a.check_in_date} - ${a.check_out_date}
     if (transports && transports.length > 0) {
        context += `
 Trasporti:
-${transports.map(t => `- ${t.type}: ${t.departure_location} -> ${t.arrival_location} (${format(new Date(t.departure_date), "d MMM HH:mm")})`).join("\n")}
+${transports.map(t => `- [ID: ${t.id}] ${t.type}: ${t.departure_location} -> ${t.arrival_location} (${format(new Date(t.departure_date), "d MMM HH:mm")})`).join("\n")}
 `;
     }
 
@@ -102,7 +102,7 @@ ${transports.map(t => `- ${t.type}: ${t.departure_location} -> ${t.arrival_locat
       context += `
 Spese:
 - Totale Speso: €${totalSpent.toFixed(2)}
-- Ultime spese: ${expenses.slice(0, 5).map(e => `${e.description} (€${e.amount})`).join(", ")}
+- Ultime spese: ${expenses.slice(0, 5).map(e => `- [ID: ${e.id}] ${e.description} (€${e.amount})`).join("\n")}
 `;
     }
 
@@ -120,6 +120,10 @@ Istruzioni:
 - Sii utile, conciso e amichevole.
 - Usa le informazioni fornite per dare risposte contestuali (es. "Dove dormiamo?" -> controlla Alloggi).
 - Se l'utente chiede raccomandazioni (ristoranti, attività), offri suggerimenti basati sulla destinazione e sugli orari liberi nell'itinerario.
+- Per mostrare un elemento specifico (Alloggio, Trasporto, Attività o Spesa), usa ESATTAMENTE questo formato su una riga separata: [[TYPE:ID]].
+  - TYPE può essere: 'accommodation', 'transport', 'activity', 'expense'.
+  - ID è l'ID UUID fornito nel contesto tra parentesi quadre.
+  - Esempio: "Ecco il tuo hotel:\n[[accommodation:123-abc]]"
 - Parla in Italiano.
 `;
 
@@ -200,6 +204,13 @@ Istruzioni:
     sendMessage,
     isLoading,
     error,
-    clearChat
+    clearChat,
+    contextData: {
+      activities,
+      expenses,
+      ideas,
+      accommodations,
+      transports
+    }
   };
 }
