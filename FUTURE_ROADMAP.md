@@ -62,7 +62,7 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 *   **Stato:** Implementazione base completata.
 *   **Prossimi Step:**
     *   **Formattazione Markdown** (✅ Completato): Supporto per liste, grassetto e link.
-    *   **Memoria Persistente**: Salvataggio cronologia chat su database (Supabase) per sessioni multiple.
+    *   **Memoria Persistente** (✅ Completato): Salvataggio cronologia chat su database (Supabase) per sessioni multiple.
     *   **Function Calling**: Capacità dell'AI di eseguire azioni (es. "Aggiungi questa spesa") direttamente.
     *   **Rich UI Components**: Visualizzazione di card interattive (Alloggi, Trasporti) direttamente nei messaggi.
 *   **Dettagli:**

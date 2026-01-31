@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { aiService } from "@/lib/ai/service";
 import { AIMessage } from "@/lib/ai/types";
 import { useItinerary } from "@/hooks/useItinerary";
@@ -8,6 +8,8 @@ import { useAccommodations } from "@/hooks/useAccommodations";
 import { useTransports } from "@/hooks/useTransports";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface UseTripAIProps {
   tripId: string;
@@ -21,18 +23,43 @@ interface UseTripAIProps {
 }
 
 export function useTripAI({ tripId, tripDetails }: UseTripAIProps) {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Context Data Hooks
-  // Note: These hooks might cause re-fetches. Ideally, we should pull data from a global store or React Query cache.
-  // For now, this is acceptable for the prototype.
   const { activities } = useItinerary(tripId);
   const { expenses, totalSpent } = useExpenses(tripId);
   const { ideas } = useTripIdeas(tripId);
   const { accommodations } = useAccommodations(tripId);
   const { transports } = useTransports(tripId);
+
+  // Load Chat History
+  useEffect(() => {
+    if (!user || !tripId) return;
+
+    const loadHistory = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('ai_chat_messages')
+          .select('role, content')
+          .eq('trip_id', tripId)
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        if (data) {
+          setMessages(data.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })));
+        }
+      } catch (err) {
+        console.error("Error loading chat history:", err);
+      }
+    };
+
+    loadHistory();
+  }, [tripId, user]);
 
   const buildSystemContext = useCallback(() => {
     if (!tripDetails) return "";
@@ -50,7 +77,7 @@ Contesto Attuale:
     if (activities && activities.length > 0) {
       context += `
 Itinerario (${activities.length} attività):
-${activities.map(a => `- [${format(new Date(a.activity_date), "d MMM")} ] ${a.title} (${a.category})`).join("\n")}
+${activities.map(a => `- [${format(new Date(a.activity_date), "d MMM")}] ${a.title} (${a.category})`).join("\n")}
 `;
     }
 
@@ -100,7 +127,7 @@ Istruzioni:
   }, [tripDetails, activities, expenses, ideas, accommodations, transports, totalSpent]);
 
   const sendMessage = async (content: string) => {
-    if (!content.trim()) return;
+    if (!content.trim() || !user) return;
 
     setIsLoading(true);
     setError(null);
@@ -111,6 +138,16 @@ Istruzioni:
     setMessages(prev => [...prev, userMessage]);
 
     try {
+      // 1. Save User Message
+      const { error: saveError } = await supabase.from('ai_chat_messages').insert({
+        trip_id: tripId,
+        user_id: user.id,
+        role: 'user',
+        content: content
+      });
+      
+      if (saveError) console.error("Error saving user message:", saveError);
+
       const systemContext = buildSystemContext();
       
       const response = await aiService.sendMessage([
@@ -119,18 +156,43 @@ Istruzioni:
         userMessage
       ]);
 
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      const assistantMessage: AIMessage = { role: 'assistant', content: response };
+      setMessages(prev => [...prev, assistantMessage]);
+
+      // 2. Save Assistant Message
+      const { error: saveResponseError } = await supabase.from('ai_chat_messages').insert({
+        trip_id: tripId,
+        user_id: user.id,
+        role: 'assistant',
+        content: response
+      });
+
+      if (saveResponseError) console.error("Error saving AI message:", saveResponseError);
+
     } catch (err) {
       console.error("AI Error:", err);
       setError("Si è verificato un errore nella comunicazione con l'assistente.");
-      // Remove user message if failed? Or just show error.
     } finally {
       setIsLoading(false);
     }
   };
 
-  const clearChat = () => {
+  const clearChat = async () => {
+    if (!user) return;
+    
     setMessages([]);
+    try {
+      const { error } = await supabase
+        .from('ai_chat_messages')
+        .delete()
+        .eq('trip_id', tripId)
+        .eq('user_id', user.id);
+        
+      if (error) throw error;
+    } catch (err) {
+      console.error("Error clearing chat history:", err);
+      setError("Impossibile cancellare la cronologia.");
+    }
   };
 
   return {
