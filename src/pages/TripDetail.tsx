@@ -45,6 +45,7 @@ import { useTripStats } from "@/hooks/useTripStats";
 import { DestinationSelector, DestinationItem } from "@/components/trips/DestinationSelector";
 import { searchPlace } from "@/lib/mapbox";
 import { TripHeroWeather } from "@/components/trips/TripHeroWeather";
+import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import {
   MapPin,
   Calendar as CalendarIcon,
@@ -683,6 +684,7 @@ export default function TripDetail() {
           </Tabs>
         </div>
       </div>
+      <TripAIAssistant tripId={trip.id} tripDetails={trip} />
     </AppLayout>
   );
 }
