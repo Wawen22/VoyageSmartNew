@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import {
-  Wallet,
   Calendar,
   Clock,
   CheckCircle2,
@@ -85,7 +84,7 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
   return (
     <div className="space-y-6">
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {/* Countdown Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -144,41 +143,11 @@ export function TripDashboard({ tripId }: TripDashboardProps) {
           </div>
         </motion.div>
 
-        {/* Budget Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-secondary/20 via-card/80 to-card/60 p-5 shadow-card min-h-[200px]"
-        >
-          <div className="absolute -left-10 -bottom-10 h-24 w-24 rounded-full bg-secondary/25 blur-3xl" />
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.2em]">
-                Budget
-              </p>
-              <p className="text-3xl font-semibold text-secondary mt-2">
-                {formatCurrency(stats.totalBudget)}
-              </p>
-            </div>
-            <div className="w-11 h-11 rounded-2xl border border-border/60 bg-background/70 backdrop-blur flex items-center justify-center text-secondary">
-              <Wallet className="w-5 h-5" />
-            </div>
-          </div>
-          <div className="absolute bottom-5 left-5 w-[calc(100%-40px)] space-y-2">
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Spese</span>
-              <span className="font-semibold">{formatCurrency(stats.totalExpenses)}</span>
-            </div>
-            <Progress value={(stats.totalExpenses / (stats.totalBudget || 1)) * 100} className="h-1.5 bg-secondary/20" />
-          </div>
-        </motion.div>
-
         {/* Checklist Progress Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.2 }}
           className="relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-accent/15 via-card/80 to-card/60 p-5 shadow-card min-h-[200px]"
         >
           <div className="absolute -right-10 -bottom-10 h-24 w-24 rounded-full bg-accent/30 blur-3xl" />
