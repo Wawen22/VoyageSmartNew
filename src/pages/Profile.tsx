@@ -30,10 +30,19 @@ export default function Profile() {
 
   useEffect(() => {
     if (location.hash !== "#subscription") return;
-    const target = document.getElementById("subscription-section");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    let attempts = 0;
+    const scrollToSubscription = () => {
+      const target = document.getElementById("subscription-section");
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      if (attempts < 6) {
+        attempts += 1;
+        window.setTimeout(scrollToSubscription, 120);
+      }
+    };
+    scrollToSubscription();
   }, [location.hash]);
 
   const fetchProfile = async () => {
@@ -363,7 +372,7 @@ export default function Profile() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Abbonamento</h3>
+                  <h3 className="text-lg font-semibold">Il mio Abbonamento</h3>
                 </div>
                 <div className="max-w-xl mx-auto space-y-6">
                   <SubscriptionCard />

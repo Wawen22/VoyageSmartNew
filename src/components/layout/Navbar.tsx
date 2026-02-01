@@ -99,10 +99,31 @@ export function Navbar() {
     navigate("/");
   };
 
-  const subscriptionLabel = "Abbonamento";
-  const subscriptionHref = "/profile#subscription";
+  const subscriptionLabel = "Il mio Abbonamento";
 
   const isDarkNav = isLanding && !scrolled;
+
+  const handleSubscriptionNav = (closeMobileMenu = false) => {
+    if (closeMobileMenu) setIsOpen(false);
+    const targetHash = "#subscription";
+    const targetPath = "/profile";
+    const targetUrl = `${targetPath}${targetHash}`;
+
+    if (location.pathname === targetPath) {
+      if (location.hash !== targetHash) {
+        navigate(targetUrl);
+      }
+      window.setTimeout(() => {
+        const target = document.getElementById("subscription-section");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 0);
+      return;
+    }
+
+    navigate(targetUrl);
+  };
 
   return (
     <>
@@ -206,11 +227,12 @@ export function Navbar() {
                         <span>Profilo</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to={subscriptionHref} className="cursor-pointer flex items-center w-full text-primary focus:text-primary">
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        <span>{subscriptionLabel}</span>
-                      </Link>
+                    <DropdownMenuItem
+                      onSelect={() => handleSubscriptionNav()}
+                      className="cursor-pointer flex items-center w-full text-primary focus:text-primary"
+                    >
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      <span>{subscriptionLabel}</span>
                     </DropdownMenuItem>
                     {isAdmin && (
                       <DropdownMenuItem asChild>
@@ -344,12 +366,10 @@ export function Navbar() {
                     <Button
                       variant="outline"
                       className="w-full gap-2"
-                      asChild
+                      onClick={() => handleSubscriptionNav(true)}
                     >
-                      <Link to={subscriptionHref} onClick={() => setIsOpen(false)}>
-                        <Sparkles className="w-4 h-4" />
-                        {subscriptionLabel}
-                      </Link>
+                      <Sparkles className="w-4 h-4" />
+                      {subscriptionLabel}
                     </Button>
                     <Button 
                       variant="outline"
