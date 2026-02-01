@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useTripIdeas } from "@/hooks/useTripIdeas";
 import { IdeaCard } from "./IdeaCard";
 import { AddIdeaDialog } from "./AddIdeaDialog";
 import { Loader2, Lightbulb } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface IdeaBoardProps {
   tripId: string;
@@ -9,6 +11,7 @@ interface IdeaBoardProps {
 
 export function IdeaBoard({ tripId }: IdeaBoardProps) {
   const { ideas, isLoading, deleteIdea, toggleVote } = useTripIdeas(tripId);
+  const [activeLocation, setActiveLocation] = useState<string>("Tutti");
   const ideasByLocation = (ideas || []).reduce<Record<string, typeof ideas>>((acc, idea) => {
     const key = idea.location && idea.location.trim() ? idea.location.trim() : "Senza luogo";
     if (!acc[key]) acc[key] = [];
@@ -20,6 +23,9 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
     if (b === "Senza luogo") return -1;
     return a.localeCompare(b, "it-IT");
   });
+  const filteredGroups = activeLocation === "Tutti"
+    ? locationGroups
+    : locationGroups.filter(([location]) => location === activeLocation);
 
   if (isLoading) {
     return (
@@ -56,29 +62,51 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
           <AddIdeaDialog tripId={tripId} />
         </div>
       ) : (
-        <div className="space-y-8">
-          {locationGroups.map(([location, group]) => (
-            <div key={location} className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-                  {location}
-                </h3>
+        <div className="space-y-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant={activeLocation === "Tutti" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveLocation("Tutti")}
+            >
+              Tutti ({ideas?.length || 0})
+            </Button>
+            {locationGroups.map(([location, group]) => (
+              <Button
+                key={location}
+                variant={activeLocation === location ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveLocation(location)}
+              >
+                {location} ({group.length})
+              </Button>
+            ))}
+          </div>
+
+          <div className="space-y-8">
+            {filteredGroups.map(([location, group]) => (
+              <div key={location} className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                  <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                    {location}
+                  </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {group.map((idea) => (
+                    <div key={idea.id} className="h-full">
+                      <IdeaCard 
+                        idea={idea} 
+                        onDelete={(id) => deleteIdea.mutate(id)} 
+                        onVote={(id, hasVoted) => toggleVote.mutate({ ideaId: id, hasVoted })}
+                        tripId={tripId}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {group.map((idea) => (
-                  <div key={idea.id} className="h-full">
-                    <IdeaCard 
-                      idea={idea} 
-                      onDelete={(id) => deleteIdea.mutate(id)} 
-                      onVote={(id, hasVoted) => toggleVote.mutate({ ideaId: id, hasVoted })}
-                      tripId={tripId}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>
