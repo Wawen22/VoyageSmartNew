@@ -5,26 +5,26 @@ const steps = [
   {
     number: "01",
     icon: MapPin,
-    title: "Start Your Journey",
-    description: "Create a trip, set your dates, and invite your friends. The adventure begins here.",
+    title: "Inizia il Tuo Viaggio",
+    description: "Crea un viaggio, imposta le date e invita i tuoi amici. L'avventura inizia qui.",
   },
   {
     number: "02",
     icon: Bot,
-    title: "Chat with Voyage AI",
-    description: "Ask your personal assistant to suggest activities, find hotels, or manage your budget instantly.",
+    title: "Chatta con Voyage AI",
+    description: "Chiedi al tuo assistente personale di suggerire attività, trovare hotel o gestire il tuo budget istantaneamente.",
   },
   {
     number: "03",
     icon: Users,
-    title: "Collaborate in Real-Time",
-    description: "Vote on ideas, split expenses automatically, and build the perfect itinerary together.",
+    title: "Collabora in Tempo Reale",
+    description: "Vota le idee, dividi le spese automaticamente e costruisci l'itinerario perfetto insieme.",
   },
   {
     number: "04",
     icon: Plane,
-    title: "Travel Stress-Free",
-    description: "Access all your docs, tickets, and plans offline. Focus on the experience, not the logistics.",
+    title: "Viaggia Senza Stress",
+    description: "Accedi a tutti i tuoi documenti, biglietti e piani offline. Concentrati sull'esperienza, non sulla logistica.",
   },
 ];
 
@@ -40,10 +40,10 @@ export function HowItWorks() {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-            How It <span className="text-gradient-sunset">Works</span>
+            Come <span className="text-gradient-sunset">Funziona</span>
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Your journey from idea to reality in four simple steps
+            Il tuo viaggio dall'idea alla realtà in quattro semplici passaggi
           </p>
         </motion.div>
 

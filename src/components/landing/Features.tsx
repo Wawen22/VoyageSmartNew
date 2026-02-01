@@ -38,15 +38,15 @@ export function Features() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Power Features</span>
+            <span className="text-sm font-medium">Funzionalità Potenti</span>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-            Everything You Need for the
+            Tutto Ciò che Ti Serve per il
             <br />
-            <span className="text-gradient-ocean">Perfect Trip</span>
+            <span className="text-gradient-ocean">Viaggio Perfetto</span>
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            VoyageSmart combines powerful AI assistance with intuitive planning tools.
+            VoyageSmart combina una potente assistenza IA con strumenti di pianificazione intuitivi.
           </p>
         </div>
 
@@ -70,25 +70,25 @@ export function Features() {
               <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center mb-6 text-indigo-600">
                 <Bot className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-bold mb-3">Voyage AI Assistant</h3>
+              <h3 className="text-2xl font-bold mb-3">Assistente Voyage AI</h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Your personal travel agent in your pocket. Ask for recommendations, 
-                add expenses ("Add lunch €20"), or create activities just by chatting. 
-                It knows your itinerary and budget inside out.
+                Il tuo agente di viaggio personale in tasca. Chiedi raccomandazioni, 
+                aggiungi spese ("Aggiungi pranzo 20€"), o crea attività semplicemente chattando. 
+                Conosce il tuo itinerario e budget alla perfezione.
               </p>
               
               <div className="flex gap-3 flex-wrap">
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
                   <MessageSquareText className="w-3.5 h-3.5 text-indigo-500" />
-                  Context Aware
+                  Contestuale
                 </div>
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  Action Mode
+                  Modalità Azione
                 </div>
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
                   <Wallet className="w-3.5 h-3.5 text-emerald-500" />
-                  Expense Tracking
+                  Tracciamento Spese
                 </div>
               </div>
             </div>
@@ -102,10 +102,10 @@ export function Features() {
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
               <Wallet className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold mb-3">Smart Splitting</h3>
+            <h3 className="text-xl font-bold mb-3">Divisione Intelligente</h3>
             <p className="text-muted-foreground">
-              Track who paid for what and let us calculate who owes who. 
-              Supports multiple currencies with auto-conversion.
+              Traccia chi ha pagato cosa e lascia che calcoliamo chi deve a chi. 
+              Supporta valute multiple con conversione automatica.
             </p>
           </motion.div>
 
@@ -117,10 +117,10 @@ export function Features() {
             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-600 group-hover:scale-110 transition-transform">
               <Map className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold mb-3">Interactive Maps</h3>
+            <h3 className="text-xl font-bold mb-3">Mappe Interattive</h3>
             <p className="text-muted-foreground">
-              Visualize your route on a dynamic map. 
-              See daily pins, travel times, and explore nearby attractions.
+              Visualizza il tuo percorso su una mappa dinamica. 
+              Vedi i pin giornalieri, i tempi di percorrenza ed esplora le attrazioni vicine.
             </p>
           </motion.div>
 
@@ -136,10 +136,10 @@ export function Features() {
               <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6 text-orange-600">
                 <Users className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-bold mb-3">Real-time Collaboration</h3>
+              <h3 className="text-2xl font-bold mb-3">Collaborazione in Tempo Reale</h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Plan together without the chaos. Vote on ideas, comment on activities, 
-                and see changes instantly as your friends make them.
+                Pianificate insieme senza caos. Vota le idee, commenta le attività 
+                e vedi i cambiamenti istantaneamente mentre i tuoi amici li fanno.
               </p>
             </div>
           </motion.div>

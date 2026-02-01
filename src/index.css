@@ -5,6 +5,8 @@
 /* VoyageSmart Design System - Premium Travel Experience */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
@@ -343,4 +345,13 @@
 
 .mapboxgl-popup-close-button {
   display: none !important;
+}
+@layer utilities {
+  .text-3d-modern {
+    text-shadow: 
+      1px 1px 0 rgba(0,0,0,0.1),
+      2px 2px 0 rgba(0,0,0,0.05),
+      3px 3px 0 rgba(0,0,0,0.05),
+      4px 4px 5px rgba(0,0,0,0.1);
+  }
 }

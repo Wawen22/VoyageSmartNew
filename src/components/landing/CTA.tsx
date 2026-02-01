@@ -27,7 +27,7 @@ export function CTA() {
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-8"
               >
                 <Sparkles className="w-4 h-4 text-indigo-400" />
-                <span className="text-white/90 text-sm font-medium">Ready to start?</span>
+                <span className="text-white/90 text-sm font-medium">Pronto a partire?</span>
               </motion.div>
 
               <motion.h2
@@ -37,8 +37,8 @@ export function CTA() {
                 transition={{ delay: 0.1 }}
                 className="text-4xl md:text-6xl font-bold text-white mb-8 leading-tight tracking-tight"
               >
-                The future of travel is <br />
-                <span className="text-gradient-sunset italic">already here.</span>
+                Il futuro dei viaggi è <br />
+                <span className="text-gradient-sunset italic">già qui.</span>
               </motion.h2>
 
               <motion.p
@@ -48,8 +48,8 @@ export function CTA() {
                 transition={{ delay: 0.2 }}
                 className="text-slate-400 text-lg md:text-xl mb-12 leading-relaxed"
               >
-                Experience the first travel companion that combines contextual AI intelligence 
-                with real-time collaboration. Start planning your next trip for free.
+                Prova il primo compagno di viaggio che combina intelligenza artificiale contestuale 
+                con collaborazione in tempo reale. Inizia a pianificare il tuo prossimo viaggio gratuitamente.
               </motion.p>
 
               <motion.div
@@ -61,13 +61,13 @@ export function CTA() {
               >
                 <Link to="/auth?signup=true" className="w-full sm:w-auto">
                   <Button size="xl" className="w-full sm:w-auto bg-white text-slate-900 hover:bg-slate-100 rounded-2xl group text-lg px-10 h-16">
-                    Get Started Free
+                    Inizia Gratis
                     <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
                 <Link to="/trips" className="w-full sm:w-auto">
                   <Button variant="ghost" size="xl" className="w-full sm:w-auto text-white border border-white/10 hover:bg-white/5 rounded-2xl text-lg px-10 h-16">
-                    Browse Trips
+                    Esplora Viaggi
                   </Button>
                 </Link>
               </motion.div>
@@ -82,15 +82,15 @@ export function CTA() {
               >
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4" />
-                  <span>Available Worldwide</span>
+                  <span>Disponibile Ovunque</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4" />
-                  <span>Secure & Private</span>
+                  <span>Sicuro e Privato</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4" />
-                  <span>No Card Required</span>
+                  <span>Nessuna Carta Richiesta</span>
                 </div>
               </motion.div>
             </div>

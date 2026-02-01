@@ -20,23 +20,23 @@ export function AIShowcase() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 mb-6 text-sm font-medium">
               <Zap className="w-4 h-4" />
-              <span>The Future of Travel</span>
+              <span>Il Futuro dei Viaggi</span>
             </div>
             <h2 className="text-4xl sm:text-5xl font-bold mb-6 leading-tight text-foreground">
-              Meet Voyage AI. <br />
-              <span className="text-indigo-600 dark:text-indigo-400">Your Personal Agent.</span>
+              Scopri Voyage AI. <br />
+              <span className="text-indigo-600 dark:text-indigo-400">Il Tuo Agente Personale.</span>
             </h2>
             <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-              Not just a chatbot, but a proactive travel companion. 
-              Voyage AI understands your entire trip context and executes actions for you.
+              Non solo un chatbot, ma un compagno di viaggio proattivo. 
+              Voyage AI comprende l'intero contesto del tuo viaggio ed esegue azioni per te.
             </p>
 
             <ul className="space-y-4">
               {[
-                "Add expenses simply by speaking",
-                "Get contextual itinerary recommendations",
-                "Instant multi-currency calculations",
-                "Hands-free Voice Mode integration"
+                "Aggiungi spese semplicemente parlando",
+                "Ottieni consigli contestuali sull'itinerario",
+                "Calcoli istantanei tra valute multiple",
+                "Integrazione Modalità Vocale hands-free"
               ].map((item, i) => (
                 <li key={i} className="flex items-center gap-3 text-foreground/80">
                   <div className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">

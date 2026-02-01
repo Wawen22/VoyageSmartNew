@@ -47,21 +47,21 @@ export default function Auth() {
         if (error) {
           if (error.message.includes("already registered")) {
             toast({
-              title: "Account exists",
-              description: "This email is already registered. Please sign in instead.",
+              title: "Account esistente",
+              description: "Questa email è già registrata. Per favore accedi.",
               variant: "destructive",
             });
           } else {
             toast({
-              title: "Sign up failed",
+              title: "Registrazione fallita",
               description: error.message,
               variant: "destructive",
             });
           }
         } else {
           toast({
-            title: "Welcome aboard! 🎉",
-            description: "Your account has been created successfully.",
+            title: "Benvenuto a bordo! 🎉",
+            description: "Il tuo account è stato creato con successo.",
           });
           navigate("/trips");
         }
@@ -69,22 +69,22 @@ export default function Auth() {
         const { error } = await signIn(formData.email, formData.password);
         if (error) {
           toast({
-            title: "Sign in failed",
-            description: "Invalid email or password. Please try again.",
+            title: "Accesso fallito",
+            description: "Email o password non validi. Riprova.",
             variant: "destructive",
           });
         } else {
           toast({
-            title: "Welcome back! ✈️",
-            description: "You've successfully signed in.",
+            title: "Bentornato! ✈️",
+            description: "Accesso effettuato con successo.",
           });
           navigate("/trips");
         }
       }
     } catch (err) {
       toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: "Errore",
+        description: "Si è verificato un errore inaspettato. Riprova.",
         variant: "destructive",
       });
     } finally {
@@ -101,7 +101,11 @@ export default function Auth() {
           <div className="app-orb app-orb-2" />
           <div className="app-orb app-orb-3" />
         </div>
-        <Loader2 className="w-8 h-8 text-primary animate-spin relative z-10" />
+        <img 
+          src="/animated_logo-voyage_smart.gif" 
+          alt="Loading..." 
+          className="w-32 h-32 object-contain relative z-10"
+        />
       </div>
     );
   }
@@ -124,33 +128,35 @@ export default function Auth() {
             transition={{ duration: 0.5 }}
             className="w-full max-w-md mx-auto lg:mx-0"
           >
-            <Link to="/" className="flex items-center gap-2 mb-8">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Plane className="w-6 h-6 text-primary" />
-              </div>
-              <span className="text-2xl font-semibold text-foreground">VoyageSmart</span>
+            <Link to="/" className="flex items-center gap-3 mb-10">
+              <img 
+                src="/logo-voyage_smart.png" 
+                alt="Logo" 
+                className="w-16 h-16 object-contain"
+              />
+              <span className="text-3xl font-bold font-serif text-[#735324]">VoyageSmart</span>
             </Link>
 
             <div className="app-surface-strong p-8">
               <div className="text-center mb-8">
                 <h1 className="text-2xl font-semibold text-foreground mb-2">
-                  {isSignUp ? "Create your account" : "Welcome back"}
+                  {isSignUp ? "Crea il tuo account" : "Bentornato"}
                 </h1>
                 <p className="text-muted-foreground">
                   {isSignUp 
-                    ? "Start planning your next adventure" 
-                    : "Sign in to continue your journey"}
+                    ? "Inizia a pianificare la tua prossima avventura" 
+                    : "Accedi per continuare il tuo viaggio"}
                 </p>
               </div>
 
               <Button variant="outline" className="w-full mb-6" size="lg" disabled>
                 <Chrome className="w-5 h-5 mr-2" />
-                Continue with Google
+                Continua con Google
               </Button>
 
               <div className="flex items-center gap-4 mb-6">
                 <div className="flex-1 h-px bg-border" />
-                <span className="text-sm text-muted-foreground">or</span>
+                <span className="text-sm text-muted-foreground">o</span>
                 <div className="flex-1 h-px bg-border" />
               </div>
 
@@ -158,13 +164,13 @@ export default function Auth() {
                 {isSignUp && (
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Full Name
+                      Nome Completo
                     </label>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <input
                         type="text"
-                        placeholder="John Doe"
+                        placeholder="Mario Rossi"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full h-12 pl-12 pr-4 rounded-2xl border border-border/60 bg-card/85 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
@@ -222,7 +228,7 @@ export default function Auth() {
                 {!isSignUp && (
                   <div className="text-right">
                     <a href="#" className="text-sm text-primary hover:underline">
-                      Forgot password?
+                      Password dimenticata?
                     </a>
                   </div>
                 )}
@@ -232,7 +238,7 @@ export default function Auth() {
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
-                      {isSignUp ? "Create Account" : "Sign In"}
+                      {isSignUp ? "Crea Account" : "Accedi"}
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -240,20 +246,20 @@ export default function Auth() {
               </form>
 
               <p className="text-center mt-6 text-muted-foreground">
-                {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+                {isSignUp ? "Hai già un account?" : "Non hai un account?"}{" "}
                 <button
                   onClick={() => setIsSignUp(!isSignUp)}
                   className="text-primary font-medium hover:underline"
                   disabled={loading}
                 >
-                  {isSignUp ? "Sign in" : "Sign up"}
+                  {isSignUp ? "Accedi" : "Registrati"}
                 </button>
               </p>
             </div>
 
             <p className="text-center mt-6 text-sm text-muted-foreground">
-              By continuing, you agree to our{" "}
-              <a href="#" className="underline hover:text-foreground">Terms</a> and{" "}
+              Continuando, accetti i nostri{" "}
+              <a href="#" className="underline hover:text-foreground">Termini</a> e{" "}
               <a href="#" className="underline hover:text-foreground">Privacy Policy</a>
             </p>
           </motion.div>

@@ -15,6 +15,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        serif: ['"Playfair Display"', 'serif'],
+        artistic: ['"Cinzel"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -28,8 +28,8 @@ export function Hero() {
             <MapPin className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm">Next Stop</p>
-            <p className="text-white/70 text-xs">Santorini, Greece</p>
+            <p className="text-white font-semibold text-sm">Prossima Fermata</p>
+            <p className="text-white/70 text-xs">Santorini, Grecia</p>
           </div>
         </div>
       </motion.div>
@@ -44,8 +44,8 @@ export function Hero() {
             <Users className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm">Group Trip</p>
-            <p className="text-white/70 text-xs">4 travelers</p>
+            <p className="text-white font-semibold text-sm">Viaggio di Gruppo</p>
+            <p className="text-white/70 text-xs">4 viaggiatori</p>
           </div>
         </div>
       </motion.div>
@@ -60,8 +60,8 @@ export function Hero() {
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm">AI Suggested</p>
-            <p className="text-white/70 text-xs">Hidden beach tour</p>
+            <p className="text-white font-semibold text-sm">Suggerito dalla IA</p>
+            <p className="text-white/70 text-xs">Tour spiaggia nascosta</p>
           </div>
         </div>
       </motion.div>
@@ -79,64 +79,42 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-dark mb-6"
           >
             <Sparkles className="w-4 h-4 text-sunset-glow" />
             <span className="text-white/90 text-sm font-medium">
-              AI-Powered Travel Planning
+              Pianificazione Viaggi con IA
             </span>
           </motion.div>
 
           {/* Headline */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-            Plan Smarter.
+            Pianifica Meglio.
             <br />
-            <span className="text-gradient-sunset">Travel Better.</span>
+            <span className="text-gradient-sunset">Viaggia Meglio.</span>
             <br />
-            Experience More.
+            Vivi di Più.
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg sm:text-xl text-white/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            The all-in-one travel companion that combines intelligent itinerary planning, 
-            expense splitting, and real-time collaboration for unforgettable journeys.
+            Il compagno di viaggio tutto in uno che combina pianificazione intelligente dell'itinerario, 
+            divisione delle spese e collaborazione in tempo reale per viaggi indimenticabili.
           </p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/auth?signup=true">
               <Button variant="hero" size="xl" className="w-full sm:w-auto">
-                Start Planning Free
+                Inizia Gratis
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
             <Button variant="heroOutline" size="xl" className="w-full sm:w-auto">
               <Play className="w-5 h-5" />
-              Watch Demo
+              Guarda Demo
             </Button>
           </div>
-
-          {/* Social Proof */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6"
-          >
-            <div className="flex -space-x-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-primary to-accent"
-                  style={{ zIndex: 5 - i }}
-                />
-              ))}
-            </div>
-            <div className="text-white/80">
-              <span className="text-white font-semibold">10,000+</span> travelers 
-              planning smarter
-            </div>
-          </motion.div>
         </motion.div>
       </div>
 

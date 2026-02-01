@@ -15,8 +15,17 @@ import {
   LogOut,
   Lightbulb,
   MessageCircle,
-  Shield
+  Shield,
+  User
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ChecklistButton } from "@/components/checklist/ChecklistButton";
@@ -78,7 +87,9 @@ export function Navbar() {
     }
     return { ...link, href: `${link.href}?trip=${activeTripId}` };
   });
-  const visibleNavLinks = isTripsIndex
+  const visibleNavLinks = !user 
+    ? []
+    : isTripsIndex
     ? navLinksWithTrip.filter((link) => !link.tripScoped)
     : navLinksWithTrip;
 
@@ -100,19 +111,15 @@ export function Navbar() {
           {/* Logo */}
           <Link 
             to="/" 
-            className="flex items-center gap-2 group"
+            className="flex items-center gap-3 group"
           >
-            <div className={`p-2 rounded-xl transition-all duration-300 ${
-              isDarkNav 
-                ? "bg-white/10 backdrop-blur-sm group-hover:bg-white/20" 
-                : "bg-primary/10 group-hover:bg-primary/15"
-            }`}>
-              <Plane className={`w-5 h-5 transition-transform group-hover:rotate-12 ${
-                isDarkNav ? "text-white" : "text-primary"
-              }`} />
-            </div>
-            <span className={`text-xl font-bold transition-colors ${
-              isDarkNav ? "text-white" : "text-foreground"
+            <img 
+              src="/logo-voyage_smart.png" 
+              alt="VoyageSmart Logo" 
+              className="w-24 h-24 object-contain transition-transform duration-300 group-hover:scale-105" 
+            />
+            <span className={`text-xl md:text-3xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
+              isDarkNav ? "text-white" : "text-[#735324]"
             }`}>
               VoyageSmart
             </span>
@@ -163,57 +170,63 @@ export function Navbar() {
                     </div>
                   </Link>
                 )}
-                <Link to="/profile">
-                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors ${
-                    isDarkNav ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
-                  }`}>
-                    <Avatar className="w-6 h-6 border-none">
-                      <AvatarImage src={profile?.avatar_url || ""} />
-                      <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                        {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className={`text-sm font-medium ${isDarkNav ? "text-white" : "text-foreground"}`}>
-                      {profile?.full_name || user?.email?.split("@")[0]}
-                    </span>
-                    {profile?.is_pro ? (
-                      <Badge className="h-5 px-1.5 text-[9px] bg-gradient-to-r from-indigo-500 to-purple-500 border-0 shadow-sm text-white hover:opacity-90">PRO</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="h-5 px-1.5 text-[9px] bg-slate-200 text-slate-600 hover:bg-slate-300 border-0">FREE</Badge>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors outline-none cursor-pointer ${
+                      isDarkNav ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
+                    }`}>
+                      <Avatar className="w-6 h-6 border-none">
+                        <AvatarImage src={profile?.avatar_url || ""} />
+                        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                          {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className={`text-sm font-medium ${isDarkNav ? "text-white" : "text-foreground"}`}>
+                        {profile?.full_name || user?.email?.split("@")[0]}
+                      </span>
+                      {profile?.is_pro ? (
+                        <Badge className="h-5 px-1.5 text-[9px] bg-gradient-to-r from-indigo-500 to-purple-500 border-0 shadow-sm text-white hover:opacity-90">PRO</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="h-5 px-1.5 text-[9px] bg-slate-200 text-slate-600 hover:bg-slate-300 border-0">FREE</Badge>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="cursor-pointer flex items-center w-full">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profilo</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/promo-codes" className="cursor-pointer flex items-center w-full">
+                          <Shield className="mr-2 h-4 w-4" />
+                          <span>Admin</span>
+                        </Link>
+                      </DropdownMenuItem>
                     )}
-                  </div>
-                </Link>
-                {isAdmin && (
-                  <Link to="/admin/promo-codes">
-                    <Button 
-                      variant={isDarkNav ? "heroOutline" : "outline"} 
-                      size="sm"
-                      className="gap-2"
-                    >
-                      <Shield className="w-4 h-4" />
-                      Admin
-                    </Button>
-                  </Link>
-                )}
-                <Button 
-                  variant={isDarkNav ? "heroOutline" : "outline"} 
-                  size="sm"
-                  onClick={handleSignOut}
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </Button>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600 flex items-center w-full">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Esci</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </>
             ) : (
               <>
                 <Link to="/auth">
                   <Button variant={isDarkNav ? "heroOutline" : "ghost"} size="sm">
-                    Sign In
+                    Accedi
                   </Button>
                 </Link>
                 <Link to="/auth?signup=true">
                   <Button variant={isDarkNav ? "hero" : "default"} size="sm">
-                    Get Started
+                    Inizia
                   </Button>
                 </Link>
               </>
@@ -313,7 +326,7 @@ export function Navbar() {
                       <Link to="/admin/promo-codes" onClick={() => setIsOpen(false)}>
                         <Button variant="outline" className="w-full gap-2">
                           <Shield className="w-4 h-4" />
-                          Admin Panel
+                          Pannello Admin
                         </Button>
                       </Link>
                     )}
@@ -326,19 +339,19 @@ export function Navbar() {
                       }}
                     >
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      Esci
                     </Button>
                   </>
                 ) : (
                   <>
                     <Link to="/auth" onClick={() => setIsOpen(false)}>
                       <Button variant="outline" className="w-full">
-                        Sign In
+                        Accedi
                       </Button>
                     </Link>
                     <Link to="/auth?signup=true" onClick={() => setIsOpen(false)}>
                       <Button variant="default" className="w-full">
-                        Get Started
+                        Inizia
                       </Button>
                     </Link>
                   </>

@@ -1,152 +1,66 @@
 import { Link } from "react-router-dom";
-import { Plane, Twitter, Instagram, Github, Linkedin } from "lucide-react";
-
-const footerLinks = {
-  product: [
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "AI Planner", href: "/ai-planner" },
-    { label: "Mobile App", href: "/mobile" },
-  ],
-  company: [
-    { label: "About", href: "/about" },
-    { label: "Blog", href: "/blog" },
-    { label: "Careers", href: "/careers" },
-    { label: "Contact", href: "/contact" },
-  ],
-  resources: [
-    { label: "Help Center", href: "/help" },
-    { label: "Community", href: "/community" },
-    { label: "Guides", href: "/guides" },
-    { label: "API Docs", href: "/api" },
-  ],
-  legal: [
-    { label: "Privacy", href: "/privacy" },
-    { label: "Terms", href: "/terms" },
-    { label: "Security", href: "/security" },
-    { label: "Cookies", href: "/cookies" },
-  ],
-};
-
-const socialLinks = [
-  { icon: Twitter, href: "https://twitter.com" },
-  { icon: Instagram, href: "https://instagram.com" },
-  { icon: Github, href: "https://github.com" },
-  { icon: Linkedin, href: "https://linkedin.com" },
-];
+import { Plane, Twitter, Instagram, Github, Linkedin, Heart } from "lucide-react";
 
 export function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-foreground text-background py-16 lg:py-20">
+    <footer className="bg-background text-foreground py-16 border-t border-[#735324]/10">
       <div className="container mx-auto px-4">
-        {/* Top Section */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 lg:gap-12 mb-12">
-          {/* Brand */}
-          <div className="col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="p-2 rounded-xl bg-primary/20">
-                <Plane className="w-5 h-5 text-primary" />
-              </div>
-              <span className="text-xl font-bold">VoyageSmart</span>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 mb-12">
+          
+          {/* Brand & Slogan */}
+          <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
+             <Link to="/" className="flex items-center gap-4 group">
+              <img 
+                src="/logo-voyage_smart.png" 
+                alt="VoyageSmart" 
+                className="w-24 h-24 object-contain transition-transform group-hover:scale-105"
+              />
+              <span className="text-4xl font-sans font-bold italic tracking-tight text-[#735324] text-3d-modern">VoyageSmart</span>
             </Link>
-            <p className="text-background/60 mb-6 max-w-xs">
-              Plan smarter, travel better, experience more. 
-              The all-in-one travel companion for modern explorers.
+            <p className="text-[#735324]/80 text-sm max-w-sm leading-relaxed font-medium">
+              Il tuo compagno di viaggio intelligente. 
+              Organizza itinerari, dividi le spese e collabora in tempo reale.
             </p>
-            {/* Social Links */}
-            <div className="flex gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.href}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-lg bg-background/10 flex items-center justify-center hover:bg-background/20 transition-colors"
-                >
-                  <social.icon className="w-5 h-5" />
-                </a>
-              ))}
-            </div>
           </div>
 
-          {/* Links */}
-          <div>
-            <h4 className="font-semibold mb-4">Product</h4>
-            <ul className="space-y-3">
-              {footerLinks.product.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-background/60 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4">Company</h4>
-            <ul className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-background/60 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
-            <ul className="space-y-3">
-              {footerLinks.resources.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-background/60 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-semibold mb-4">Legal</h4>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-background/60 hover:text-background transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Social Links */}
+          <div className="flex items-center gap-4">
+            <SocialLink href="#" icon={Twitter} />
+            <SocialLink href="#" icon={Instagram} />
+            <SocialLink href="#" icon={Github} />
+            <SocialLink href="#" icon={Linkedin} />
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-background/10 pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-background/60 text-sm">
-              © {new Date().getFullYear()} VoyageSmart. All rights reserved.
-            </p>
-            <p className="text-background/40 text-sm">
-              Made with ❤️ for travelers everywhere
-            </p>
-          </div>
+        {/* Separator */}
+        <div className="h-px bg-[#735324]/10 w-full" />
+
+        {/* Bottom Section */}
+        <div className="mt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-[#735324]/60">
+          <p>© {currentYear} VoyageSmart. Fatto con <Heart className="w-3 h-3 inline text-[#735324] mx-1" /> per i viaggiatori.</p>
+          
+          <nav className="flex items-center gap-6">
+            <Link to="/privacy" className="hover:text-[#735324] transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-[#735324] transition-colors">Termini di Servizio</Link>
+            <Link to="/cookies" className="hover:text-[#735324] transition-colors">Cookie Policy</Link>
+          </nav>
         </div>
       </div>
     </footer>
+  );
+}
+
+function SocialLink({ href, icon: Icon }: { href: string; icon: any }) {
+  return (
+    <a 
+      href={href} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="p-3 rounded-xl bg-[#735324]/5 text-[#735324] hover:bg-[#735324]/10 hover:scale-110 transition-all duration-300"
+    >
+      <Icon className="w-5 h-5" />
+    </a>
   );
 }
