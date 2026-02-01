@@ -5,11 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import type { Transport, TransportType } from "@/hooks/useTransports";
+import type { Transport, TransportType, UpdateTransportData } from "@/hooks/useTransports";
+import { EditTransportDialog } from "@/components/transports/EditTransportDialog";
 
 interface TransportCardProps {
   transport: Transport;
   onDelete: (id: string) => Promise<boolean>;
+  onUpdate: (data: UpdateTransportData) => Promise<boolean>;
 }
 
 const TRANSPORT_ICONS: Record<TransportType, typeof Plane> = {
@@ -30,7 +32,7 @@ const TRANSPORT_LABELS: Record<TransportType, string> = {
   other: 'Altro',
 };
 
-export function TransportCard({ transport, onDelete }: TransportCardProps) {
+export function TransportCard({ transport, onDelete, onUpdate }: TransportCardProps) {
   const { user } = useAuth();
   const isCreator = user?.id === transport.created_by;
 
@@ -114,14 +116,17 @@ export function TransportCard({ transport, onDelete }: TransportCardProps) {
             )}
             
             {isCreator && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleDelete}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-1">
+                <EditTransportDialog transport={transport} onUpdate={onUpdate} />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDelete}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             )}
           </div>
         </div>

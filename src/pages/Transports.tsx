@@ -28,7 +28,14 @@ export default function Transports() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [tripsLoading, setTripsLoading] = useState(true);
 
-  const { transports, loading, totalCost, createTransport, deleteTransport } = useTransports(tripId);
+  const {
+    transports,
+    loading,
+    totalCost,
+    createTransport,
+    updateTransport,
+    deleteTransport,
+  } = useTransports(tripId);
   const { data: tripDetails } = useTripDetails(tripId);
 
   useEffect(() => {
@@ -174,6 +181,7 @@ export default function Transports() {
                       <TransportCard
                         key={transport.id}
                         transport={transport}
+                        onUpdate={updateTransport}
                         onDelete={deleteTransport}
                       />
                     ))}

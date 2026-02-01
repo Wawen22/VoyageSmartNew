@@ -40,6 +40,20 @@ interface CreateTransportData {
   document_url?: string;
 }
 
+export interface UpdateTransportData {
+  id: string;
+  transport_type: TransportType;
+  departure_location: string;
+  arrival_location: string;
+  departure_datetime: string;
+  arrival_datetime: string | null;
+  booking_reference: string | null;
+  carrier: string | null;
+  price: number | null;
+  notes: string | null;
+  document_url: string | null;
+}
+
 export function useTransports(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -107,6 +121,25 @@ export function useTransports(tripId?: string) {
     }
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async (data: UpdateTransportData) => {
+      const { id, ...payload } = data;
+      const { error } = await supabase.from("transports").update(payload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['transports', tripId] });
+      toast({
+        title: "Trasporto aggiornato",
+        description: `${variables.departure_location} → ${variables.arrival_location}`,
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile aggiornare il trasporto", variant: "destructive" });
+    }
+  });
+
   useEffect(() => {
     if (!tripId) return;
 
@@ -145,6 +178,10 @@ export function useTransports(tripId?: string) {
     totalCost,
     createTransport: async (data: CreateTransportData) => {
       await createMutation.mutateAsync(data);
+      return true;
+    },
+    updateTransport: async (data: UpdateTransportData) => {
+      await updateMutation.mutateAsync(data);
       return true;
     },
     deleteTransport: async (id: string) => {

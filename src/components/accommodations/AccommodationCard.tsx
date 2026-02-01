@@ -5,14 +5,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
-import type { Accommodation } from "@/hooks/useAccommodations";
+import type { Accommodation, UpdateAccommodationData } from "@/hooks/useAccommodations";
+import { EditAccommodationDialog } from "@/components/accommodations/EditAccommodationDialog";
 
 interface AccommodationCardProps {
   accommodation: Accommodation;
   onDelete: (id: string) => Promise<boolean>;
+  onUpdate: (data: UpdateAccommodationData) => Promise<boolean>;
 }
 
-export function AccommodationCard({ accommodation, onDelete }: AccommodationCardProps) {
+export function AccommodationCard({ accommodation, onDelete, onUpdate }: AccommodationCardProps) {
   const { user } = useAuth();
   const isCreator = user?.id === accommodation.created_by;
 
@@ -117,14 +119,17 @@ export function AccommodationCard({ accommodation, onDelete }: AccommodationCard
               )}
               
               {isCreator && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDelete}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <>
+                  <EditAccommodationDialog accommodation={accommodation} onUpdate={onUpdate} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDelete}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
               )}
             </div>
           </div>

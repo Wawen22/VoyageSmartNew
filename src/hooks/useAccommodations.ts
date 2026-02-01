@@ -40,6 +40,21 @@ interface CreateAccommodationData {
   document_url?: string;
 }
 
+export interface UpdateAccommodationData {
+  id: string;
+  name: string;
+  address: string | null;
+  check_in: string;
+  check_out: string;
+  check_in_time: string | null;
+  check_out_time: string | null;
+  price: number | null;
+  booking_reference: string | null;
+  booking_url: string | null;
+  notes: string | null;
+  document_url: string | null;
+}
+
 export function useAccommodations(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -108,6 +123,22 @@ export function useAccommodations(tripId?: string) {
     }
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async (data: UpdateAccommodationData) => {
+      const { id, ...payload } = data;
+      const { error } = await supabase.from("accommodations").update(payload).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['accommodations', tripId] });
+      toast({ title: "Alloggio aggiornato", description: variables.name });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast({ title: "Errore", description: "Impossibile aggiornare l'alloggio", variant: "destructive" });
+    }
+  });
+
   useEffect(() => {
     if (!tripId) return;
 
@@ -146,6 +177,10 @@ export function useAccommodations(tripId?: string) {
     totalCost,
     createAccommodation: async (data: CreateAccommodationData) => {
       await createMutation.mutateAsync(data);
+      return true;
+    },
+    updateAccommodation: async (data: UpdateAccommodationData) => {
+      await updateMutation.mutateAsync(data);
       return true;
     },
     deleteAccommodation: async (id: string) => {

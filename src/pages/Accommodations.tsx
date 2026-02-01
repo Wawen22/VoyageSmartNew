@@ -28,7 +28,14 @@ export default function Accommodations() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [tripsLoading, setTripsLoading] = useState(true);
 
-  const { accommodations, loading, totalCost, createAccommodation, deleteAccommodation } = useAccommodations(tripId);
+  const {
+    accommodations,
+    loading,
+    totalCost,
+    createAccommodation,
+    updateAccommodation,
+    deleteAccommodation,
+  } = useAccommodations(tripId);
   const { data: tripDetails } = useTripDetails(tripId);
 
   useEffect(() => {
@@ -174,6 +181,7 @@ export default function Accommodations() {
                       <AccommodationCard
                         key={accommodation.id}
                         accommodation={accommodation}
+                        onUpdate={updateAccommodation}
                         onDelete={deleteAccommodation}
                       />
                     ))}
