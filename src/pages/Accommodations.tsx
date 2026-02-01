@@ -140,24 +140,24 @@ export default function Accommodations() {
               <>
                 {/* Stats Cards */}
                 <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="p-3 rounded-lg bg-muted/40 border">
-                    <div className="flex flex-row items-center justify-between pb-2">
-                      <h3 className="text-sm font-medium">Totale Alloggi</h3>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-primary" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Totale Alloggi</span>
                     </div>
-                    <div>
-                      <div className="text-2xl font-bold">{accommodations.length}</div>
-                    </div>
+                    <p className="text-xl font-bold text-foreground">{accommodations.length}</p>
                   </div>
 
-                  <div className="p-3 rounded-lg bg-muted/40 border">
-                    <div className="flex flex-row items-center justify-between pb-2">
-                      <h3 className="text-sm font-medium">Costo Totale</h3>
-                      <Euro className="h-4 w-4 text-muted-foreground" />
+                  <div className="p-4 rounded-lg bg-muted/40 border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
+                        <Euro className="w-4 h-4 text-accent" />
+                      </div>
+                      <span className="text-xs text-muted-foreground">Costo Totale</span>
                     </div>
-                    <div>
-                      <div className="text-2xl font-bold">€{totalCost.toFixed(2)}</div>
-                    </div>
+                    <p className="text-xl font-bold text-foreground">€{totalCost.toFixed(2)}</p>
                   </div>
                 </div>
 
