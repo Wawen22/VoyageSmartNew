@@ -137,12 +137,12 @@ export function Navbar() {
           {/* Logo */}
           <Link 
             to="/" 
-            className="flex items-center gap-3 group"
+            className="flex items-center gap-3 group py-1 lg:py-0"
           >
             <img 
               src="/logo-voyage_smart.png" 
               alt="VoyageSmart Logo" 
-              className="w-24 h-24 object-contain transition-transform duration-300 group-hover:scale-105" 
+              className="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 object-contain transition-transform duration-300 group-hover:scale-105" 
             />
             <span className={`hidden md:inline text-xl md:text-3xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
               isDarkNav ? "text-white" : "text-[#735324]"

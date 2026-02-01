@@ -79,10 +79,22 @@ export function useTripAI({ tripId, tripDetails }: UseTripAIProps) {
   const buildSystemContext = useCallback(() => {
     if (!tripDetails) return "";
 
+    // Helper function to safely format dates
+    const safeFormatDate = (dateValue: string | null | undefined, formatStr: string): string => {
+      if (!dateValue) return "Data non specificata";
+      try {
+        const date = new Date(dateValue);
+        if (isNaN(date.getTime())) return "Data non valida";
+        return format(date, formatStr, { locale: it });
+      } catch {
+        return "Data non valida";
+      }
+    };
+
     let context = `Sei VoyageSmart AI, un assistente di viaggio intelligente per il viaggio "${tripDetails.title}".
 Dettagli Viaggio:
 - Destinazione: ${tripDetails.destination}
-- Date: ${format(new Date(tripDetails.start_date), "d MMM yyyy", { locale: it })} - ${format(new Date(tripDetails.end_date), "d MMM yyyy", { locale: it })}
+- Date: ${safeFormatDate(tripDetails.start_date, "d MMM yyyy")} - ${safeFormatDate(tripDetails.end_date, "d MMM yyyy")}
 - Descrizione: ${tripDetails.description || "Nessuna descrizione."}
 
 Contesto Attuale:
@@ -92,7 +104,7 @@ Contesto Attuale:
     if (activities && activities.length > 0) {
       context += `
 Itinerario (${activities.length} attività):
-${activities.map(a => `- [ID: ${a.id}] [${format(new Date(a.activity_date), "d MMM")}] ${a.title} (${a.category})`).join("\n")}
+${activities.map(a => `- [ID: ${a.id}] [${safeFormatDate(a.activity_date, "d MMM")}] ${a.title} (${a.category})`).join("\n")}
 `;
     }
 
@@ -100,7 +112,7 @@ ${activities.map(a => `- [ID: ${a.id}] [${format(new Date(a.activity_date), "d M
     if (accommodations && accommodations.length > 0) {
       context += `
 Alloggi:
-${accommodations.map(a => `- [ID: ${a.id}] ${a.name} (${a.check_in_date} - ${a.check_out_date})`).join("\n")}
+${accommodations.map(a => `- [ID: ${a.id}] ${a.name} (${a.check_in_date || "N/A"} - ${a.check_out_date || "N/A"})`).join("\n")}
 `;
     }
 
@@ -108,7 +120,7 @@ ${accommodations.map(a => `- [ID: ${a.id}] ${a.name} (${a.check_in_date} - ${a.c
     if (transports && transports.length > 0) {
        context += `
 Trasporti:
-${transports.map(t => `- [ID: ${t.id}] ${t.type}: ${t.departure_location} -> ${t.arrival_location} (${format(new Date(t.departure_date), "d MMM HH:mm")})`).join("\n")}
+${transports.map(t => `- [ID: ${t.id}] ${t.type}: ${t.departure_location} -> ${t.arrival_location} (${safeFormatDate(t.departure_date, "d MMM HH:mm")})`).join("\n")}
 `;
     }
 
