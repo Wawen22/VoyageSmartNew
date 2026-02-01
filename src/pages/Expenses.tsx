@@ -204,7 +204,7 @@ export default function Expenses() {
   return (
     <AppLayout>
       <main className="pt-24 pb-16 min-h-screen bg-background">
-        <div className="container mx-auto px-4 max-w-7xl">
+        <div className="container mx-auto px-3 sm:px-4 max-w-7xl">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 mb-6">
             <Button variant="ghost" size="sm" asChild>
@@ -220,7 +220,7 @@ export default function Expenses() {
             <span className="font-medium">{currentTripTitle}</span>
           </div>
 
-          <div className="bg-card rounded-xl border shadow-sm p-6">
+          <div className="bg-card rounded-xl border shadow-sm p-3 md:p-6">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <div>
@@ -321,10 +321,10 @@ export default function Expenses() {
                   </motion.div>
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
+                <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
                   {/* Expenses List */}
                   <div className="lg:col-span-2">
-                    <div className="flex gap-4 mb-6">
+                    <div className="flex gap-2 md:gap-4 mb-6">
                       <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input

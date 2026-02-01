@@ -52,7 +52,7 @@ export function BalancesSidebar({
 
   return (
     <>
-      <div className="app-surface p-6 sticky top-24">
+      <div className="app-surface p-4 sm:p-6 sticky top-24">
         <div className="flex items-center gap-2 mb-6">
           <Users className="w-5 h-5 text-primary" />
           <h3 className="font-semibold text-foreground">Bilanci del Gruppo</h3>

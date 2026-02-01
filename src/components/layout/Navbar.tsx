@@ -16,7 +16,8 @@ import {
   Lightbulb,
   MessageCircle,
   Shield,
-  User
+  User,
+  Sparkles
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -98,16 +99,20 @@ export function Navbar() {
     navigate("/");
   };
 
+  const subscriptionLabel = "Abbonamento";
+  const subscriptionHref = "/profile#subscription";
+
   const isDarkNav = isLanding && !scrolled;
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isDarkNav
-        ? "bg-transparent py-2"
-        : "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm py-0"
-    }`}>
-      <div className="container mx-auto px-4">
-        <nav className="flex items-center justify-between h-16 lg:h-20">
+    <>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isDarkNav
+          ? "bg-transparent py-2"
+          : "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm py-0"
+      }`}>
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link 
             to="/" 
@@ -118,7 +123,7 @@ export function Navbar() {
               alt="VoyageSmart Logo" 
               className="w-24 h-24 object-contain transition-transform duration-300 group-hover:scale-105" 
             />
-            <span className={`text-xl md:text-3xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
+            <span className={`hidden md:inline text-xl md:text-3xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
               isDarkNav ? "text-white" : "text-[#735324]"
             }`}>
               VoyageSmart
@@ -199,6 +204,12 @@ export function Navbar() {
                       <Link to="/profile" className="cursor-pointer flex items-center w-full">
                         <User className="mr-2 h-4 w-4" />
                         <span>Profilo</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to={subscriptionHref} className="cursor-pointer flex items-center w-full text-primary focus:text-primary">
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        <span>{subscriptionLabel}</span>
                       </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
@@ -330,9 +341,19 @@ export function Navbar() {
                         </Button>
                       </Link>
                     )}
+                    <Button
+                      variant="outline"
+                      className="w-full gap-2"
+                      asChild
+                    >
+                      <Link to={subscriptionHref} onClick={() => setIsOpen(false)}>
+                        <Sparkles className="w-4 h-4" />
+                        {subscriptionLabel}
+                      </Link>
+                    </Button>
                     <Button 
-                      variant="outline" 
-                      className="w-full"
+                      variant="outline"
+                      className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                       onClick={() => {
                         handleSignOut();
                         setIsOpen(false);
@@ -361,6 +382,7 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+      </header>
+    </>
   );
 }

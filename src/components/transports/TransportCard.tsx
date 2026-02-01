@@ -44,8 +44,94 @@ export function TransportCard({ transport, onDelete, onUpdate }: TransportCardPr
 
   return (
     <Card className="app-surface overflow-hidden transition-all hover:border-primary/20 hover:shadow-sm group">
-      <CardContent className="p-4 md:p-5">
-        <div className="flex items-start gap-4">
+      <CardContent className="p-3 sm:p-5">
+        {/* Mobile Layout */}
+        <div className="flex flex-col gap-3 md:hidden">
+          {/* Header: Icon, Type, Carrier, Actions */}
+          <div className="flex items-start gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 ring-1 ring-primary/10 flex items-center justify-center flex-shrink-0">
+              <Icon className="h-4 w-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">{TRANSPORT_LABELS[transport.transport_type]}</Badge>
+                {transport.carrier && (
+                  <span className="text-xs text-muted-foreground truncate">{transport.carrier}</span>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <EditTransportDialog transport={transport} onUpdate={onUpdate} />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                onClick={handleDelete}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Route */}
+          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <span>{transport.departure_location}</span>
+            <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span>{transport.arrival_location}</span>
+          </div>
+
+          {/* Price */}
+          {transport.price && (
+            <div className="rounded-lg bg-muted px-3 py-1.5 text-sm font-semibold text-foreground self-start">
+              €{transport.price.toFixed(2)}
+            </div>
+          )}
+
+          {/* Dates */}
+          <div className="flex flex-col gap-1.5">
+            <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">Partenza:</span>
+              <span>{format(departureDate, "dd MMM, HH:mm", { locale: it })}</span>
+            </div>
+            {arrivalDate && (
+              <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">Arrivo:</span>
+                <span>{format(arrivalDate, "dd MMM, HH:mm", { locale: it })}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Reference */}
+          {transport.booking_reference && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Hash className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="truncate">Ref: {transport.booking_reference}</span>
+            </div>
+          )}
+
+          {/* Document Button */}
+          {transport.document_url && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="justify-start text-xs h-8"
+              onClick={() => window.open(transport.document_url!, "_blank")}
+            >
+              <Paperclip className="h-3.5 w-3.5 mr-2" />
+              Documento viaggio
+            </Button>
+          )}
+
+          {/* Notes */}
+          {transport.notes && (
+            <p className="text-xs text-muted-foreground line-clamp-2">
+              {transport.notes}
+            </p>
+          )}
+        </div>
+
+        {/* Desktop Layout - Original */}
+        <div className="hidden md:flex items-start gap-4">
           <div className="h-12 w-12 rounded-xl bg-primary/10 ring-1 ring-primary/10 flex items-center justify-center flex-shrink-0">
             <Icon className="h-5 w-5 text-primary" />
           </div>
@@ -73,7 +159,7 @@ export function TransportCard({ transport, onDelete, onUpdate }: TransportCardPr
                     €{transport.price.toFixed(2)}
                   </div>
                 )}
-                <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <EditTransportDialog transport={transport} onUpdate={onUpdate} />
                   <Button
                     variant="ghost"

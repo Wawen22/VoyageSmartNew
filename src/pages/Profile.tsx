@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Link as LinkIcon, Calendar, Edit2, Loader2, User as UserIcon, Globe, LayoutGrid, Map as MapIcon, Trophy, AlertTriangle, ExternalLink } from "lucide-react";
 import { EditProfileDialog, ProfileData } from "@/components/profile/EditProfileDialog";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ProfileMap } from "@/components/maps/ProfileMap";
 import { searchPlace } from "@/lib/mapbox";
@@ -26,6 +26,15 @@ export default function Profile() {
   const [tripsLoading, setTripsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [userLocationCoords, setUserLocationCoords] = useState<{ lat: number; lng: number } | undefined>(undefined);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash !== "#subscription") return;
+    const target = document.getElementById("subscription-section");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [location.hash]);
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -231,22 +240,14 @@ export default function Profile() {
           )}
 
           <Tabs defaultValue="passport" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+            <TabsList className="grid w-full grid-cols-3 lg:w-[480px]">
               <TabsTrigger value="passport">Passaporto</TabsTrigger>
               <TabsTrigger value="trips">I miei Viaggi</TabsTrigger>
-              <TabsTrigger value="subscription">Abbonamento</TabsTrigger>
               <TabsTrigger value="about">Info</TabsTrigger>
             </TabsList>
             
             <TabsContent value="passport" className="mt-6">
               <DigitalPassport stats={stats} badges={badges} loading={tripsLoading && !stats.totalTrips} />
-            </TabsContent>
-
-            <TabsContent value="subscription" className="mt-6">
-              <div className="max-w-xl mx-auto space-y-6">
-                <SubscriptionCard />
-                <RedeemCodeCard />
-              </div>
             </TabsContent>
 
             <TabsContent value="trips" className="mt-6 space-y-6">
@@ -357,6 +358,20 @@ export default function Profile() {
               </Card>
             </TabsContent>
           </Tabs>
+
+          <section id="subscription-section" className="mt-10 scroll-mt-28">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Abbonamento</h3>
+                </div>
+                <div className="max-w-xl mx-auto space-y-6">
+                  <SubscriptionCard />
+                  <RedeemCodeCard />
+                </div>
+              </CardContent>
+            </Card>
+          </section>
         </div>
       </main>
 

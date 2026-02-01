@@ -80,7 +80,7 @@ export default function Accommodations() {
   return (
     <AppLayout>
       <main className="pt-24 pb-16 min-h-screen bg-background">
-        <div className="container mx-auto px-4 max-w-7xl">
+        <div className="container mx-auto px-3 sm:px-4 max-w-7xl">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 mb-6">
             <Button variant="ghost" size="sm" asChild>
@@ -96,7 +96,7 @@ export default function Accommodations() {
             <span className="font-medium">{selectedTrip?.title || "Alloggi"}</span>
           </div>
 
-          <div className="bg-card rounded-xl border shadow-sm p-6">
+          <div className="bg-card rounded-xl border shadow-sm p-3 sm:p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
