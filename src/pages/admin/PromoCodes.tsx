@@ -87,6 +87,8 @@ export default function AdminPromoCodes() {
     isUpdatingPromoCode,
     deletePromoCode,
     isDeletingPromoCode,
+    revokePromoRedemption,
+    isRevokingPromoRedemption,
   } = useAdmin();
 
   // State
@@ -98,8 +100,10 @@ export default function AdminPromoCodes() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [redemptionsDialogOpen, setRedemptionsDialogOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState<AdminPromoCode | null>(null);
+  const [selectedRedemption, setSelectedRedemption] = useState<AdminPromoRedemption | null>(null);
   const [selectedCodeRedemptions, setSelectedCodeRedemptions] = useState<AdminPromoRedemption[]>([]);
   const [loadingRedemptions, setLoadingRedemptions] = useState(false);
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
 
   // Form state for creating
   const [createForm, setCreateForm] = useState<CreatePromoCodeInput>({
@@ -126,6 +130,19 @@ export default function AdminPromoCodes() {
     is_active: null,
     notes: null,
   });
+
+  const refreshSelectedCodeRedemptions = useCallback(async () => {
+    if (!selectedCode) return;
+    setLoadingRedemptions(true);
+    try {
+      const redemptions = await getRedemptionsForCode(selectedCode.id);
+      setSelectedCodeRedemptions(redemptions);
+    } catch (error) {
+      console.error("Error refreshing redemptions:", error);
+    } finally {
+      setLoadingRedemptions(false);
+    }
+  }, [selectedCode, getRedemptionsForCode]);
 
   // Loading state
   if (authLoading || isAdminLoading) {
@@ -281,6 +298,18 @@ export default function AdminPromoCodes() {
     } finally {
       setLoadingRedemptions(false);
     }
+  };
+
+  const handleRevokeRedemption = () => {
+    if (!selectedRedemption) return;
+
+    revokePromoRedemption(selectedRedemption.id, {
+      onSuccess: () => {
+        setRevokeDialogOpen(false);
+        setSelectedRedemption(null);
+        refreshSelectedCodeRedemptions();
+      },
+    });
   };
 
   // Copy code to clipboard
@@ -1014,15 +1043,29 @@ export default function AdminPromoCodes() {
                   {selectedCodeRedemptions.map((redemption) => (
                     <div
                       key={redemption.id}
-                      className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                      className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-3 rounded-lg bg-muted/50"
                     >
                       <div>
                         <p className="font-medium">{redemption.user_fullname || "Utente"}</p>
                         <p className="text-sm text-muted-foreground">{redemption.user_email}</p>
                       </div>
-                      <div className="text-right text-sm">
-                        <p>{format(new Date(redemption.redeemed_at), "dd/MM/yyyy HH:mm", { locale: it })}</p>
-                        <p className="text-muted-foreground font-mono">{redemption.ip_address || "-"}</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div className="text-sm sm:text-right">
+                          <p>{format(new Date(redemption.redeemed_at), "dd/MM/yyyy HH:mm", { locale: it })}</p>
+                          <p className="text-muted-foreground font-mono">{redemption.ip_address || "-"}</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-destructive/40 text-destructive hover:bg-destructive/10"
+                          onClick={() => {
+                            setSelectedRedemption(redemption);
+                            setRevokeDialogOpen(true);
+                          }}
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Revoca
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -1031,6 +1074,33 @@ export default function AdminPromoCodes() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Revoke Redemption Dialog */}
+        <AlertDialog open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Revoca Codice Promozionale</AlertDialogTitle>
+              <AlertDialogDescription>
+                Vuoi revocare il codice {selectedCode?.code ? `"${selectedCode.code}"` : "selezionato"} per{" "}
+                <span className="font-medium">{selectedRedemption?.user_email || "questo utente"}</span>?
+                <span className="block mt-2 text-amber-600">
+                  Questa azione rimuove il riscatto e può disattivare i benefici Pro dell'utente.
+                </span>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setSelectedRedemption(null)}>Annulla</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRevokeRedemption}
+                disabled={isRevokingPromoRedemption}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isRevokingPromoRedemption && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Revoca
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );

@@ -876,6 +876,10 @@ export type Database = {
         Args: { p_id: string }
         Returns: Json
       }
+      revoke_promo_redemption: {
+        Args: { p_redemption_id: string }
+        Returns: Json
+      }
       get_promo_codes_stats: {
         Args: Record<string, never>
         Returns: Json

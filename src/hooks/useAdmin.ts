@@ -264,6 +264,36 @@ export function useAdmin() {
     },
   });
 
+  // Revoke a promo redemption (admin only)
+  const revokePromoRedemptionMutation = useMutation({
+    mutationFn: async (redemptionId: string) => {
+      const { data, error } = await supabase.rpc("revoke_promo_redemption", {
+        p_redemption_id: redemptionId,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const result = data as { success: boolean; error?: string; message?: string };
+
+      if (!result.success) {
+        throw new Error(result.error || result.message || "Errore sconosciuto durante la revoca");
+      }
+
+      return result;
+    },
+    onSuccess: (result: { message?: string }) => {
+      queryClient.invalidateQueries({ queryKey: ["adminPromoCodes"] });
+      queryClient.invalidateQueries({ queryKey: ["adminPromoStats"] });
+      queryClient.invalidateQueries({ queryKey: ["adminPromoRedemptions"] });
+      toast.success(result.message || "Riscatto revocato con successo");
+    },
+    onError: (error: Error) => {
+      toast.error(`Errore: ${error.message}`);
+    },
+  });
+
   // Get redemptions for a specific code
   const getRedemptionsForCode = async (codeId: string): Promise<AdminPromoRedemption[]> => {
     console.log(`[getRedemptionsForCode] Fetching redemptions for code ID: ${codeId}`);
@@ -353,5 +383,9 @@ export function useAdmin() {
     deletePromoCode: deletePromoCodeMutation.mutate,
     deletePromoCodeAsync: deletePromoCodeMutation.mutateAsync,
     isDeletingPromoCode: deletePromoCodeMutation.isPending,
+
+    revokePromoRedemption: revokePromoRedemptionMutation.mutate,
+    revokePromoRedemptionAsync: revokePromoRedemptionMutation.mutateAsync,
+    isRevokingPromoRedemption: revokePromoRedemptionMutation.isPending,
   };
 }
