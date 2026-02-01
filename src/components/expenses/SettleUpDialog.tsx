@@ -97,7 +97,7 @@ export function SettleUpDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="w-[calc(100%-1.5rem)] max-w-lg p-4 sm:w-full sm:max-w-lg sm:p-6 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Receipt className="w-5 h-5 text-primary" />
@@ -154,9 +154,9 @@ export function SettleUpDialog({
                           : "border-border bg-card"
                       } transition-colors`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
                         {/* From User */}
-                        <div className="flex items-center gap-2 flex-1">
+                        <div className="flex items-center gap-2 sm:flex-1">
                           <Avatar className="w-10 h-10">
                             {payment.from.avatarUrl && (
                               <AvatarImage src={payment.from.avatarUrl} />
@@ -175,22 +175,15 @@ export function SettleUpDialog({
                         </div>
 
                         {/* Amount & Arrow */}
-                        <div className="flex items-center gap-2 px-3">
-                          <span className="font-bold text-lg text-foreground">
+                        <div className="flex items-center justify-center gap-2 sm:px-3">
+                          <span className="font-bold text-lg text-destructive">
                             €{payment.amount.toFixed(2)}
                           </span>
-                          <ArrowRight className="w-5 h-5 text-muted-foreground" />
+                          <ArrowRight className="w-5 h-5 text-muted-foreground rotate-90 sm:rotate-0" />
                         </div>
 
                         {/* To User */}
-                        <div className="flex items-center gap-2 flex-1 justify-end">
-                          <div className="min-w-0 text-right">
-                            <p className="font-medium text-foreground text-sm truncate">
-                              {payment.to.name}
-                              {payment.to.userId === currentUserId && " (tu)"}
-                            </p>
-                            <p className="text-xs text-muted-foreground">riceve</p>
-                          </div>
+                        <div className="flex items-center gap-2 sm:flex-1 sm:justify-end">
                           <Avatar className="w-10 h-10">
                             {payment.to.avatarUrl && (
                               <AvatarImage src={payment.to.avatarUrl} />
@@ -199,6 +192,13 @@ export function SettleUpDialog({
                               {getInitials(payment.to.name)}
                             </AvatarFallback>
                           </Avatar>
+                          <div className="min-w-0 text-left sm:text-right">
+                            <p className="font-medium text-foreground text-sm truncate">
+                              {payment.to.name}
+                              {payment.to.userId === currentUserId && " (tu)"}
+                            </p>
+                            <p className="text-xs text-muted-foreground">riceve</p>
+                          </div>
                         </div>
                       </div>
 
@@ -278,7 +278,7 @@ export function SettleUpDialog({
                     animate={{ opacity: 1 }}
                     className="p-4 rounded-xl border border-border bg-card"
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <Avatar className="w-8 h-8">
                           {settlement.from_profile?.avatar_url && (
@@ -298,15 +298,15 @@ export function SettleUpDialog({
                           </AvatarFallback>
                         </Avatar>
                       </div>
-                      <span className="font-semibold text-forest">
+                      <span className="font-semibold text-forest sm:text-right">
                         €{settlement.amount.toFixed(2)}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>
+                    <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                      <span className="min-w-0 truncate">
                         {settlement.from_profile?.full_name} → {settlement.to_profile?.full_name}
                       </span>
-                      <span>
+                      <span className="sm:text-right">
                         {format(new Date(settlement.settled_at), "d MMM yyyy", { locale: it })}
                       </span>
                     </div>

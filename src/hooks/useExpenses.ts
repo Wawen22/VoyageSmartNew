@@ -31,6 +31,10 @@ export interface ExpenseSplit {
   amount: number;
   is_paid: boolean;
   created_at: string;
+  profile?: {
+    full_name: string | null;
+    avatar_url: string | null;
+  };
 }
 
 export interface ExpenseWithSplits extends Expense {
@@ -97,26 +101,33 @@ export function useExpenses(tripId?: string) {
         splitsData = (splits || []) as ExpenseSplit[];
       }
 
-      // Fetch payer profiles
+      // Fetch profiles for all users involved (payers + split users)
       const payerIds = [...new Set(expensesData?.map(e => e.paid_by) || [])];
+      const splitUserIds = [...new Set(splitsData.map(split => split.user_id))];
+      const profileIds = [...new Set([...payerIds, ...splitUserIds])];
       let profilesMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
 
-      if (payerIds.length > 0) {
+      if (profileIds.length > 0) {
         const { data: profiles } = await supabase
           .from("profiles")
           .select("user_id, full_name, avatar_url")
-          .in("user_id", payerIds);
+          .in("user_id", profileIds);
 
         profiles?.forEach(p => {
           profilesMap[p.user_id] = { full_name: p.full_name, avatar_url: p.avatar_url };
         });
       }
 
+      const splitsWithProfiles = splitsData.map(split => ({
+        ...split,
+        profile: profilesMap[split.user_id]
+      }));
+
       // Combine data
       return (expensesData || []).map(expense => ({
         ...expense,
         category: expense.category as ExpenseCategory,
-        splits: splitsData.filter(s => s.expense_id === expense.id),
+        splits: splitsWithProfiles.filter(s => s.expense_id === expense.id),
         paid_by_profile: profilesMap[expense.paid_by]
       })) as ExpenseWithSplits[];
     },
@@ -146,6 +157,12 @@ export function useExpenses(tripId?: string) {
 
         balanceMap[expense.paid_by] = (balanceMap[expense.paid_by] || 0) + expense.amount;
         expense.splits.forEach(split => {
+          if (split.profile) {
+            profilesMap[split.user_id] = {
+              name: split.profile.full_name || "Utente",
+              avatar: split.profile.avatar_url
+            };
+          }
           balanceMap[split.user_id] = (balanceMap[split.user_id] || 0) - split.amount;
         });
       });

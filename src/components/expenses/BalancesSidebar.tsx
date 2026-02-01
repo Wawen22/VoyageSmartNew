@@ -83,7 +83,7 @@ export function BalancesSidebar({
                     person.amount > 0
                       ? "text-forest"
                       : person.amount < 0
-                      ? "text-secondary"
+                      ? "text-destructive"
                       : "text-muted-foreground"
                   }`}
                 >
