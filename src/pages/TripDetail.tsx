@@ -337,12 +337,66 @@ export default function TripDetail() {
   const StatusIcon = statusInfo.icon;
 
   const navItems = [
-    { to: `/itinerary?trip=${trip.id}`, label: "Itinerario", icon: CalendarIcon, color: "text-emerald-500", count: stats.activitiesCount },
-    { to: `/expenses?trip=${trip.id}`, label: "Spese", icon: Wallet, color: "text-amber-500", count: stats.expensesCount },
-    { to: `/accommodations?trip=${trip.id}`, label: "Alloggi", icon: Building2, color: "text-blue-500", count: stats.accommodationsCount },
-    { to: `/transports?trip=${trip.id}`, label: "Trasporti", icon: Plane, color: "text-sky-500", count: stats.transportsCount },
-    { to: `/checklist?trip=${trip.id}`, label: "Checklist", icon: ClipboardList, color: "text-indigo-500", count: stats.checklistTotal },
-    { to: `/ideas?trip=${trip.id}`, label: "Idee", icon: Lightbulb, color: "text-purple-500", count: stats.ideasCount },
+    {
+      to: `/itinerary?trip=${trip.id}`,
+      label: "Itinerario",
+      icon: CalendarIcon,
+      color: "text-emerald-500",
+      count: stats.activitiesCount,
+      iconBg: "bg-emerald-500/10",
+      badgeBg: "from-emerald-400 to-emerald-600",
+      glow: "from-emerald-500/15 via-emerald-500/0 to-transparent",
+    },
+    {
+      to: `/expenses?trip=${trip.id}`,
+      label: "Spese",
+      icon: Wallet,
+      color: "text-amber-500",
+      count: stats.expensesCount,
+      iconBg: "bg-amber-500/10",
+      badgeBg: "from-amber-400 to-amber-600",
+      glow: "from-amber-500/15 via-amber-500/0 to-transparent",
+    },
+    {
+      to: `/accommodations?trip=${trip.id}`,
+      label: "Alloggi",
+      icon: Building2,
+      color: "text-blue-500",
+      count: stats.accommodationsCount,
+      iconBg: "bg-blue-500/10",
+      badgeBg: "from-blue-400 to-blue-600",
+      glow: "from-blue-500/15 via-blue-500/0 to-transparent",
+    },
+    {
+      to: `/transports?trip=${trip.id}`,
+      label: "Trasporti",
+      icon: Plane,
+      color: "text-teal-500",
+      count: stats.transportsCount,
+      iconBg: "bg-teal-500/15",
+      badgeBg: "from-teal-400 to-teal-600",
+      glow: "from-teal-500/20 via-teal-500/0 to-transparent",
+    },
+    {
+      to: `/checklist?trip=${trip.id}`,
+      label: "Checklist",
+      icon: ClipboardList,
+      color: "text-indigo-500",
+      count: stats.checklistTotal,
+      iconBg: "bg-indigo-500/10",
+      badgeBg: "from-indigo-400 to-indigo-600",
+      glow: "from-indigo-500/15 via-indigo-500/0 to-transparent",
+    },
+    {
+      to: `/ideas?trip=${trip.id}`,
+      label: "Idee",
+      icon: Lightbulb,
+      color: "text-purple-500",
+      count: stats.ideasCount,
+      iconBg: "bg-purple-500/10",
+      badgeBg: "from-purple-400 to-purple-600",
+      glow: "from-purple-500/15 via-purple-500/0 to-transparent",
+    },
   ];
 
   return (
@@ -460,14 +514,36 @@ export default function TripDetail() {
 
         <div className="container mx-auto max-w-7xl px-4 mt-8 relative z-10">
           {/* QUICK NAV */}
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4 mb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-10">
             {navItems.map((item) => (
               <Link key={item.to} to={item.to}>
-                <div className="bg-card hover:bg-accent/50 transition-all border shadow-sm rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 h-28 group hover:-translate-y-1">
-                  <div className={cn("p-2.5 rounded-2xl transition-colors shadow-sm", item.color.replace('text-', 'bg-').replace('500', '100'))}>
-                    <item.icon className={cn("w-6 h-6", item.color)} />
+                <div className="relative overflow-hidden bg-card/80 transition-all border border-border/60 shadow-sm rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 h-28 group hover:-translate-y-1 hover:shadow-lg">
+                  <div
+                    className={cn(
+                      "absolute inset-0 opacity-70 group-hover:opacity-90",
+                      "bg-gradient-to-br bg-[length:180%_180%] bg-[position:0%_0%]",
+                      "transition-[background-position,opacity] duration-500",
+                      "group-hover:bg-[position:100%_100%]",
+                      item.glow
+                    )}
+                  />
+                  <div className="relative z-10 flex flex-col items-center gap-3">
+                    <div className={cn("relative w-12 h-12 rounded-2xl flex items-center justify-center shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]", item.iconBg)}>
+                      <item.icon className={cn("w-6 h-6", item.color)} />
+                      <span
+                        className={cn(
+                          "absolute -right-2 -top-2 min-w-[24px] h-6 px-2 rounded-full text-[10px] font-bold flex items-center justify-center",
+                          "bg-gradient-to-br text-white border border-white/20",
+                          "shadow-[0_12px_20px_-16px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.45)]",
+                          "transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:scale-105",
+                          item.badgeBg
+                        )}
+                      >
+                        {item.count ?? 0}
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold tracking-wide uppercase">{item.label}</span>
                   </div>
-                  <span className="text-xs font-semibold tracking-wide uppercase">{item.label}</span>
                 </div>
               </Link>
             ))}
