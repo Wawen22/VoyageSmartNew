@@ -10,6 +10,7 @@ export interface TripIdea {
   created_by: string;
   title: string | null;
   location: string | null;
+  day_number: number | null;
   content: string | null;
   type: IdeaType;
   media_url: string | null;
@@ -68,12 +69,14 @@ export const useTripIdeas = (tripId: string) => {
     mutationFn: async ({ 
       title, 
       location,
+      dayNumber,
       content, 
       type, 
       file 
     }: { 
       title: string; 
       location: string;
+      dayNumber: number | null;
       content: string; 
       type: IdeaType; 
       file?: File | null 
@@ -107,6 +110,7 @@ export const useTripIdeas = (tripId: string) => {
           created_by: (await supabase.auth.getUser()).data.user?.id,
           title,
           location,
+          day_number: dayNumber,
           content: type === 'LINK' ? null : content,
           type,
           media_url
@@ -165,19 +169,22 @@ export const useTripIdeas = (tripId: string) => {
       id,
       title, 
       location,
+      dayNumber,
       content, 
       type,
     }: { 
       id: string;
       title: string; 
       location: string;
+      dayNumber: number | null;
       content: string; 
       type: IdeaType;
     }) => {
       const updateData: any = {
         title,
         type,
-        location
+        location,
+        day_number: dayNumber
       };
 
       if (type === 'LINK') {

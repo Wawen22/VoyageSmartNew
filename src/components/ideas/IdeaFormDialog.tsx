@@ -21,6 +21,7 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
   
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
+  const [dayNumber, setDayNumber] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
@@ -28,6 +29,7 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
     if (initialData) {
       setTitle(initialData.title || "");
       setLocation(initialData.location || "");
+      setDayNumber(initialData.day_number ? String(initialData.day_number) : "");
       setActiveTab(initialData.type);
       if (initialData.type === 'LINK') {
         setContent(initialData.media_url || "");
@@ -48,6 +50,8 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
 
     const isEdit = !!initialData;
     const isLoading = isEdit ? updateIdea.isPending : createIdea.isPending;
+    const parsedDayNumber = dayNumber.trim() ? Number.parseInt(dayNumber, 10) : null;
+    const safeDayNumber = Number.isNaN(parsedDayNumber) ? null : parsedDayNumber;
 
     try {
       if (isEdit) {
@@ -55,6 +59,7 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
           id: initialData.id,
           title,
           location,
+          dayNumber: safeDayNumber,
           content,
           type: activeTab
         });
@@ -62,6 +67,7 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
         await createIdea.mutateAsync({
           title,
           location,
+          dayNumber: safeDayNumber,
           content,
           type: activeTab,
           file
@@ -77,6 +83,7 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
   const resetForm = () => {
     setTitle("");
     setLocation("");
+    setDayNumber("");
     setContent("");
     setFile(null);
     setActiveTab('NOTE');
@@ -119,6 +126,19 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
                 placeholder="Es. Trastevere, Roma"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="day-number">Giorno del viaggio</Label>
+              <Input
+                id="day-number"
+                type="number"
+                min={1}
+                step={1}
+                placeholder="Es. 1"
+                value={dayNumber}
+                onChange={(e) => setDayNumber(e.target.value)}
               />
             </div>
 

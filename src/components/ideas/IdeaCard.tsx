@@ -23,6 +23,10 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isPromoteOpen, setIsPromoteOpen] = useState(false);
+  const metaParts: string[] = [];
+  if (idea.day_number && idea.day_number > 0) metaParts.push(`Giorno ${idea.day_number}`);
+  if (idea.location) metaParts.push(idea.location);
+  const metaLine = metaParts.join(" · ");
 
   const renderContentPreview = () => {
     switch (idea.type) {
@@ -94,9 +98,9 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
                 {idea.title || (idea.type === 'NOTE' ? "Nota" : idea.type === 'IMAGE' ? "Immagine" : "Link")}
               </h3>
             </div>
-            {idea.location && (
+            {metaLine && (
               <div className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground truncate">
-                {idea.location}
+                {metaLine}
               </div>
             )}
           </div>
@@ -210,7 +214,7 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
             <DialogTitle className="text-2xl">{idea.title || "Dettaglio Idea"}</DialogTitle>
             <div className="text-xs text-muted-foreground">
               Creata il {new Date(idea.created_at).toLocaleDateString()}
-              {idea.location ? ` · ${idea.location}` : ""}
+              {metaLine ? ` · ${metaLine}` : ""}
             </div>
           </DialogHeader>
           
