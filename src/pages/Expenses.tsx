@@ -275,7 +275,7 @@ export default function Expenses() {
             ) : (
               <>
                 {/* Stats Cards */}
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-lg bg-muted/40 border">
                     <div className="flex items-center justify-between mb-2">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">

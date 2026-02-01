@@ -139,21 +139,18 @@ export default function Transports() {
             ) : (
               <>
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  <div className="p-4 rounded-lg bg-muted/40 border">
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="p-3 rounded-lg bg-muted/40 border">
                     <div className="flex flex-row items-center justify-between pb-2">
                       <h3 className="text-sm font-medium">Totale Trasporti</h3>
                       <Route className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
                       <div className="text-2xl font-bold">{transports.length}</div>
-                      <p className="text-xs text-muted-foreground">
-                        {selectedTrip?.destination}
-                      </p>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-lg bg-muted/40 border">
+                  <div className="p-3 rounded-lg bg-muted/40 border">
                     <div className="flex flex-row items-center justify-between pb-2">
                       <h3 className="text-sm font-medium">Costo Totale</h3>
                       <Euro className="h-4 w-4 text-muted-foreground" />
