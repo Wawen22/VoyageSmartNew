@@ -29,52 +29,86 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
   };
 
   return (
-    <Card className="app-surface overflow-hidden hover:border-primary/20 transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-start gap-3 flex-1">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Building2 className="h-5 w-5 text-primary" />
+    <Card className="app-surface overflow-hidden transition-all hover:border-primary/20 hover:shadow-sm group">
+      <CardContent className="p-4 md:p-5">
+        <div className="flex items-start gap-4">
+          <div className="h-12 w-12 rounded-xl bg-primary/10 ring-1 ring-primary/10 flex items-center justify-center flex-shrink-0">
+            <Building2 className="h-5 w-5 text-primary" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className="font-semibold text-lg text-foreground truncate group-hover:text-primary transition-colors">
+                  {accommodation.name}
+                </h3>
+                {accommodation.address && (
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                    <MapPin className="h-3.5 w-3.5" />
+                    <span className="truncate">{accommodation.address}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {accommodation.price && (
+                  <div className="rounded-lg bg-muted px-2.5 py-1 text-sm font-semibold text-foreground">
+                    €{accommodation.price.toFixed(2)}
+                  </div>
+                )}
+                <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  {accommodation.booking_url && (
+                    <Button variant="ghost" size="icon" asChild>
+                      <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
+                  {isCreator && (
+                    <>
+                      <EditAccommodationDialog accommodation={accommodation} onUpdate={onUpdate} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleDelete}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-lg truncate">{accommodation.name}</h3>
-              
-              {accommodation.address && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span className="truncate">{accommodation.address}</span>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5" />
+                <span>
+                  {format(checkInDate, "dd MMM", { locale: it })} -{" "}
+                  {format(checkOutDate, "dd MMM", { locale: it })}
+                </span>
+              </div>
+              <Badge variant="secondary">{nights} {nights === 1 ? "notte" : "notti"}</Badge>
+              {accommodation.check_in_time && (
+                <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>Check-in {accommodation.check_in_time}</span>
                 </div>
               )}
-
-              <div className="flex flex-wrap items-center gap-3 mt-3">
-                <div className="flex items-center gap-1 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {format(checkInDate, "dd MMM", { locale: it })} - {format(checkOutDate, "dd MMM", { locale: it })}
-                  </span>
+              {accommodation.check_out_time && (
+                <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>Check-out {accommodation.check_out_time}</span>
                 </div>
-                <Badge variant="secondary">{nights} {nights === 1 ? "notte" : "notti"}</Badge>
-              </div>
+              )}
+            </div>
 
-              <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
-                {accommodation.check_in_time && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>Check-in: {accommodation.check_in_time}</span>
-                  </div>
-                )}
-                {accommodation.check_out_time && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>Check-out: {accommodation.check_out_time}</span>
-                  </div>
-                )}
-              </div>
-
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
               {accommodation.booking_reference && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
-                  <Hash className="h-3.5 w-3.5" />
-                  <span>Ref: {accommodation.booking_reference}</span>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Hash className="h-4 w-4" />
+                  <span className="truncate">Ref: {accommodation.booking_reference}</span>
                 </div>
               )}
 
@@ -82,56 +116,20 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2"
-                  onClick={() => window.open(accommodation.document_url!, '_blank')}
+                  className="justify-start"
+                  onClick={() => window.open(accommodation.document_url!, "_blank")}
                 >
-                  <Paperclip className="h-3.5 w-3.5 mr-1" />
-                  Documento
+                  <Paperclip className="h-3.5 w-3.5 mr-2" />
+                  Documento prenotazione
                 </Button>
               )}
-
-              {accommodation.notes && (
-                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                  {accommodation.notes}
-                </p>
-              )}
             </div>
-          </div>
 
-          <div className="flex flex-col items-end gap-2">
-            {accommodation.price && (
-              <span className="font-semibold text-lg">
-                €{accommodation.price.toFixed(2)}
-              </span>
+            {accommodation.notes && (
+              <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
+                {accommodation.notes}
+              </p>
             )}
-            
-            <div className="flex items-center gap-1">
-              {accommodation.booking_url && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                >
-                  <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              )}
-              
-              {isCreator && (
-                <>
-                  <EditAccommodationDialog accommodation={accommodation} onUpdate={onUpdate} />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleDelete}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </CardContent>
