@@ -20,12 +20,14 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
   const { createIdea, updateIdea } = useTripIdeas(tripId);
   
   const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (initialData) {
       setTitle(initialData.title || "");
+      setLocation(initialData.location || "");
       setActiveTab(initialData.type);
       if (initialData.type === 'LINK') {
         setContent(initialData.media_url || "");
@@ -52,12 +54,14 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
         await updateIdea.mutateAsync({
           id: initialData.id,
           title,
+          location,
           content,
           type: activeTab
         });
       } else {
         await createIdea.mutateAsync({
           title,
+          location,
           content,
           type: activeTab,
           file
@@ -72,6 +76,7 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
 
   const resetForm = () => {
     setTitle("");
+    setLocation("");
     setContent("");
     setFile(null);
     setActiveTab('NOTE');
@@ -104,6 +109,16 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
                 placeholder="Es. Ristorante romantico" 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location">Luogo</Label>
+              <Input
+                id="location"
+                placeholder="Es. Trastevere, Roma"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
               />
             </div>
 

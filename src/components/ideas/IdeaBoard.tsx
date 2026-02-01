@@ -9,6 +9,17 @@ interface IdeaBoardProps {
 
 export function IdeaBoard({ tripId }: IdeaBoardProps) {
   const { ideas, isLoading, deleteIdea, toggleVote } = useTripIdeas(tripId);
+  const ideasByLocation = (ideas || []).reduce<Record<string, typeof ideas>>((acc, idea) => {
+    const key = idea.location && idea.location.trim() ? idea.location.trim() : "Senza luogo";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(idea);
+    return acc;
+  }, {});
+  const locationGroups = Object.entries(ideasByLocation).sort(([a], [b]) => {
+    if (a === "Senza luogo") return 1;
+    if (b === "Senza luogo") return -1;
+    return a.localeCompare(b, "it-IT");
+  });
 
   if (isLoading) {
     return (
@@ -45,15 +56,27 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
           <AddIdeaDialog tripId={tripId} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {ideas.map((idea) => (
-            <div key={idea.id} className="h-full">
-              <IdeaCard 
-                idea={idea} 
-                onDelete={(id) => deleteIdea.mutate(id)} 
-                onVote={(id, hasVoted) => toggleVote.mutate({ ideaId: id, hasVoted })}
-                tripId={tripId}
-              />
+        <div className="space-y-8">
+          {locationGroups.map(([location, group]) => (
+            <div key={location} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                  {location}
+                </h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {group.map((idea) => (
+                  <div key={idea.id} className="h-full">
+                    <IdeaCard 
+                      idea={idea} 
+                      onDelete={(id) => deleteIdea.mutate(id)} 
+                      onVote={(id, hasVoted) => toggleVote.mutate({ ideaId: id, hasVoted })}
+                      tripId={tripId}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>

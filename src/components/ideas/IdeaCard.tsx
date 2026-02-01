@@ -87,11 +87,18 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
     <>
       <Card className="flex flex-col h-[320px] hover:shadow-md transition-shadow relative group">
         <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between space-y-0 gap-2 shrink-0">
-          <div className="flex items-center gap-2 min-w-0 cursor-pointer" onClick={() => setIsViewOpen(true)}>
-            {getIcon()}
-            <h3 className="font-medium text-sm truncate" title={idea.title || "Idea"}>
-              {idea.title || (idea.type === 'NOTE' ? "Nota" : idea.type === 'IMAGE' ? "Immagine" : "Link")}
-            </h3>
+          <div className="min-w-0 cursor-pointer" onClick={() => setIsViewOpen(true)}>
+            <div className="flex items-center gap-2 min-w-0">
+              {getIcon()}
+              <h3 className="font-medium text-sm truncate" title={idea.title || "Idea"}>
+                {idea.title || (idea.type === 'NOTE' ? "Nota" : idea.type === 'IMAGE' ? "Immagine" : "Link")}
+              </h3>
+            </div>
+            {idea.location && (
+              <div className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground truncate">
+                {idea.location}
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -194,7 +201,7 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
       />
 
       <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-        <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-[92vw] sm:max-w-[900px] md:max-w-[1050px] lg:max-w-[1200px] xl:max-w-[1300px] max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center gap-2 mb-2">
                {getIcon()}
@@ -203,6 +210,7 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
             <DialogTitle className="text-2xl">{idea.title || "Dettaglio Idea"}</DialogTitle>
             <div className="text-xs text-muted-foreground">
               Creata il {new Date(idea.created_at).toLocaleDateString()}
+              {idea.location ? ` · ${idea.location}` : ""}
             </div>
           </DialogHeader>
           
