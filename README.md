@@ -39,4 +39,4 @@
 3. **Avvia:** `npm run dev`
 
 ---
-Progetto distribuito sotto licenza MIT.
+Progetto distribuito sotto licenza MIT. 
