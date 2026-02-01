@@ -358,12 +358,12 @@ export default function Expenses() {
                           <ExpenseCard
                             key={expense.id}
                             expense={expense}
-                            canDelete={expense.created_by === user?.id}
+                            canDelete={true}
                             onDelete={() => deleteExpense(expense.id)}
-                            onEdit={expense.created_by === user?.id ? () => {
+                            onEdit={() => {
                               setEditingExpense(expense);
                               setShowAddDialog(true);
-                            } : undefined}
+                            }}
                             index={index}
                           />
                         ))}

@@ -4,7 +4,6 @@ import { Plane, Train, Bus, Car, Ship, MoreHorizontal, ArrowRight, Trash2, Hash,
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useAuth } from "@/hooks/useAuth";
 import type { Transport, TransportType, UpdateTransportData } from "@/hooks/useTransports";
 import { EditTransportDialog } from "@/components/transports/EditTransportDialog";
 
@@ -33,9 +32,6 @@ const TRANSPORT_LABELS: Record<TransportType, string> = {
 };
 
 export function TransportCard({ transport, onDelete, onUpdate }: TransportCardProps) {
-  const { user } = useAuth();
-  const isCreator = user?.id === transport.created_by;
-
   const Icon = TRANSPORT_ICONS[transport.transport_type];
   const departureDate = new Date(transport.departure_datetime);
   const arrivalDate = transport.arrival_datetime ? new Date(transport.arrival_datetime) : null;
@@ -77,19 +73,17 @@ export function TransportCard({ transport, onDelete, onUpdate }: TransportCardPr
                     €{transport.price.toFixed(2)}
                   </div>
                 )}
-                {isCreator && (
-                  <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <EditTransportDialog transport={transport} onUpdate={onUpdate} />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleDelete}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                  <EditTransportDialog transport={transport} onUpdate={onUpdate} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDelete}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
 

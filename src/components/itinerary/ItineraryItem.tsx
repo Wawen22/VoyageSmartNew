@@ -1,6 +1,5 @@
 import { MapPin, Clock, Trash2, Utensils, Camera, ShoppingBag, Sparkles, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
 import type { ItineraryActivity } from "@/hooks/useItinerary";
 
 interface ItineraryItemProps {
@@ -19,9 +18,6 @@ const CATEGORY_CONFIG: Record<string, { icon: typeof MapPin; color: string; bgCo
 };
 
 export function ItineraryItem({ activity, onDelete }: ItineraryItemProps) {
-  const { user } = useAuth();
-  const isCreator = user?.id === activity.created_by;
-
   const config = CATEGORY_CONFIG[activity.category] || CATEGORY_CONFIG.other;
   const Icon = config.icon;
 
@@ -45,16 +41,14 @@ export function ItineraryItem({ activity, onDelete }: ItineraryItemProps) {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <h4 className="font-medium text-sm">{activity.title}</h4>
-          {isCreator && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
-              onClick={handleDelete}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={handleDelete}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
         </div>
 
         {(activity.start_time || activity.end_time) && (
