@@ -17,6 +17,7 @@ interface ExportCalendarButtonProps {
   variant?: "default" | "outline" | "secondary" | "ghost";
   size?: "default" | "sm" | "lg" | "icon";
   className?: string;
+  forceShowLabel?: boolean;
 }
 
 export function ExportCalendarButton({
@@ -24,7 +25,8 @@ export function ExportCalendarButton({
   tripTitle,
   variant = "outline",
   size = "default",
-  className
+  className,
+  forceShowLabel
 }: ExportCalendarButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
@@ -157,16 +159,17 @@ export function ExportCalendarButton({
         size={size} 
         className={cn(
           className,
-          "gap-2 transition-all",
-          !isPro && "border-dashed text-muted-foreground hover:text-amber-700 hover:border-amber-300 hover:bg-amber-50/50 dark:hover:bg-amber-900/20 dark:hover:text-amber-400"
+          "relative overflow-hidden gap-2 transition-all duration-300",
+          !isPro && "border-amber-200 text-amber-600 hover:text-amber-700 hover:border-amber-300 hover:bg-amber-50/50 dark:border-amber-800 dark:text-amber-400 dark:hover:bg-amber-900/20",
+          isPro && "hover:border-primary/50 hover:bg-primary/5 hover:text-primary hover:shadow-[0_0_15px_-3px_rgba(0,0,0,0.1)] active:scale-95"
         )} 
         onClick={handleExport} 
         disabled={isExporting}
       >
         {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calendar className="w-4 h-4" />}
-        {size !== "icon" && "Esporta Calendario"}
+        {(size !== "icon" || forceShowLabel) && <span className={cn("hidden md:inline", forceShowLabel && "inline")}>Esporta Calendario</span>}
         {!isPro && (
-          <Badge variant="secondary" className="ml-1 h-5 px-1 text-[9px] bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+          <Badge variant="secondary" className={cn("hidden md:inline-flex ml-1 h-5 px-1 text-[9px] bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800", forceShowLabel && "inline-flex")}>
             PRO
           </Badge>
         )}

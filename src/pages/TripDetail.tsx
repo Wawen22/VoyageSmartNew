@@ -32,6 +32,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -66,7 +72,8 @@ import {
   MessageCircle,
   LayoutDashboard,
   Settings,
-  ChevronRight
+  ChevronRight,
+  MoreHorizontal
 } from "lucide-react";
 
 type Trip = {
@@ -342,7 +349,7 @@ export default function TripDetail() {
     <AppLayout>
       <div className="min-h-screen bg-background pb-12 pt-16 lg:pt-20">
         {/* HERO SECTION */}
-        <div className="relative h-[400px] md:h-[500px] w-full overflow-hidden">
+        <div className="relative h-[320px] md:h-[500px] w-full overflow-hidden">
           {trip.cover_image ? (
             <img 
               src={trip.cover_image} 
@@ -372,7 +379,7 @@ export default function TripDetail() {
           <div className="absolute inset-0 p-6 md:p-10 flex flex-col justify-end bg-gradient-to-t from-black/80 via-black/20 to-transparent">
              <div className="container mx-auto max-w-7xl">
                 <div className="flex flex-col md:flex-row items-end justify-between gap-6">
-                  <div className="text-white">
+                  <div className="text-white w-full md:w-auto">
                     <div className="flex flex-wrap items-center gap-3 mb-3">
                       <div className={cn("px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 backdrop-blur-md bg-white/20 border border-white/10")}>
                         <StatusIcon className="w-3.5 h-3.5" />
@@ -383,7 +390,7 @@ export default function TripDetail() {
                          {tripDuration} {tripDuration === 1 ? 'giorno' : 'giorni'}
                       </div>
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-bold mb-3 tracking-tight">{trip.title}</h1>
+                    <h1 className="text-2xl md:text-6xl font-bold mb-2 md:mb-3 tracking-tight">{trip.title}</h1>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-white/80 text-sm md:text-lg font-medium">
                       <div className="flex items-center gap-2">
                         <CalendarIcon className="w-5 h-5 text-white/60" />
@@ -396,16 +403,55 @@ export default function TripDetail() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 pb-2">
-                     <ShareTripDialog
+                  <div className="flex flex-wrap items-center justify-end gap-2 pb-2 w-full md:w-auto">
+                      <div className="hidden md:flex items-center gap-2">
+                        <ExportPDFButton 
+                          tripId={trip.id} 
+                          tripTitle={trip.title} 
+                          size="sm"
+                          className="h-8 text-xs px-3"
+                        />
+                        <ExportCalendarButton 
+                          tripId={trip.id} 
+                          tripTitle={trip.title} 
+                          size="sm"
+                          className="h-8 text-xs px-3"
+                        />
+                      </div>
+                      <ShareTripDialog
                         tripId={trip.id}
                         tripTitle={trip.title}
                         isPublicShared={trip.is_public_shared}
                         publicShareToken={trip.public_share_token}
                         onUpdate={fetchTrip}
+                        className="h-8 text-xs px-3"
                       />
-                      <ExportPDFButton tripId={trip.id} tripTitle={trip.title} />
-                      <ExportCalendarButton tripId={trip.id} tripTitle={trip.title} />
+                      <div className="md:hidden">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="secondary" size="icon" className="h-8 w-8 bg-black/20 text-white hover:bg-black/40 backdrop-blur-md border-0">
+                               <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56 p-1">
+                             <div className="flex flex-col gap-1">
+                                <ExportPDFButton 
+                                  tripId={trip.id} 
+                                  tripTitle={trip.title} 
+                                  className="w-full justify-start border-0 h-auto py-2.5 px-3"
+                                  forceShowLabel={true}
+                                />
+                                <ExportCalendarButton 
+                                  tripId={trip.id} 
+                                  tripTitle={trip.title} 
+                                  className="w-full justify-start border-0 h-auto py-2.5 px-3"
+                                  forceShowLabel={true}
+                                  variant="ghost"
+                                />
+                             </div>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                   </div>
                 </div>
              </div>

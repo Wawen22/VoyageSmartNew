@@ -53,7 +53,7 @@ export function TripHeroWeather({ lat, lon, className }: TripHeroWeatherProps) {
   if (!lat || !lon || loading || !current) return null;
 
   const getWeatherIcon = (id: number, isNight = false) => {
-    const iconClass = "w-7 h-7 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]";
+    const iconClass = "w-5 h-5 md:w-7 md:h-7 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]";
     if (id >= 200 && id < 300) return <CloudLightning className={`${iconClass} text-yellow-300`} />;
     if (id >= 300 && id < 500) return <CloudDrizzle className={`${iconClass} text-blue-300`} />;
     if (id >= 500 && id < 600) return <CloudRain className={`${iconClass} text-blue-400`} />;
@@ -74,7 +74,7 @@ export function TripHeroWeather({ lat, lon, className }: TripHeroWeatherProps) {
             initial={{ opacity: 0, x: 20, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             whileHover={{ scale: 1.05 }}
-            className={`group flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-white cursor-help transition-all duration-300 ${className}`}
+            className={`group flex items-center gap-2 md:gap-3 px-3 py-1.5 md:px-5 md:py-2.5 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] text-white cursor-help transition-all duration-300 ${className}`}
           >
             <div className="relative">
               {getWeatherIcon(current.weather[0].id, isNight)}
@@ -83,10 +83,10 @@ export function TripHeroWeather({ lat, lon, className }: TripHeroWeatherProps) {
             </div>
             
             <div className="flex flex-col items-start leading-none">
-              <span className="text-2xl font-bold tracking-tight">
+              <span className="text-lg md:text-2xl font-bold tracking-tight">
                 {Math.round(current.main.temp)}°
               </span>
-              <span className="text-[10px] font-medium text-white/60 uppercase tracking-widest mt-0.5">
+              <span className="text-[9px] md:text-[10px] font-medium text-white/60 uppercase tracking-widest mt-0.5">
                 {current.weather[0].main}
               </span>
             </div>

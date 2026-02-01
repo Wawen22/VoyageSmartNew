@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Share2, Copy, Check, Link2, Loader2, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface ShareTripDialogProps {
   tripId: string;
@@ -14,6 +15,7 @@ interface ShareTripDialogProps {
   isPublicShared: boolean;
   publicShareToken: string | null;
   onUpdate: () => void;
+  className?: string;
 }
 
 export function ShareTripDialog({ 
@@ -21,7 +23,8 @@ export function ShareTripDialog({
   tripTitle, 
   isPublicShared, 
   publicShareToken,
-  onUpdate 
+  onUpdate,
+  className
 }: ShareTripDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -137,10 +140,13 @@ export function ShareTripDialog({
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-950/50"
+          className={cn(
+            "gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 hover:text-indigo-700 border-indigo-200 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-800 dark:hover:bg-indigo-950/50",
+            className
+          )}
         >
           <Share2 className="h-4 w-4" />
-          Condividi
+          <span className="hidden md:inline">Condividi</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
