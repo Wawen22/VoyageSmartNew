@@ -239,7 +239,7 @@ export default function Itinerary() {
 
                   <TabsContent value="list" className="mt-0">
                     {/* Timeline content */}
-                    <div className="space-y-2">
+                    <div className="space-y-0">
                       {displayDays.map((day, index) => (
                         <TimelineDaySection
                           key={day.dateStr}

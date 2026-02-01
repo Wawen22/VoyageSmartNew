@@ -99,9 +99,9 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5">
+        <Button size="sm" className="gap-1.5 px-2.5 md:px-3">
           <Plus className="h-4 w-4" />
-          Aggiungi attività
+          <span className="hidden md:inline">Aggiungi attività</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
