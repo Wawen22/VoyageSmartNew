@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TripIdea } from "@/hooks/useTripIdeas";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2, Heart, ArrowUpCircle, Info, MessageSquare } from "lucide-react";
+import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2, Heart, ArrowUpCircle, Info, MessageSquare, ZoomIn, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -23,6 +23,7 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isPromoteOpen, setIsPromoteOpen] = useState(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const metaParts: string[] = [];
   if (idea.day_number && idea.day_number > 0) metaParts.push(`Giorno ${idea.day_number}`);
   if (idea.location) metaParts.push(idea.location);
@@ -192,7 +193,7 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
           <DialogHeader>
             <div className="flex items-center gap-2 mb-2">
                {getIcon()}
-               <span className="text-sm text-muted-foreground uppercase tracking-wider">Dettaglio Idea</span>
+               <span className="text-sm text-muted-foreground uppercase tracking-wider">{idea.type}</span>
             </div>
             <DialogTitle className="text-2xl">{idea.title || "Dettaglio Idea"}</DialogTitle>
             <div className="text-xs text-muted-foreground">
@@ -203,13 +204,26 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
           
           <div className="mt-4 space-y-6">
             {idea.media_url && (
-              <div className="w-full max-h-[500px] overflow-hidden rounded-md bg-muted/10 flex items-center justify-center">
-                 <img src={idea.media_url} alt="Full view" className="max-w-full max-h-full object-contain" />
+              <div 
+                  className="w-full h-[400px] bg-muted/10 rounded-md overflow-hidden relative group cursor-zoom-in border border-border/50 shadow-inner"
+                  onClick={() => setIsLightboxOpen(true)}
+              >
+                  <img 
+                      src={idea.media_url} 
+                      alt={idea.title || "Idea detail"} 
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-[1.02]" 
+                  />
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                      <div className="bg-background/80 backdrop-blur-md text-foreground px-3 py-1.5 rounded-full flex items-center gap-2 shadow-lg">
+                          <ZoomIn className="w-4 h-4" />
+                          <span className="text-xs font-medium">Ingrandisci</span>
+                      </div>
+                  </div>
               </div>
             )}
             
             {idea.url && (
-               <a href={idea.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-blue-600 hover:underline p-4 bg-blue-50/50 border border-blue-100 rounded-lg group">
+               <a href={idea.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-blue-600 hover:underline p-4 bg-blue-50/50 border border-blue-100 rounded-lg group transition-colors hover:bg-blue-50">
                  <div className="bg-blue-100 p-2 rounded-full group-hover:bg-blue-200 transition-colors">
                     <LinkIcon className="h-5 w-5" />
                  </div>
@@ -239,6 +253,29 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
              </Button>
              <Button onClick={() => setIsViewOpen(false)}>Chiudi</Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Lightbox Dialog */}
+      <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/90 border-none shadow-none flex items-center justify-center focus:outline-none" closeButton={false}>
+            <div className="relative w-full h-full flex items-center justify-center" onClick={() => setIsLightboxOpen(false)}>
+                {idea.media_url && (
+                    <img 
+                        src={idea.media_url} 
+                        alt="Full screen view" 
+                        className="max-w-full max-h-[90vh] object-contain cursor-zoom-out"
+                    />
+                )}
+                <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="absolute top-4 right-4 text-white/70 hover:text-white hover:bg-white/10 rounded-full"
+                    onClick={() => setIsLightboxOpen(false)}
+                >
+                    <X className="w-6 h-6" />
+                </Button>
+            </div>
         </DialogContent>
       </Dialog>
     </>
