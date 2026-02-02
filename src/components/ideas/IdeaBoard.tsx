@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useTripIdeas } from "@/hooks/useTripIdeas";
 import { IdeaCard } from "./IdeaCard";
 import { AddIdeaDialog } from "./AddIdeaDialog";
-import { Loader2, Lightbulb, Search } from "lucide-react";
+import { Loader2, Lightbulb, Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -92,20 +92,27 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
         <div className="space-y-6">
           <div className="flex flex-wrap items-center gap-2">
             <Button
-              variant={activeLocation === "Tutti" ? "default" : "outline"}
+              variant={activeLocation === "Tutti" ? "secondary" : "outline"}
               size="sm"
               onClick={() => setActiveLocation("Tutti")}
+              className={`rounded-full border ${activeLocation === "Tutti" ? "bg-primary/10 text-primary border-primary/20 hover:bg-primary/20" : "text-muted-foreground border-transparent hover:border-border bg-muted/30"}`}
             >
               Tutti ({searchedIdeas.length})
             </Button>
             {locationGroups.map(([location, group]) => (
               <Button
                 key={location}
-                variant={activeLocation === location ? "default" : "outline"}
+                variant="outline"
                 size="sm"
                 onClick={() => setActiveLocation(location)}
+                className={`rounded-full gap-1.5 border transition-all ${
+                  activeLocation === location
+                    ? "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                    : "text-muted-foreground border-transparent bg-muted/30 hover:bg-amber-50/50 hover:text-amber-600 hover:border-amber-100"
+                }`}
               >
-                {location} ({group.length})
+                <MapPin className="w-3.5 h-3.5" />
+                {location} <span className="opacity-60 ml-0.5">({group.length})</span>
               </Button>
             ))}
           </div>

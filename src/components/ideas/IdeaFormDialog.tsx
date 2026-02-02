@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTripIdeas, TripIdea } from "@/hooks/useTripIdeas";
+import { useTripDetails } from "@/hooks/useTripDetails";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { format, addDays, differenceInDays, parseISO, isValid } from "date-fns";
+import { it } from "date-fns/locale";
 
 interface IdeaFormDialogProps {
   tripId: string;
@@ -16,6 +20,7 @@ interface IdeaFormDialogProps {
 
 export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: IdeaFormDialogProps) {
   const { createIdea, updateIdea } = useTripIdeas(tripId);
+  const { data: trip } = useTripDetails(tripId);
   
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
@@ -23,6 +28,27 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
   const [content, setContent] = useState("");
   const [url, setUrl] = useState("");
   const [file, setFile] = useState<File | null>(null);
+
+  // Calculate trip days for the dropdown
+  const tripDays = useMemo(() => {
+    if (!trip?.start_date || !trip?.end_date) return [];
+    
+    const start = parseISO(trip.start_date);
+    const end = parseISO(trip.end_date);
+    
+    if (!isValid(start) || !isValid(end)) return [];
+
+    const daysCount = differenceInDays(end, start) + 1;
+    
+    return Array.from({ length: daysCount }, (_, i) => {
+      const currentDate = addDays(start, i);
+      return {
+        value: (i + 1).toString(),
+        label: `Giorno ${i + 1}`,
+        formattedDate: format(currentDate, "d MMM yyyy", { locale: it })
+      };
+    });
+  }, [trip]);
 
   useEffect(() => {
     if (initialData && open) {
@@ -47,7 +73,6 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
     
     // Minimum validation: Require at least title or content
     if (!title && !content) {
-      // Maybe show a toast or error? For now just return
       return;
     }
 
@@ -130,15 +155,32 @@ export function IdeaFormDialog({ tripId, open, onOpenChange, initialData }: Idea
 
           <div className="space-y-2">
             <Label htmlFor="day-number">Giorno del viaggio (Opzionale)</Label>
-            <Input
-              id="day-number"
-              type="number"
-              min={1}
-              step={1}
-              placeholder="Es. 1 per il primo giorno"
-              value={dayNumber}
-              onChange={(e) => setDayNumber(e.target.value)}
-            />
+            {tripDays.length > 0 ? (
+              <Select value={dayNumber} onValueChange={setDayNumber}>
+                <SelectTrigger id="day-number">
+                  <SelectValue placeholder="Seleziona un giorno" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value=" ">Nessun giorno specifico</SelectItem>
+                  {tripDays.map((day) => (
+                    <SelectItem key={day.value} value={day.value}>
+                      <span className="font-medium">{day.label}</span>
+                      <span className="text-muted-foreground ml-2">({day.formattedDate})</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                id="day-number"
+                type="number"
+                min={1}
+                step={1}
+                placeholder="Es. 1 per il primo giorno"
+                value={dayNumber}
+                onChange={(e) => setDayNumber(e.target.value)}
+              />
+            )}
           </div>
 
           <div className="space-y-2">

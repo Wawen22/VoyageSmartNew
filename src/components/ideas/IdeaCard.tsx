@@ -2,7 +2,8 @@ import { useState } from "react";
 import { TripIdea } from "@/hooks/useTripIdeas";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2, Heart, ArrowUpCircle, Info, MessageSquare, ZoomIn, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, ExternalLink, FileText, ImageIcon, Link as LinkIcon, Edit, Maximize2, Heart, ArrowUpCircle, Info, MessageSquare, ZoomIn, X, MapPin, Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -24,10 +25,6 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isPromoteOpen, setIsPromoteOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const metaParts: string[] = [];
-  if (idea.day_number && idea.day_number > 0) metaParts.push(`Giorno ${idea.day_number}`);
-  if (idea.location) metaParts.push(idea.location);
-  const metaLine = metaParts.join(" · ");
 
   // Determine an icon for the card header based on content
   const getIcon = () => {
@@ -41,17 +38,27 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
       <Card className="flex flex-col h-[380px] hover:shadow-md transition-shadow relative group">
         <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between space-y-0 gap-2 shrink-0">
           <div className="min-w-0 cursor-pointer w-full" onClick={() => setIsViewOpen(true)}>
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 mb-1.5">
               {getIcon()}
               <h3 className="font-medium text-sm truncate" title={idea.title || "Idea"}>
                 {idea.title || "Idea senza titolo"}
               </h3>
             </div>
-            {metaLine && (
-              <div className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground truncate">
-                {metaLine}
-              </div>
-            )}
+            
+            <div className="flex flex-wrap gap-1.5">
+              {idea.day_number && idea.day_number > 0 && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 h-5 font-normal gap-1 bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-100">
+                  <Calendar className="w-3 h-3" />
+                  Giorno {idea.day_number}
+                </Badge>
+              )}
+              {idea.location && (
+                <Badge variant="secondary" className="text-[10px] px-1.5 h-5 font-normal gap-1 bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-100 truncate max-w-[150px]">
+                  <MapPin className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{idea.location}</span>
+                </Badge>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 bg-background/80 rounded-full p-1 shadow-sm backdrop-blur-sm z-10">
@@ -196,9 +203,24 @@ export function IdeaCard({ idea, onDelete, onVote, tripId }: IdeaCardProps) {
                <span className="text-sm text-muted-foreground uppercase tracking-wider">{idea.type}</span>
             </div>
             <DialogTitle className="text-2xl">{idea.title || "Dettaglio Idea"}</DialogTitle>
-            <div className="text-xs text-muted-foreground">
-              Creata il {new Date(idea.created_at).toLocaleDateString()}
-              {metaLine ? ` · ${metaLine}` : ""}
+            <div className="flex flex-col gap-2 mt-1">
+              <span className="text-xs text-muted-foreground">
+                Creata il {new Date(idea.created_at).toLocaleDateString()}
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {idea.day_number && idea.day_number > 0 && (
+                  <Badge variant="secondary" className="px-2 py-0.5 h-6 font-normal gap-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-100">
+                    <Calendar className="w-3.5 h-3.5" />
+                    Giorno {idea.day_number}
+                  </Badge>
+                )}
+                {idea.location && (
+                  <Badge variant="secondary" className="px-2 py-0.5 h-6 font-normal gap-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border-amber-100">
+                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    {idea.location}
+                  </Badge>
+                )}
+              </div>
             </div>
           </DialogHeader>
           
