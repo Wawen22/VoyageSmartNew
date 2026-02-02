@@ -67,16 +67,23 @@ interface CreateExpenseData {
   receipt_url?: string;
 }
 
+export interface Settlement {
+  id: string;
+  from_user_id: string;
+  to_user_id: string;
+  amount: number;
+}
+
 export function useExpenses(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Query for fetching expenses
-  const { data: expenses = [], isLoading: loading, refetch } = useQuery({
+  // Query for fetching expenses AND settlements
+  const { data: { expenses = [], settlements = [] } = {}, isLoading: loading, refetch } = useQuery({
     queryKey: ['expenses', tripId],
     queryFn: async () => {
-      if (!tripId || !user) return [];
+      if (!tripId || !user) return { expenses: [], settlements: [] };
 
       // Fetch expenses
       const { data: expensesData, error: expensesError } = await supabase
@@ -86,6 +93,14 @@ export function useExpenses(tripId?: string) {
         .order("expense_date", { ascending: false });
 
       if (expensesError) throw expensesError;
+
+      // Fetch settlements
+      const { data: settlementsData, error: settlementsError } = await supabase
+        .from("settlements")
+        .select("id, from_user_id, to_user_id, amount")
+        .eq("trip_id", tripId);
+
+      if (settlementsError) throw settlementsError;
 
       // Fetch all splits for these expenses
       const expenseIds = expensesData?.map(e => e.id) || [];
@@ -104,7 +119,12 @@ export function useExpenses(tripId?: string) {
       // Fetch profiles for all users involved (payers + split users)
       const payerIds = [...new Set(expensesData?.map(e => e.paid_by) || [])];
       const splitUserIds = [...new Set(splitsData.map(split => split.user_id))];
-      const profileIds = [...new Set([...payerIds, ...splitUserIds])];
+      const settlementUserIds = [...new Set([
+        ...(settlementsData?.map(s => s.from_user_id) || []),
+        ...(settlementsData?.map(s => s.to_user_id) || [])
+      ])];
+      
+      const profileIds = [...new Set([...payerIds, ...splitUserIds, ...settlementUserIds])];
       let profilesMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
 
       if (profileIds.length > 0) {
@@ -124,12 +144,14 @@ export function useExpenses(tripId?: string) {
       }));
 
       // Combine data
-      return (expensesData || []).map(expense => ({
+      const expensesWithSplits = (expensesData || []).map(expense => ({
         ...expense,
         category: expense.category as ExpenseCategory,
         splits: splitsWithProfiles.filter(s => s.expense_id === expense.id),
         paid_by_profile: profilesMap[expense.paid_by]
       })) as ExpenseWithSplits[];
+
+      return { expenses: expensesWithSplits, settlements: settlementsData || [] };
     },
     enabled: !!tripId && !!user,
   });
@@ -140,10 +162,11 @@ export function useExpenses(tripId?: string) {
     let total = 0;
     let uBalance = 0;
 
-    if (expenses.length > 0) {
-      const balanceMap: Record<string, number> = {};
-      const profilesMap: Record<string, { name: string, avatar: string | null }> = {};
+    const balanceMap: Record<string, number> = {};
+    const profilesMap: Record<string, { name: string, avatar: string | null }> = {};
 
+    // 1. Process Expenses
+    if (expenses.length > 0) {
       expenses.forEach(expense => {
         total += expense.amount;
         
@@ -166,19 +189,33 @@ export function useExpenses(tripId?: string) {
           balanceMap[split.user_id] = (balanceMap[split.user_id] || 0) - split.amount;
         });
       });
-
-      balancesList = Object.entries(balanceMap).map(([userId, amount]) => ({
-        userId,
-        name: profilesMap[userId]?.name || "Utente",
-        avatarUrl: profilesMap[userId]?.avatar || null,
-        amount: Math.round(amount * 100) / 100
-      }));
-
-      uBalance = balancesList.find(b => b.userId === user?.id)?.amount || 0;
     }
 
+    // 2. Process Settlements
+    // Settlement: FROM pays TO.
+    // FROM (Payer): Balance increases (pays back debt).
+    // TO (Receiver): Balance decreases (debt paid back).
+    if (settlements.length > 0) {
+      settlements.forEach(settlement => {
+        // Payer (From) gains balance (e.g. -50 -> 0)
+        balanceMap[settlement.from_user_id] = (balanceMap[settlement.from_user_id] || 0) + settlement.amount;
+        
+        // Receiver (To) loses balance (e.g. +50 -> 0)
+        balanceMap[settlement.to_user_id] = (balanceMap[settlement.to_user_id] || 0) - settlement.amount;
+      });
+    }
+
+    balancesList = Object.entries(balanceMap).map(([userId, amount]) => ({
+      userId,
+      name: profilesMap[userId]?.name || "Utente",
+      avatarUrl: profilesMap[userId]?.avatar || null,
+      amount: Math.round(amount * 100) / 100
+    }));
+
+    uBalance = balancesList.find(b => b.userId === user?.id)?.amount || 0;
+
     return { balances: balancesList, totalSpent: total, userBalance: uBalance };
-  }, [expenses, user]);
+  }, [expenses, settlements, user]);
 
   // Mutations
   const createMutation = useMutation({
@@ -299,6 +336,9 @@ export function useExpenses(tripId?: string) {
         queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "expense_splits" }, () => {
+        queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "settlements", filter: `trip_id=eq.${tripId}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
       })
       .subscribe();

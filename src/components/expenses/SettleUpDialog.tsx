@@ -16,7 +16,9 @@ import {
   Receipt,
   Sparkles,
   History,
-  Trash2
+  Trash2,
+  Wallet,
+  Banknote
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Balance } from "@/hooks/useExpenses";
@@ -24,6 +26,7 @@ import type { OptimalPayment, SettlementWithProfiles } from "@/hooks/useSettleme
 import { calculateOptimalPayments } from "@/hooks/useSettlements";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface SettleUpDialogProps {
   open: boolean;
@@ -52,12 +55,14 @@ export function SettleUpDialog({
   onSettle,
   onDeleteSettlement
 }: SettleUpDialogProps) {
-  const [settlingPayment, setSettlingPayment] = useState<OptimalPayment | null>(null);
+  const [settlingId, setSettlingId] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const optimalPayments = calculateOptimalPayments(balances);
+
+  const getPaymentId = (payment: OptimalPayment) => `${payment.from.userId}-${payment.to.userId}`;
 
   const getInitials = (name: string) => {
     return name
@@ -69,20 +74,22 @@ export function SettleUpDialog({
   };
 
   const handleSettle = async () => {
-    if (!settlingPayment) return;
+    if (!settlingId) return;
+    const payment = optimalPayments.find(p => getPaymentId(p) === settlingId);
+    if (!payment) return;
 
     setLoading(true);
     const success = await onSettle({
       trip_id: tripId,
-      from_user_id: settlingPayment.from.userId,
-      to_user_id: settlingPayment.to.userId,
-      amount: settlingPayment.amount,
+      from_user_id: payment.from.userId,
+      to_user_id: payment.to.userId,
+      amount: payment.amount,
       notes: notes.trim() || undefined
     });
 
     setLoading(false);
     if (success) {
-      setSettlingPayment(null);
+      setSettlingId(null);
       setNotes("");
     }
   };
@@ -97,247 +104,226 @@ export function SettleUpDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%-1.5rem)] max-w-lg p-4 sm:w-full sm:max-w-lg sm:p-6 max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-primary" />
-            Settle Up
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="w-full max-w-sm p-0 overflow-hidden rounded-2xl gap-0 bg-background/95 backdrop-blur-xl border-border/60">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-b from-muted/50 to-background px-5 py-4 border-b border-border/40">
+           <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 ring-1 ring-emerald-500/20 shadow-sm">
+                 <Wallet className="w-5 h-5" />
+              </div>
+              <div>
+                 <DialogTitle className="text-lg font-semibold tracking-tight">Saldare i conti</DialogTitle>
+                 <p className="text-xs text-muted-foreground font-medium">Gestisci i debiti del gruppo</p>
+              </div>
+           </div>
+        </div>
 
-        <Tabs defaultValue="payments" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="payments" className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Pagamenti
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <History className="w-4 h-4" />
-              Cronologia
-            </TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="payments" className="w-full">
+          <div className="px-5 pt-4 pb-2">
+            <TabsList className="grid w-full grid-cols-2 h-9 bg-muted/50 p-1 rounded-lg">
+              <TabsTrigger value="payments" className="text-xs font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
+                <Banknote className="w-3.5 h-3.5 mr-1.5" />
+                Pagamenti ({optimalPayments.length})
+              </TabsTrigger>
+              <TabsTrigger value="history" className="text-xs font-medium rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
+                <History className="w-3.5 h-3.5 mr-1.5" />
+                Cronologia
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="payments" className="mt-4">
-            {allSettled ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-8"
-              >
-                <div className="w-16 h-16 rounded-full bg-forest/10 flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-forest" />
+          <div className="px-5 pb-6 max-h-[60vh] overflow-y-auto scrollbar-hide">
+            <TabsContent value="payments" className="mt-2 focus-visible:outline-none">
+              {allSettled ? (
+                <div className="flex flex-col items-center justify-center py-10 text-center animate-in fade-in zoom-in duration-300">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-3">
+                    <Sparkles className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <h3 className="font-semibold text-foreground">Tutto saldato!</h3>
+                  <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
+                    I conti tornano perfettamente. Nessun debito in sospeso.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Tutto saldato! 🎉
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Non ci sono pagamenti in sospeso tra i membri del gruppo.
-                </p>
-              </motion.div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground mb-4">
-                  Ecco il modo più efficiente per saldare tutti i debiti:
-                </p>
+              ) : (
+                <div className="space-y-3">
+                  <AnimatePresence mode="popLayout">
+                    {optimalPayments.map((payment, index) => {
+                      const paymentId = getPaymentId(payment);
+                      const isExpanded = settlingId === paymentId;
 
-                <AnimatePresence mode="popLayout">
-                  {optimalPayments.map((payment, index) => (
-                    <motion.div
-                      key={`${payment.from.userId}-${payment.to.userId}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      transition={{ delay: index * 0.05 }}
-                      className={`p-4 rounded-xl border ${
-                        settlingPayment === payment
-                          ? "border-primary bg-primary/5"
-                          : "border-border bg-card"
-                      } transition-colors`}
-                    >
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
-                        {/* From User */}
-                        <div className="flex items-center gap-2 sm:flex-1">
-                          <Avatar className="w-10 h-10">
-                            {payment.from.avatarUrl && (
-                              <AvatarImage src={payment.from.avatarUrl} />
-                            )}
-                            <AvatarFallback className="bg-secondary/10 text-secondary text-sm">
-                              {getInitials(payment.from.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <p className="font-medium text-foreground text-sm truncate">
-                              {payment.from.name}
-                              {payment.from.userId === currentUserId && " (tu)"}
-                            </p>
-                            <p className="text-xs text-muted-foreground">paga</p>
-                          </div>
-                        </div>
-
-                        {/* Amount & Arrow */}
-                        <div className="flex items-center justify-center gap-2 sm:px-3">
-                          <span className="font-bold text-lg text-destructive">
-                            €{payment.amount.toFixed(2)}
-                          </span>
-                          <ArrowRight className="w-5 h-5 text-muted-foreground rotate-90 sm:rotate-0" />
-                        </div>
-
-                        {/* To User */}
-                        <div className="flex items-center gap-2 sm:flex-1 sm:justify-end">
-                          <Avatar className="w-10 h-10">
-                            {payment.to.avatarUrl && (
-                              <AvatarImage src={payment.to.avatarUrl} />
-                            )}
-                            <AvatarFallback className="bg-forest/10 text-forest text-sm">
-                              {getInitials(payment.to.name)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0 text-left sm:text-right">
-                            <p className="font-medium text-foreground text-sm truncate">
-                              {payment.to.name}
-                              {payment.to.userId === currentUserId && " (tu)"}
-                            </p>
-                            <p className="text-xs text-muted-foreground">riceve</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="mt-3 pt-3 border-t border-border">
-                        {settlingPayment === payment ? (
-                          <div className="space-y-3">
-                            <Textarea
-                              placeholder="Note (opzionale, es. 'Bonifico', 'Contanti')"
-                              value={notes}
-                              onChange={(e) => setNotes(e.target.value)}
-                              className="resize-none"
-                              rows={2}
-                            />
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setSettlingPayment(null);
-                                  setNotes("");
-                                }}
-                                disabled={loading}
-                              >
-                                Annulla
-                              </Button>
-                              <Button
-                                variant="sunset"
-                                size="sm"
-                                onClick={handleSettle}
-                                disabled={loading}
-                                className="flex-1"
-                              >
-                                {loading ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <>
-                                    <Check className="w-4 h-4 mr-1" />
-                                    Conferma Saldo
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full text-primary hover:text-primary"
-                            onClick={() => setSettlingPayment(payment)}
-                          >
-                            <Check className="w-4 h-4 mr-1" />
-                            Segna come saldato
-                          </Button>
+                      return (
+                      <motion.div
+                        key={paymentId}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ delay: index * 0.05 }}
+                        layout
+                        className={cn(
+                          "relative overflow-hidden rounded-xl border transition-all duration-300 cursor-pointer group",
+                          isExpanded
+                            ? "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/10 shadow-sm"
+                            : "border-border/60 bg-card hover:border-emerald-500/20 hover:shadow-sm"
                         )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="history" className="mt-4">
-            {settlements.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground">
-                  Nessun saldo registrato ancora.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                {settlements.map((settlement) => (
-                  <motion.div
-                    key={settlement.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="p-4 rounded-xl border border-border bg-card"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="w-8 h-8">
-                          {settlement.from_profile?.avatar_url && (
-                            <AvatarImage src={settlement.from_profile.avatar_url} />
-                          )}
-                          <AvatarFallback className="bg-muted text-xs">
-                            {getInitials(settlement.from_profile?.full_name || "U")}
-                          </AvatarFallback>
-                        </Avatar>
-                        <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                        <Avatar className="w-8 h-8">
-                          {settlement.to_profile?.avatar_url && (
-                            <AvatarImage src={settlement.to_profile.avatar_url} />
-                          )}
-                          <AvatarFallback className="bg-muted text-xs">
-                            {getInitials(settlement.to_profile?.full_name || "U")}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
-                      <span className="font-semibold text-forest sm:text-right">
-                        €{settlement.amount.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-                      <span className="min-w-0 truncate">
-                        {settlement.from_profile?.full_name} → {settlement.to_profile?.full_name}
-                      </span>
-                      <span className="sm:text-right">
-                        {format(new Date(settlement.settled_at), "d MMM yyyy", { locale: it })}
-                      </span>
-                    </div>
-                    {settlement.notes && (
-                      <p className="text-xs text-muted-foreground mt-2 italic">
-                        "{settlement.notes}"
-                      </p>
-                    )}
-                    {settlement.created_by === currentUserId && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="mt-2 w-full text-destructive hover:text-destructive"
-                        onClick={() => handleDelete(settlement.id)}
-                        disabled={deletingId === settlement.id}
+                        onClick={() => setSettlingId(isExpanded ? null : paymentId)}
                       >
-                        {deletingId === settlement.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Elimina
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
+                        {/* Card Content */}
+                        <div className="p-3">
+                          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                             {/* FROM */}
+                             <div className="flex flex-col items-center text-center">
+                                <Avatar className="w-9 h-9 ring-2 ring-background shadow-sm">
+                                  {payment.from.avatarUrl && <AvatarImage src={payment.from.avatarUrl} />}
+                                  <AvatarFallback className="bg-muted text-[10px]">{getInitials(payment.from.name)}</AvatarFallback>
+                                </Avatar>
+                                <span className="text-[10px] font-semibold mt-1.5 truncate w-full px-1">
+                                  {payment.from.userId === currentUserId ? "Tu" : payment.from.name.split(' ')[0]}
+                                </span>
+                             </div>
+
+                             {/* CENTER (Amount) */}
+                             <div className="flex flex-col items-center justify-center relative w-24">
+                                <div className="absolute top-1/2 left-0 w-full h-px bg-border -z-10 border-t border-dashed border-muted-foreground/30"></div>
+                                <div className="bg-background px-2 py-0.5 rounded-full border border-border shadow-sm flex items-center gap-1 z-10 group-hover:scale-105 transition-transform">
+                                  <span className="font-bold text-sm text-foreground">€{payment.amount.toFixed(2)}</span>
+                                  <ArrowRight className="w-3 h-3 text-muted-foreground" />
+                                </div>
+                             </div>
+
+                             {/* TO */}
+                             <div className="flex flex-col items-center text-center">
+                                <Avatar className="w-9 h-9 ring-2 ring-background shadow-sm">
+                                  {payment.to.avatarUrl && <AvatarImage src={payment.to.avatarUrl} />}
+                                  <AvatarFallback className="bg-emerald-100 text-emerald-700 text-[10px]">{getInitials(payment.to.name)}</AvatarFallback>
+                                </Avatar>
+                                <span className="text-[10px] font-semibold mt-1.5 truncate w-full px-1">
+                                  {payment.to.userId === currentUserId ? "Tu" : payment.to.name.split(' ')[0]}
+                                </span>
+                             </div>
+                          </div>
+                        </div>
+
+                        {/* Action Area */}
+                        <div className="px-3 pb-3">
+                          <AnimatePresence initial={false}>
+                            {isExpanded ? (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                 <div className="pt-2 space-y-3 border-t border-dashed border-border/50">
+                                    <Textarea
+                                      placeholder="Aggiungi una nota..."
+                                      value={notes}
+                                      onChange={(e) => setNotes(e.target.value)}
+                                      className="min-h-[50px] text-xs resize-none bg-background/50 focus:bg-background"
+                                    />
+                                    <div className="flex gap-2">
+                                       <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="flex-1 h-8 text-xs hover:bg-muted"
+                                        onClick={() => { setSettlingId(null); setNotes(""); }}
+                                       >
+                                         Annulla
+                                       </Button>
+                                       <Button 
+                                        size="sm" 
+                                        className="flex-1 h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                                        onClick={handleSettle}
+                                        disabled={loading}
+                                       >
+                                         {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Conferma"}
+                                       </Button>
+                                    </div>
+                                 </div>
+                              </motion.div>
+                            ) : (
+                              <div className="pt-2 border-t border-dashed border-border/50">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full h-8 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10 transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSettlingId(paymentId);
+                                  }}
+                                >
+                                  <Check className="w-3.5 h-3.5 mr-1.5" />
+                                  Salda ora
+                                </Button>
+                              </div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="history" className="mt-2 focus-visible:outline-none">
+               {settlements.length === 0 ? (
+                 <div className="text-center py-8">
+                    <History className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+                    <p className="text-xs text-muted-foreground">Nessun storico saldi.</p>
+                 </div>
+               ) : (
+                 <div className="space-y-2">
+                   {settlements.map((settlement) => (
+                      <div key={settlement.id} className="p-3 rounded-xl border border-border/50 bg-card/50 flex flex-col gap-2">
+                         <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                               <div className="flex -space-x-2">
+                                  <Avatar className="w-6 h-6 ring-1 ring-background">
+                                     {settlement.from_profile?.avatar_url && <AvatarImage src={settlement.from_profile.avatar_url} />}
+                                     <AvatarFallback className="text-[9px]">{getInitials(settlement.from_profile?.full_name || "?")}</AvatarFallback>
+                                  </Avatar>
+                                  <Avatar className="w-6 h-6 ring-1 ring-background">
+                                     {settlement.to_profile?.avatar_url && <AvatarImage src={settlement.to_profile.avatar_url} />}
+                                     <AvatarFallback className="text-[9px]">{getInitials(settlement.to_profile?.full_name || "?")}</AvatarFallback>
+                                  </Avatar>
+                               </div>
+                               <div className="flex flex-col">
+                                  <span className="text-[10px] font-medium leading-tight">
+                                     {settlement.from_profile?.full_name?.split(' ')[0]} <ArrowRight className="w-2 h-2 inline text-muted-foreground" /> {settlement.to_profile?.full_name?.split(' ')[0]}
+                                  </span>
+                                  <span className="text-[9px] text-muted-foreground">{format(new Date(settlement.settled_at), "d MMM", { locale: it })}</span>
+                               </div>
+                            </div>
+                            <span className="font-bold text-emerald-600 text-sm">€{settlement.amount.toFixed(2)}</span>
+                         </div>
+                         
+                         {(settlement.notes || settlement.created_by === currentUserId) && (
+                            <div className="flex items-center justify-between border-t border-border/30 pt-1.5 mt-0.5">
+                               <p className="text-[10px] text-muted-foreground italic truncate max-w-[150px]">
+                                 {settlement.notes ? `"${settlement.notes}"` : ""}
+                               </p>
+                               {settlement.created_by === currentUserId && (
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 -mr-1 text-muted-foreground hover:text-destructive"
+                                    onClick={() => handleDelete(settlement.id)}
+                                    disabled={deletingId === settlement.id}
+                                  >
+                                     {deletingId === settlement.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                                  </Button>
+                               )}
+                            </div>
+                         )}
+                      </div>
+                   ))}
+                 </div>
+               )}
+            </TabsContent>
+          </div>
         </Tabs>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -111,6 +112,7 @@ export function calculateOptimalPayments(balances: Balance[]): OptimalPayment[] 
 export function useSettlements(tripId?: string) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [settlements, setSettlements] = useState<SettlementWithProfiles[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -187,6 +189,8 @@ export function useSettlements(tripId?: string) {
       });
 
       await fetchSettlements();
+      // Immediately invalidate expenses query to update balances
+      queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
       return true;
     } catch (error: any) {
       console.error("Error creating settlement:", error);
@@ -210,6 +214,8 @@ export function useSettlements(tripId?: string) {
 
       toast({ title: "Saldo eliminato" });
       await fetchSettlements();
+      // Immediately invalidate expenses query to update balances
+      queryClient.invalidateQueries({ queryKey: ['expenses', tripId] });
       return true;
     } catch (error: any) {
       console.error("Error deleting settlement:", error);
