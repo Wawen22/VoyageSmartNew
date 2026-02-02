@@ -140,8 +140,8 @@ export function Navbar() {
           ? "bg-transparent py-2"
           : "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm py-0"
       }`}>
-        <div className="container mx-auto px-4">
-          <nav className="flex items-center h-16 lg:h-20 gap-4">
+        <div className="w-full px-4 lg:px-12 xl:px-16">
+          <nav className="flex items-center h-16 lg:h-20 gap-4 lg:gap-0">
             
             {/* Mobile Hamburger (Left) */}
             <div className="lg:hidden flex items-center gap-2">
@@ -291,14 +291,14 @@ export function Navbar() {
             {/* Logo (Center on Mobile? Or Left after Hamburger? I'll keep it left-aligned but flexible) */}
             <Link 
               to="/" 
-              className="hidden lg:flex items-center gap-3 group py-1 lg:py-0 lg:-ml-8 xl:-ml-12 shrink-0"
+              className="flex items-center gap-3 group py-1 lg:py-0 mr-auto lg:mr-0"
             >
               <img 
                 src="/logo-voyage_smart.png" 
                 alt="VoyageSmart Logo" 
-                className="w-10 h-10 sm:w-16 sm:h-16 lg:w-24 lg:h-24 object-contain transition-transform duration-300 group-hover:scale-105" 
+                className="w-10 h-10 sm:w-16 sm:h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-105" 
               />
-              <span className={`hidden md:inline text-xl md:text-3xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
+              <span className={`hidden md:inline text-xl md:text-2xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
                 isDarkNav ? "text-white" : "text-[#735324]"
               }`}>
                 VoyageSmart
@@ -306,7 +306,7 @@ export function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
+            <div className="hidden lg:flex items-center justify-center flex-1 px-8 gap-1">
               {visibleNavLinks.map((link) => {
                 const linkPath = link.href.split("?")[0];
                 const isActive = location.pathname === linkPath;
