@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ToolsDialog } from "@/components/tools/ToolsDialog";
 import { 
   Menu, 
+  Plane,
   MapPin, 
   Wallet,
   Building2,
@@ -45,7 +46,7 @@ const navLinks = [
   { id: "itinerary", href: "/itinerary", label: "Itinerario", icon: Calendar, tripScoped: true },
   { id: "expenses", href: "/expenses", label: "Spese", icon: Wallet, tripScoped: true },
   { id: "accommodations", href: "/accommodations", label: "Alloggi", icon: Building2, tripScoped: true },
-  { id: "transports", href: "/transports", label: "Trasporti", icon: Car, tripScoped: true },
+  { id: "transports", href: "/transports", label: "Trasporti", icon: Plane, tripScoped: true },
   { id: "ideas", href: "/ideas", label: "Idee", icon: Lightbulb, tripScoped: true },
 ];
 
@@ -143,7 +144,7 @@ export function Navbar() {
           <nav className="flex items-center h-16 lg:h-20 gap-4">
             
             {/* Mobile Hamburger (Left) */}
-            <div className="lg:hidden">
+            <div className="lg:hidden flex items-center gap-2">
               <Sheet open={isOpen} onOpenChange={setIsOpen}>
                 <SheetTrigger asChild>
                   <button
@@ -229,20 +230,32 @@ export function Navbar() {
 
                         <div className="pt-2">
                            <Link to="/profile" onClick={() => setIsOpen(false)}>
-                            <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
-                              <Avatar className="w-10 h-10 border border-border/50">
-                                <AvatarImage src={profile?.avatar_url || ""} />
-                                <AvatarFallback className="bg-primary/10 text-primary">
-                                  {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
+                            <div className="flex items-center gap-3 px-2 py-3 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer group">
+                              <div className="relative">
+                                <Avatar className="w-12 h-12 border border-border/50">
+                                  <AvatarImage src={profile?.avatar_url || ""} />
+                                  <AvatarFallback className="bg-primary/10 text-primary">
+                                    {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {profile?.is_pro ? (
+                                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[8px] font-bold px-1 rounded-full border border-background">PRO</div>
+                                ) : (
+                                  <div className="absolute -top-1 -right-1 bg-slate-200 text-slate-600 text-[8px] font-bold px-1 rounded-full border border-background">FREE</div>
+                                )}
+                              </div>
                               <div className="flex flex-col flex-1 overflow-hidden">
-                                <span className="text-sm font-semibold truncate text-foreground">
-                                  {profile?.full_name || "Il mio Profilo"}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-semibold truncate text-foreground">
+                                    {profile?.full_name || "Il mio Profilo"}
+                                  </span>
+                                </div>
                                 <span className="text-xs text-muted-foreground truncate">
                                   {user?.email}
                                 </span>
+                              </div>
+                              <div className="text-muted-foreground group-hover:text-foreground transition-transform group-hover:translate-x-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                               </div>
                             </div>
                           </Link>
@@ -262,12 +275,23 @@ export function Navbar() {
                   </div>
                 </SheetContent>
               </Sheet>
+
+              {user && !profile?.is_pro && (
+                <Button
+                  onClick={() => handleSubscriptionNav()}
+                  size="sm"
+                  className="h-8 px-3 text-[10px] font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white border-0 shadow-sm hover:shadow-md hover:opacity-90 transition-all rounded-full gap-1.5"
+                >
+                  <Sparkles className="w-3 h-3 fill-white/20" />
+                  UPGRADE
+                </Button>
+              )}
             </div>
 
             {/* Logo (Center on Mobile? Or Left after Hamburger? I'll keep it left-aligned but flexible) */}
             <Link 
               to="/" 
-              className="flex items-center gap-3 group py-1 lg:py-0 mr-auto lg:mr-0"
+              className="hidden lg:flex items-center gap-3 group py-1 lg:py-0 lg:-ml-8 xl:-ml-12 shrink-0"
             >
               <img 
                 src="/logo-voyage_smart.png" 
@@ -282,7 +306,7 @@ export function Navbar() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-1 flex-1 justify-center">
               {visibleNavLinks.map((link) => {
                 const linkPath = link.href.split("?")[0];
                 const isActive = location.pathname === linkPath;
@@ -306,7 +330,7 @@ export function Navbar() {
             </div>
 
             {/* Desktop Actions */}
-            <div className="hidden lg:flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-3 shrink-0">
               {user ? (
                 <>
                   {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
@@ -393,7 +417,7 @@ export function Navbar() {
             </div>
 
             {/* Mobile Actions (Right Side) */}
-            <div className="flex lg:hidden items-center gap-1">
+            <div className="flex lg:hidden items-center gap-1 ml-auto">
               {user && (
                 <>
                    {/* Checklist */}
