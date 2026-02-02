@@ -10,7 +10,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, className }: AppLayoutProps) {
   return (
-    <div className={cn("app-theme app-shell relative min-h-screen overflow-hidden", className)}>
+    <div className={cn("app-theme app-shell relative min-h-screen overflow-x-hidden", className)}>
       <Navbar />
       <FloatingChatButton />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">

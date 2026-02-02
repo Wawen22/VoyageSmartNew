@@ -27,13 +27,12 @@ export function TripsViewTabs({ trips, viewMode, onViewModeChange }: TripsViewTa
   const pastTrips = trips.filter(t => t.status === 'completed');
 
   return (
-    <Tabs defaultValue="all" className="w-full">
+    <Tabs defaultValue="upcoming" className="w-full">
       <div className="flex justify-between items-center mb-6">
          <TabsList className="bg-secondary/40 p-1">
-            <TabsTrigger value="all" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Tutti i viaggi</TabsTrigger>
+            <TabsTrigger value="all" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Tutti</TabsTrigger>
             <TabsTrigger value="upcoming" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">In Programma</TabsTrigger>
             <TabsTrigger value="past" className="data-[state=active]:bg-background data-[state=active]:shadow-sm">Passati</TabsTrigger>
-            <TabsTrigger value="suggestions" className="data-[state=active]:bg-background data-[state=active]:shadow-sm flex gap-2"><Compass className="w-4 h-4"/> Ispirami</TabsTrigger>
          </TabsList>
          {/* We can hide view toggler here if we moved it to FilterBar, or keep it distinct */}
       </div>
@@ -53,21 +52,37 @@ export function TripsViewTabs({ trips, viewMode, onViewModeChange }: TripsViewTa
       </TabsContent>
       
       <TabsContent value="upcoming">
-        <TripsGrid trips={upcomingTrips} />
-        {upcomingTrips.length === 0 && <div className="py-12 text-center text-muted-foreground">Nessun viaggio in programma.</div>}
+        {viewMode === 'map' ? (
+           <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="h-[600px] rounded-xl overflow-hidden border border-border/50 shadow-sm"
+          >
+             <ProfileMap trips={upcomingTrips} />
+          </motion.div>
+        ) : (
+          <>
+            <TripsGrid trips={upcomingTrips} />
+            {upcomingTrips.length === 0 && <div className="py-12 text-center text-muted-foreground">Nessun viaggio in programma.</div>}
+          </>
+        )}
       </TabsContent>
 
       <TabsContent value="past">
-        <TripsGrid trips={pastTrips} />
-        {pastTrips.length === 0 && <div className="py-12 text-center text-muted-foreground">Nessun viaggio passato.</div>}
-      </TabsContent>
-
-       <TabsContent value="suggestions">
-         <div className="p-12 text-center bg-secondary/10 border border-dashed border-border rounded-xl">
-            <Compass className="w-12 h-12 text-primary/50 mx-auto mb-4" />
-            <h3 className="text-xl font-medium mb-2">Suggerimenti AI in arrivo</h3>
-            <p className="text-muted-foreground">Presto potrai ricevere consigli personalizzati per le tue prossime avventure.</p>
-         </div>
+        {viewMode === 'map' ? (
+           <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="h-[600px] rounded-xl overflow-hidden border border-border/50 shadow-sm"
+          >
+             <ProfileMap trips={pastTrips} />
+          </motion.div>
+        ) : (
+          <>
+            <TripsGrid trips={pastTrips} />
+            {pastTrips.length === 0 && <div className="py-12 text-center text-muted-foreground">Nessun viaggio passato.</div>}
+          </>
+        )}
       </TabsContent>
     </Tabs>
   );

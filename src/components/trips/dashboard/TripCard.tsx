@@ -78,29 +78,29 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
           </div>
         </div>
 
-        <CardContent className="p-5">
-          <div className="flex justify-between items-start mb-2">
+        <CardContent className="p-4 md:p-5">
+          <div className="flex justify-between items-start mb-1 md:mb-2">
             <div>
-               <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+               <h3 className="text-lg md:text-xl font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                 {trip.title}
               </h3>
-              <div className="flex items-center gap-1.5 text-muted-foreground text-sm mt-1">
-                <MapPin className="w-4 h-4 text-primary/70" />
+              <div className="flex items-center gap-1.5 text-muted-foreground text-xs md:text-sm mt-1">
+                <MapPin className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary/70" />
                 <span className="line-clamp-1">{trip.destination}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-sm mt-4 pt-4 border-t border-border/50">
+          <div className="flex items-center justify-between text-xs md:text-sm mt-3 md:mt-4 pt-3 md:pt-4 border-t border-border/50">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="w-4 h-4 text-primary/70" />
+              <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary/70" />
               <span>
                 {format(new Date(trip.start_date), "dd MMM", { locale: it })} - {format(new Date(trip.end_date), "dd MMM yyyy", { locale: it })}
               </span>
             </div>
             {trip.member_count !== undefined && (
-              <div className="flex items-center gap-1.5 text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md text-xs font-medium">
-                <Users className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1.5 text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md text-[10px] md:text-xs font-medium">
+                <Users className="w-3 h-3 md:w-3.5 md:h-3.5" />
                 {trip.member_count}
               </div>
             )}

@@ -12,6 +12,7 @@ import { TripsHeader } from "@/components/trips/dashboard/TripsHeader";
 import { DashboardWelcome } from "@/components/trips/dashboard/DashboardWelcome";
 import { TripsFilterBar } from "@/components/trips/dashboard/TripsFilterBar";
 import { TripsViewTabs } from "@/components/trips/dashboard/TripsViewTabs";
+import { TripsFloatingActionButton } from "@/components/trips/dashboard/TripsFloatingActionButton";
 
 export interface Trip {
   id: string;
@@ -170,6 +171,8 @@ export default function Trips() {
                onViewModeChange={setViewMode}
             />
           )}
+          
+          <TripsFloatingActionButton />
         </div>
       </main>
     </AppLayout>
