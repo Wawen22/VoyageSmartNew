@@ -1,7 +1,7 @@
 import { format, differenceInDays } from "date-fns";
 import { it } from "date-fns/locale";
-import { Building2, MapPin, Calendar, Clock, ExternalLink, Trash2, Hash, Paperclip } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Building2, MapPin, Calendar, Clock, ExternalLink, Trash2, Ticket, Paperclip, Moon, BedDouble } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Accommodation, UpdateAccommodationData } from "@/hooks/useAccommodations";
@@ -25,211 +25,141 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
   };
 
   return (
-    <Card className="app-surface overflow-hidden transition-all hover:border-primary/20 hover:shadow-sm group">
-      <CardContent className="p-3 sm:p-5">
-        {/* Mobile Layout */}
-        <div className="flex flex-col gap-3 md:hidden">
-          {/* Header: Icon, Title, Price, Actions */}
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 ring-1 ring-primary/10 flex items-center justify-center flex-shrink-0">
-              <Building2 className="h-4 w-4 text-primary" />
+    <Card className="group app-surface overflow-hidden transition-all hover:border-primary/20 hover:shadow-md border-border/50">
+      {/* Header: Name, Address, Price, Actions */}
+      <CardHeader className="flex flex-row items-start justify-between p-4 pb-2 space-y-0">
+        <div className="flex items-start gap-3 overflow-hidden">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
+            <Building2 className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <h3 className="font-semibold text-lg text-foreground truncate leading-tight">
+              {accommodation.name}
+            </h3>
+            {accommodation.address && (
+              <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1 truncate">
+                <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                <span className="truncate">{accommodation.address}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 pl-2">
+          {accommodation.price && (
+            <div className="hidden sm:block font-semibold text-sm bg-muted/50 px-2 py-1 rounded-md whitespace-nowrap">
+              €{accommodation.price.toFixed(2)}
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-base text-foreground group-hover:text-primary transition-colors">
-                {accommodation.name}
-              </h3>
-              {accommodation.address && (
-                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
-                  <MapPin className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{accommodation.address}</span>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-1 flex-shrink-0">
-              {accommodation.booking_url && (
-                <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+          )}
+          <div className="flex items-center gap-1">
+             {accommodation.booking_url && (
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" asChild>
                   <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </Button>
               )}
-              <EditAccommodationDialog accommodation={accommodation} onUpdate={onUpdate} />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Price */}
-          {accommodation.price && (
-            <div className="rounded-lg bg-muted px-3 py-1.5 text-sm font-semibold text-foreground self-start">
-              €{accommodation.price.toFixed(2)}
-            </div>
-          )}
-
-          {/* Dates and Nights */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="inline-flex items-center gap-1.5 rounded-md bg-muted/60 px-2.5 py-1.5 text-xs text-muted-foreground">
-              <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="whitespace-nowrap">
-                {format(checkInDate, "dd MMM", { locale: it })} - {format(checkOutDate, "dd MMM", { locale: it })}
-              </span>
-            </div>
-            <Badge variant="secondary" className="text-xs">{nights} {nights === 1 ? "notte" : "notti"}</Badge>
-          </div>
-
-          {/* Check-in/out Times */}
-          {(accommodation.check_in_time || accommodation.check_out_time) && (
-            <div className="flex flex-col gap-1.5">
-              {accommodation.check_in_time && (
-                <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                  <span>Check-in {accommodation.check_in_time}</span>
-                </div>
-              )}
-              {accommodation.check_out_time && (
-                <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5 flex-shrink-0" />
-                  <span>Check-out {accommodation.check_out_time}</span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Reference */}
-          {accommodation.booking_reference && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Hash className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">Ref: {accommodation.booking_reference}</span>
-            </div>
-          )}
-
-          {/* Document Button */}
-          {accommodation.document_url && (
+            <EditAccommodationDialog accommodation={accommodation} onUpdate={onUpdate} />
             <Button
-              variant="outline"
-              size="sm"
-              className="justify-start text-xs h-8"
-              onClick={() => window.open(accommodation.document_url!, "_blank")}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive transition-colors"
+              onClick={handleDelete}
             >
-              <Paperclip className="h-3.5 w-3.5 mr-2" />
-              Documento prenotazione
+              <Trash2 className="h-4 w-4" />
             </Button>
-          )}
+          </div>
+        </div>
+      </CardHeader>
 
-          {/* Notes */}
-          {accommodation.notes && (
-            <p className="text-xs text-muted-foreground line-clamp-2">
-              {accommodation.notes}
-            </p>
-          )}
+      <CardContent className="p-4 pt-2">
+         {/* Mobile Price */}
+         {accommodation.price && (
+           <div className="sm:hidden mb-4 font-semibold text-sm bg-muted/50 px-2 py-1 rounded-md inline-block">
+             €{accommodation.price.toFixed(2)}
+           </div>
+         )}
+
+        {/* Stay Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-3">
+            {/* Check-in Section */}
+            <div className="bg-muted/30 rounded-lg p-3 border border-border/50 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-primary/40 rounded-l-lg"></div>
+                <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Check-in</span>
+                    {accommodation.check_in_time && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 h-5 font-normal flex gap-1 items-center border-border/60 bg-background/50">
+                            <Clock className="h-3 w-3" />
+                            {accommodation.check_in_time}
+                        </Badge>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <span className="font-semibold text-base">
+                        {format(checkInDate, "dd MMM yyyy", { locale: it })}
+                    </span>
+                </div>
+            </div>
+
+            {/* Check-out Section */}
+            <div className="bg-muted/30 rounded-lg p-3 border border-border/50 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-muted-foreground/40 rounded-l-lg"></div>
+                <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Check-out</span>
+                    {accommodation.check_out_time && (
+                        <Badge variant="outline" className="text-[10px] px-1.5 h-5 font-normal flex gap-1 items-center border-border/60 bg-background/50">
+                            <Clock className="h-3 w-3" />
+                            {accommodation.check_out_time}
+                        </Badge>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-semibold text-base">
+                        {format(checkOutDate, "dd MMM yyyy", { locale: it })}
+                    </span>
+                </div>
+            </div>
         </div>
 
-        {/* Desktop Layout - Original */}
-        <div className="hidden md:flex items-start gap-4">
-          <div className="h-12 w-12 rounded-xl bg-primary/10 ring-1 ring-primary/10 flex items-center justify-center flex-shrink-0">
-            <Building2 className="h-5 w-5 text-primary" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h3 className="font-semibold text-lg text-foreground truncate group-hover:text-primary transition-colors">
-                  {accommodation.name}
-                </h3>
-                {accommodation.address && (
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    <span className="truncate">{accommodation.address}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {accommodation.price && (
-                  <div className="rounded-lg bg-muted px-2.5 py-1 text-sm font-semibold text-foreground">
-                    €{accommodation.price.toFixed(2)}
-                  </div>
-                )}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {accommodation.booking_url && (
-                    <Button variant="ghost" size="icon" asChild>
-                      <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    </Button>
-                  )}
-                  <>
-                    <EditAccommodationDialog accommodation={accommodation} onUpdate={onUpdate} />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleDelete}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </>
+        {/* Meta Info Row */}
+        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2 pl-1">
+             <div className="flex items-center gap-1.5 bg-secondary/50 px-2.5 py-1 rounded-full">
+                <Moon className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium text-foreground">{nights} {nights === 1 ? "notte" : "notti"}</span>
+             </div>
+             
+             {accommodation.booking_reference && (
+                <div className="flex items-center gap-1.5 overflow-hidden">
+                    <div className="w-px h-4 bg-border mx-1"></div>
+                    <Ticket className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="truncate font-mono text-xs">{accommodation.booking_reference}</span>
                 </div>
-              </div>
-            </div>
+             )}
+        </div>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
-                <Calendar className="h-3.5 w-3.5" />
-                <span>
-                  {format(checkInDate, "dd MMM", { locale: it })} -{" "}
-                  {format(checkOutDate, "dd MMM", { locale: it })}
-                </span>
-              </div>
-              <Badge variant="secondary">{nights} {nights === 1 ? "notte" : "notti"}</Badge>
-              {accommodation.check_in_time && (
-                <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>Check-in {accommodation.check_in_time}</span>
-                </div>
-              )}
-              {accommodation.check_out_time && (
-                <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>Check-out {accommodation.check_out_time}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-              {accommodation.booking_reference && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Hash className="h-4 w-4" />
-                  <span className="truncate">Ref: {accommodation.booking_reference}</span>
-                </div>
-              )}
-
-              {accommodation.document_url && (
+        {/* Footer: Documents & Notes */}
+        {(accommodation.document_url || accommodation.notes) && (
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 pt-3 border-t border-dashed border-border/60">
+             {accommodation.document_url && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="justify-start"
+                  className="h-8 text-xs bg-transparent border-dashed hover:bg-muted/50 w-full sm:w-auto justify-start shrink-0"
                   onClick={() => window.open(accommodation.document_url!, "_blank")}
                 >
-                  <Paperclip className="h-3.5 w-3.5 mr-2" />
-                  Documento prenotazione
+                  <Paperclip className="h-3.5 w-3.5 mr-2 text-primary" />
+                  Voucher / Prenotazione
                 </Button>
               )}
-            </div>
-
-            {accommodation.notes && (
-              <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
-                {accommodation.notes}
-              </p>
-            )}
+              {accommodation.notes && (
+                <p className="text-xs text-muted-foreground italic flex items-center leading-relaxed line-clamp-2">
+                   {accommodation.notes}
+                </p>
+              )}
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );

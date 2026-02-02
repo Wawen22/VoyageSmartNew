@@ -1,7 +1,7 @@
-import { format } from "date-fns";
+import { format, differenceInMinutes } from "date-fns";
 import { it } from "date-fns/locale";
-import { Plane, Train, Bus, Car, Ship, MoreHorizontal, ArrowRight, Trash2, Hash, Paperclip } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Plane, Train, Bus, Car, Ship, MoreHorizontal, ArrowRight, Trash2, Hash, Paperclip, Clock, MapPin, Ticket } from "lucide-react";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Transport, TransportType, UpdateTransportData } from "@/hooks/useTransports";
@@ -36,6 +36,17 @@ export function TransportCard({ transport, onDelete, onUpdate }: TransportCardPr
   const departureDate = new Date(transport.departure_datetime);
   const arrivalDate = transport.arrival_datetime ? new Date(transport.arrival_datetime) : null;
 
+  // Calculate duration
+  const getDuration = () => {
+    if (!arrivalDate) return null;
+    const diffInMinutes = differenceInMinutes(arrivalDate, departureDate);
+    const hours = Math.floor(diffInMinutes / 60);
+    const minutes = diffInMinutes % 60;
+    return `${hours}h ${minutes > 0 ? `${minutes}m` : ''}`;
+  };
+
+  const duration = getDuration();
+
   const handleDelete = async () => {
     if (window.confirm("Sei sicuro di voler eliminare questo trasporto?")) {
       await onDelete(transport.id);
@@ -43,177 +54,135 @@ export function TransportCard({ transport, onDelete, onUpdate }: TransportCardPr
   };
 
   return (
-    <Card className="app-surface overflow-hidden transition-all hover:border-primary/20 hover:shadow-sm group">
-      <CardContent className="p-3 sm:p-5">
-        {/* Mobile Layout */}
-        <div className="flex flex-col gap-3 md:hidden">
-          {/* Header: Icon, Type, Carrier, Actions */}
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 ring-1 ring-primary/10 flex items-center justify-center flex-shrink-0">
-              <Icon className="h-4 w-4 text-primary" />
+    <Card className="group app-surface overflow-hidden transition-all hover:border-primary/20 hover:shadow-md border-border/50">
+      {/* Header: Carrier, Type, Price, Actions */}
+      <CardHeader className="flex flex-row items-center justify-between p-4 pb-2 space-y-0">
+        <div className="flex items-center gap-3 overflow-hidden">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+            <Icon className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm truncate">
+                {transport.carrier || TRANSPORT_LABELS[transport.transport_type]}
+              </span>
+              <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-normal bg-muted text-muted-foreground">
+                {TRANSPORT_LABELS[transport.transport_type]}
+              </Badge>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-xs">{TRANSPORT_LABELS[transport.transport_type]}</Badge>
-                {transport.carrier && (
-                  <span className="text-xs text-muted-foreground truncate">{transport.carrier}</span>
-                )}
+            {transport.booking_reference && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                <Ticket className="h-3 w-3" />
+                <span className="truncate font-mono">{transport.booking_reference}</span>
               </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+           {transport.price && (
+            <div className="hidden sm:block font-semibold text-sm bg-muted/50 px-2 py-1 rounded-md">
+              €{transport.price.toFixed(2)}
             </div>
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <EditTransportDialog transport={transport} onUpdate={onUpdate} />
-              <Button
+          )}
+          <div className="flex items-center gap-1">
+             <EditTransportDialog transport={transport} onUpdate={onUpdate} />
+             <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive transition-colors"
                 onClick={handleDelete}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-4 pt-2">
+        {/* Mobile Price (visible only on small screens) */}
+        {transport.price && (
+           <div className="sm:hidden mb-4 font-semibold text-sm bg-muted/50 px-2 py-1 rounded-md inline-block">
+             €{transport.price.toFixed(2)}
+           </div>
+         )}
+
+        {/* Timeline View */}
+        <div className="flex items-start justify-between gap-4 py-4 relative">
+          {/* Departure */}
+          <div className="flex flex-col min-w-[30%]">
+             <span className="text-2xl font-bold text-foreground">
+               {format(departureDate, "HH:mm")}
+             </span>
+             <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+               {format(departureDate, "d MMM", { locale: it })}
+             </span>
+             <div className="flex items-center gap-1 mt-1 text-sm text-foreground/80 font-medium">
+               <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+               <span className="truncate">{transport.departure_location}</span>
+             </div>
+          </div>
+
+          {/* Center Connector */}
+          <div className="flex flex-col items-center justify-center flex-1 mt-2 px-2">
+            <div className="flex items-center w-full gap-2 opacity-50">
+               <div className="h-[1px] bg-border flex-1" />
+               <div className="text-xs text-muted-foreground font-medium whitespace-nowrap flex items-center gap-1">
+                  {duration ? (
+                    <>
+                      <Clock className="h-3 w-3" />
+                      {duration}
+                    </>
+                  ) : (
+                    <ArrowRight className="h-4 w-4" />
+                  )}
+               </div>
+               <div className="h-[1px] bg-border flex-1" />
             </div>
           </div>
 
-          {/* Route */}
-          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <span>{transport.departure_location}</span>
-            <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <span>{transport.arrival_location}</span>
+          {/* Arrival */}
+          <div className="flex flex-col items-end text-right min-w-[30%]">
+             {arrivalDate ? (
+               <>
+                 <span className="text-2xl font-bold text-foreground">
+                   {format(arrivalDate, "HH:mm")}
+                 </span>
+                 <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                   {format(arrivalDate, "d MMM", { locale: it })}
+                 </span>
+               </>
+             ) : (
+               <span className="text-muted-foreground text-sm italic py-2">--:--</span>
+             )}
+             <div className="flex items-center justify-end gap-1 mt-1 text-sm text-foreground/80 font-medium">
+               <span className="truncate">{transport.arrival_location}</span>
+               <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+             </div>
           </div>
-
-          {/* Price */}
-          {transport.price && (
-            <div className="rounded-lg bg-muted px-3 py-1.5 text-sm font-semibold text-foreground self-start">
-              €{transport.price.toFixed(2)}
-            </div>
-          )}
-
-          {/* Dates */}
-          <div className="flex flex-col gap-1.5">
-            <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Partenza:</span>
-              <span>{format(departureDate, "dd MMM, HH:mm", { locale: it })}</span>
-            </div>
-            {arrivalDate && (
-              <div className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">Arrivo:</span>
-                <span>{format(arrivalDate, "dd MMM, HH:mm", { locale: it })}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Reference */}
-          {transport.booking_reference && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Hash className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">Ref: {transport.booking_reference}</span>
-            </div>
-          )}
-
-          {/* Document Button */}
-          {transport.document_url && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="justify-start text-xs h-8"
-              onClick={() => window.open(transport.document_url!, "_blank")}
-            >
-              <Paperclip className="h-3.5 w-3.5 mr-2" />
-              Documento viaggio
-            </Button>
-          )}
-
-          {/* Notes */}
-          {transport.notes && (
-            <p className="text-xs text-muted-foreground line-clamp-2">
-              {transport.notes}
-            </p>
-          )}
         </div>
 
-        {/* Desktop Layout - Original */}
-        <div className="hidden md:flex items-start gap-4">
-          <div className="h-12 w-12 rounded-xl bg-primary/10 ring-1 ring-primary/10 flex items-center justify-center flex-shrink-0">
-            <Icon className="h-5 w-5 text-primary" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline">{TRANSPORT_LABELS[transport.transport_type]}</Badge>
-                  {transport.carrier && (
-                    <span className="text-sm text-muted-foreground truncate">{transport.carrier}</span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2 mt-2 text-lg font-semibold text-foreground">
-                  <span className="truncate">{transport.departure_location}</span>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="truncate">{transport.arrival_location}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {transport.price && (
-                  <div className="rounded-lg bg-muted px-2.5 py-1 text-sm font-semibold text-foreground">
-                    €{transport.price.toFixed(2)}
-                  </div>
-                )}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <EditTransportDialog transport={transport} onUpdate={onUpdate} />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleDelete}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">Partenza</span>
-                <span>{format(departureDate, "dd MMM, HH:mm", { locale: it })}</span>
-              </div>
-              {arrivalDate && (
-                <div className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-1 text-xs text-muted-foreground">
-                  <span className="font-medium text-foreground">Arrivo</span>
-                  <span>{format(arrivalDate, "dd MMM, HH:mm", { locale: it })}</span>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-              {transport.booking_reference && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Hash className="h-4 w-4" />
-                  <span className="truncate">Ref: {transport.booking_reference}</span>
-                </div>
-              )}
-
-              {transport.document_url && (
+        {/* Footer Info */}
+        {(transport.document_url || transport.notes) && (
+          <div className="flex flex-col sm:flex-row gap-3 mt-2 pt-3 border-t border-dashed border-border/60">
+             {transport.document_url && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="justify-start"
+                  className="h-8 text-xs bg-transparent border-dashed hover:bg-muted/50 w-full sm:w-auto justify-start"
                   onClick={() => window.open(transport.document_url!, "_blank")}
                 >
-                  <Paperclip className="h-3.5 w-3.5 mr-2" />
-                  Documento viaggio
+                  <Paperclip className="h-3.5 w-3.5 mr-2 text-primary" />
+                  Visualizza Biglietto
                 </Button>
               )}
-            </div>
-
-            {transport.notes && (
-              <p className="text-sm text-muted-foreground mt-3 line-clamp-2">
-                {transport.notes}
-              </p>
-            )}
+              {transport.notes && (
+                <p className="text-xs text-muted-foreground italic flex items-center leading-relaxed">
+                   {transport.notes}
+                </p>
+              )}
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
