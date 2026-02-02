@@ -38,6 +38,7 @@ import { ChecklistButton } from "@/components/checklist/ChecklistButton";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { useProfile } from "@/hooks/useProfile";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useTripStats } from "@/hooks/useTripStats";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -85,6 +86,19 @@ export function Navbar() {
     tripIdFromQuery || (tripIdFromPath && tripIdFromPath !== "new" ? tripIdFromPath : null);
 
   const unreadCount = useUnreadChat(activeTripId);
+  const stats = useTripStats(activeTripId || undefined);
+
+  const getLinkCount = (id: string) => {
+    if (!activeTripId || stats.isLoading) return null;
+    switch (id) {
+      case "itinerary": return stats.activitiesCount;
+      case "expenses": return stats.expensesCount;
+      case "accommodations": return stats.accommodationsCount;
+      case "transports": return stats.transportsCount;
+      case "ideas": return stats.ideasCount;
+      default: return null;
+    }
+  };
 
   const navLinksWithTrip = navLinks.map((link) => {
     if (!tripDetailLinks.has(link.href)) return link;
@@ -172,6 +186,8 @@ export function Navbar() {
                         {visibleNavLinks.map((link) => {
                           const linkPath = link.href.split("?")[0];
                           const isActive = location.pathname === linkPath;
+                          const count = getLinkCount(link.id);
+                          
                           return (
                             <Link
                               key={link.id}
@@ -183,8 +199,22 @@ export function Navbar() {
                                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                               }`}
                             >
-                              <link.icon className="w-5 h-5" />
+                              <div className="relative">
+                                <link.icon className="w-5 h-5" />
+                                {isActive && (
+                                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full animate-pulse" />
+                                )}
+                              </div>
                               {link.label}
+                              {count !== null && count > 0 && (
+                                <span className={`ml-auto px-2 py-0.5 rounded-full text-xs font-bold ${
+                                  isActive 
+                                    ? "bg-primary text-primary-foreground" 
+                                    : "bg-muted text-muted-foreground"
+                                }`}>
+                                  {count}
+                                </span>
+                              )}
                             </Link>
                           );
                         })}
@@ -290,7 +320,7 @@ export function Navbar() {
 
             {/* Logo (Center on Mobile? Or Left after Hamburger? I'll keep it left-aligned but flexible) */}
             <Link 
-              to="/" 
+              to={user ? "/trips" : "/"} 
               className="flex items-center gap-3 group py-1 lg:py-0 mr-auto lg:mr-0"
             >
               <img 
@@ -307,9 +337,11 @@ export function Navbar() {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center justify-center flex-1 px-8 gap-1">
-              {visibleNavLinks.map((link) => {
+              {visibleNavLinks.filter(link => link.id !== "trips").map((link) => {
                 const linkPath = link.href.split("?")[0];
                 const isActive = location.pathname === linkPath;
+                const count = getLinkCount(link.id);
+
                 return (
                   <Link
                     key={link.id}
@@ -322,8 +354,24 @@ export function Navbar() {
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                     }`}
                   >
-                    <link.icon className="w-4 h-4" />
+                    <div className="relative">
+                       <link.icon className="w-4 h-4" />
+                       {isActive && (
+                          <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                       )}
+                    </div>
                     {link.label}
+                    {count !== null && count > 0 && (
+                      <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none ${
+                        isDarkNav
+                          ? "bg-white/20 text-white"
+                          : isActive 
+                            ? "bg-primary text-primary-foreground" 
+                            : "bg-muted text-muted-foreground"
+                      }`}>
+                        {count}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -371,6 +419,12 @@ export function Navbar() {
                     <DropdownMenuContent align="end" className="w-56">
                       <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/trips" className="cursor-pointer flex items-center w-full">
+                          <MapPin className="mr-2 h-4 w-4" />
+                          <span>Miei Viaggi</span>
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to="/profile" className="cursor-pointer flex items-center w-full">
                           <User className="mr-2 h-4 w-4" />
