@@ -8,7 +8,11 @@ import {
   Shield,
   Bot,
   MessageSquareText,
-  Zap
+  Zap,
+  Lightbulb,
+  Wrench,
+  Languages,
+  Coins
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -94,6 +98,48 @@ export function Features() {
             </div>
           </motion.div>
 
+          {/* Feature: Travel Tools (NEW) */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group relative overflow-hidden"
+          >
+            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Wrench className="w-32 h-32 text-slate-500" />
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-6 text-slate-600 group-hover:scale-110 transition-transform">
+              <Wrench className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Strumenti & Utility</h3>
+            <p className="text-muted-foreground mb-4">
+              Toolkit completo con Traduttore AI bidirezionale, Convertitore Valuta live e Unità di misura.
+            </p>
+            <div className="flex gap-2">
+               <div className="p-1.5 rounded-md bg-muted/50 text-muted-foreground"><Languages className="w-4 h-4"/></div>
+               <div className="p-1.5 rounded-md bg-muted/50 text-muted-foreground"><Coins className="w-4 h-4"/></div>
+            </div>
+          </motion.div>
+
+          {/* Feature: Trip Ideas (NEW - Span 2) */}
+          <motion.div 
+            variants={itemVariants}
+            className="md:col-span-2 bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-amber-500/20 transition-all"
+          >
+            <div className="absolute bottom-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Lightbulb className="w-40 h-40 text-amber-500" />
+            </div>
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-6 text-amber-600">
+                <Lightbulb className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Bacheca Idee & Ispirazioni</h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Uno spazio creativo dove salvare link, note, foto e luoghi da visitare. 
+                Organizza le idee per "Giorno" o "Luogo" e quando sei pronto, 
+                promuovile nel tuo itinerario ufficiale con un click.
+              </p>
+            </div>
+          </motion.div>
+
           {/* Feature: Smart Finance */}
           <motion.div 
             variants={itemVariants}
@@ -102,7 +148,7 @@ export function Features() {
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
               <Wallet className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-bold mb-3">Divisione Intelligente</h3>
+            <h3 className="text-xl font-bold mb-3">Divisione Spese</h3>
             <p className="text-muted-foreground">
               Traccia chi ha pagato cosa e lascia che calcoliamo chi deve a chi. 
               Supporta valute multiple con conversione automatica.
@@ -120,26 +166,26 @@ export function Features() {
             <h3 className="text-xl font-bold mb-3">Mappe Interattive</h3>
             <p className="text-muted-foreground">
               Visualizza il tuo percorso su una mappa dinamica. 
-              Vedi i pin giornalieri, i tempi di percorrenza ed esplora le attrazioni vicine.
+              Vedi i pin giornalieri, i tempi di percorrenza ed esplora le attrazioni.
             </p>
           </motion.div>
 
-          {/* Feature: Collaboration */}
+          {/* Feature: Collaboration (Span 2) */}
           <motion.div 
             variants={itemVariants}
-            className="md:col-span-2 bg-gradient-to-br from-orange-500/5 to-pink-500/5 border border-orange-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-orange-500/20 transition-all"
+            className="md:col-span-2 bg-gradient-to-br from-pink-500/5 to-rose-500/5 border border-pink-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-pink-500/20 transition-all"
           >
              <div className="absolute bottom-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-              <Users className="w-40 h-40 text-orange-500" />
+              <Users className="w-40 h-40 text-pink-500" />
             </div>
             <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6 text-orange-600">
+              <div className="w-12 h-12 rounded-xl bg-pink-500/10 flex items-center justify-center mb-6 text-pink-600">
                 <Users className="w-6 h-6" />
               </div>
               <h3 className="text-2xl font-bold mb-3">Collaborazione in Tempo Reale</h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Pianificate insieme senza caos. Vota le idee, commenta le attività 
-                e vedi i cambiamenti istantaneamente mentre i tuoi amici li fanno.
+                Pianificate insieme senza caos. Vota le idee, chatta con il gruppo, 
+                commenta le attività e vedi i cambiamenti istantaneamente sui dispositivi di tutti.
               </p>
             </div>
           </motion.div>
