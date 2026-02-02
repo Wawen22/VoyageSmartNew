@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useTripIdeas } from "@/hooks/useTripIdeas";
 import { IdeaCard } from "./IdeaCard";
 import { AddIdeaDialog } from "./AddIdeaDialog";
-import { Loader2, Lightbulb } from "lucide-react";
+import { Loader2, Lightbulb, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface IdeaBoardProps {
   tripId: string;
@@ -12,17 +13,31 @@ interface IdeaBoardProps {
 export function IdeaBoard({ tripId }: IdeaBoardProps) {
   const { ideas, isLoading, deleteIdea, toggleVote } = useTripIdeas(tripId);
   const [activeLocation, setActiveLocation] = useState<string>("Tutti");
-  const ideasByLocation = (ideas || []).reduce<Record<string, typeof ideas>>((acc, idea) => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Filter ideas based on search query FIRST
+  const searchedIdeas = (ideas || []).filter((idea) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      (idea.title?.toLowerCase().includes(query) ?? false) ||
+      (idea.content?.toLowerCase().includes(query) ?? false) ||
+      (idea.location?.toLowerCase().includes(query) ?? false)
+    );
+  });
+
+  const ideasByLocation = searchedIdeas.reduce<Record<string, typeof ideas>>((acc, idea) => {
     const key = idea.location && idea.location.trim() ? idea.location.trim() : "Senza luogo";
     if (!acc[key]) acc[key] = [];
     acc[key].push(idea);
     return acc;
   }, {});
+
   const locationGroups = Object.entries(ideasByLocation).sort(([a], [b]) => {
     if (a === "Senza luogo") return 1;
     if (b === "Senza luogo") return -1;
     return a.localeCompare(b, "it-IT");
   });
+
   const filteredGroups = activeLocation === "Tutti"
     ? locationGroups
     : locationGroups.filter(([location]) => location === activeLocation);
@@ -37,7 +52,7 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Lightbulb className="h-6 w-6 text-primary" />
@@ -47,7 +62,19 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
             Raccogli spunti, link e foto per il tuo viaggio.
           </p>
         </div>
-        <AddIdeaDialog tripId={tripId} />
+        <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative w-full md:w-64">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder="Cerca idee..."
+                    className="pl-9"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+            </div>
+            <AddIdeaDialog tripId={tripId} />
+        </div>
       </div>
 
       {(!ideas || ideas.length === 0) ? (
@@ -69,7 +96,7 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
               size="sm"
               onClick={() => setActiveLocation("Tutti")}
             >
-              Tutti ({ideas?.length || 0})
+              Tutti ({searchedIdeas.length})
             </Button>
             {locationGroups.map(([location, group]) => (
               <Button
@@ -82,6 +109,12 @@ export function IdeaBoard({ tripId }: IdeaBoardProps) {
               </Button>
             ))}
           </div>
+          
+          {searchedIdeas.length === 0 && (
+              <div className="text-center py-12 text-muted-foreground">
+                  Nessun risultato trovato per "{searchQuery}"
+              </div>
+          )}
 
           <div className="space-y-8">
             {filteredGroups.map(([location, group]) => (

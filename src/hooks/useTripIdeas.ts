@@ -2,8 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-export type IdeaType = 'NOTE' | 'LINK' | 'IMAGE';
-
 export interface TripIdea {
   id: string;
   trip_id: string;
@@ -12,7 +10,8 @@ export interface TripIdea {
   location: string | null;
   day_number: number | null;
   content: string | null;
-  type: IdeaType;
+  url: string | null;
+  type: string; // Simplified, effectively ignored or defaulted
   media_url: string | null;
   created_at: string;
   // Extended fields
@@ -71,20 +70,20 @@ export const useTripIdeas = (tripId: string) => {
       location,
       dayNumber,
       content, 
-      type, 
+      url, 
       file 
     }: { 
       title: string; 
       location: string;
       dayNumber: number | null;
       content: string; 
-      type: IdeaType; 
+      url?: string;
       file?: File | null 
     }) => {
       let media_url = null;
 
       // Handle Image Upload
-      if (type === 'IMAGE' && file) {
+      if (file) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${tripId}/${crypto.randomUUID()}.${fileExt}`;
 
@@ -99,8 +98,6 @@ export const useTripIdeas = (tripId: string) => {
           .getPublicUrl(fileName);
 
         media_url = publicUrl;
-      } else if (type === 'LINK') {
-        media_url = content; // Store the URL in media_url for links
       }
 
       const { data, error } = await supabase
@@ -111,8 +108,9 @@ export const useTripIdeas = (tripId: string) => {
           title,
           location,
           day_number: dayNumber,
-          content: type === 'LINK' ? null : content,
-          type,
+          content,
+          url: url || null,
+          type: 'IDEA', // Default type
           media_url
         })
         .select()
@@ -171,26 +169,47 @@ export const useTripIdeas = (tripId: string) => {
       location,
       dayNumber,
       content, 
-      type,
+      url,
+      file
     }: { 
       id: string;
       title: string; 
       location: string;
       dayNumber: number | null;
       content: string; 
-      type: IdeaType;
+      url?: string;
+      file?: File | null;
     }) => {
+      let media_url = undefined;
+
+      // Handle Image Upload if new file provided
+      if (file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${tripId}/${crypto.randomUUID()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('trip-ideas')
+          .upload(fileName, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('trip-ideas')
+          .getPublicUrl(fileName);
+
+        media_url = publicUrl;
+      }
+
       const updateData: any = {
         title,
-        type,
         location,
-        day_number: dayNumber
+        day_number: dayNumber,
+        content,
+        url: url || null
       };
 
-      if (type === 'LINK') {
-        updateData.media_url = content;
-      } else if (type === 'NOTE') {
-        updateData.content = content;
+      if (media_url) {
+        updateData.media_url = media_url;
       }
 
       const { data, error } = await supabase
