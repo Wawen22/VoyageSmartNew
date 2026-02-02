@@ -19,7 +19,7 @@ import {
   Shield,
   User,
   Sparkles,
-  Wrench
+  PocketKnife
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -182,7 +182,6 @@ export function Navbar() {
             {user ? (
               <>
                 {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
-                <NotificationBell isLanding={isDarkNav} />
                 
                 <button
                   onClick={() => setIsToolsOpen(true)}
@@ -191,8 +190,10 @@ export function Navbar() {
                   }`}
                   title="Strumenti & Utility"
                 >
-                  <Wrench className="w-5 h-5" />
+                  <PocketKnife className="w-5 h-5" />
                 </button>
+
+                <NotificationBell isLanding={isDarkNav} />
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -265,14 +266,15 @@ export function Navbar() {
 
           {/* Mobile Actions */}
           <div className="flex lg:hidden items-center gap-1">
+            {user && activeTripId && <ChecklistButton isLanding={isDarkNav} />}
             <button
               onClick={() => setIsToolsOpen(true)}
               className={`p-2 rounded-xl transition-colors ${
                 isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
-              }`}>
-              <Wrench className="w-6 h-6" />
+              }`}
+            >
+              <PocketKnife className="w-5 h-5" />
             </button>
-            {user && activeTripId && <ChecklistButton isLanding={isDarkNav} />}
             {user && <NotificationBell isLanding={isDarkNav} />}
             <button
               onClick={() => setIsOpen(!isOpen)}

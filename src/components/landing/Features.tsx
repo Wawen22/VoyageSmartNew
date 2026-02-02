@@ -10,7 +10,7 @@ import {
   MessageSquareText,
   Zap,
   Lightbulb,
-  Wrench,
+  PocketKnife,
   Languages,
   Coins
 } from "lucide-react";
@@ -103,11 +103,11 @@ export function Features() {
             variants={itemVariants}
             className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group relative overflow-hidden"
           >
-            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Wrench className="w-32 h-32 text-slate-500" />
+            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-100 transition-opacity text-slate-500">
+              <PocketKnife className="w-32 h-32" />
             </div>
             <div className="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-6 text-slate-600 group-hover:scale-110 transition-transform">
-              <Wrench className="w-6 h-6" />
+              <PocketKnife className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-bold mb-3">Strumenti & Utility</h3>
             <p className="text-muted-foreground mb-4">
