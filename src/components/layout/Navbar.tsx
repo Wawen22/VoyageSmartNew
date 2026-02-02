@@ -37,12 +37,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 const navLinks = [
-  { id: "trips", href: "/trips", label: "Viaggi", icon: MapPin, tripScoped: false },
+  { id: "trips", href: "/trips", label: "Miei Viaggi", icon: MapPin, tripScoped: false },
   { id: "itinerary", href: "/itinerary", label: "Itinerario", icon: Calendar, tripScoped: true },
-  { id: "ideas", href: "/ideas", label: "Idee", icon: Lightbulb, tripScoped: true },
   { id: "expenses", href: "/expenses", label: "Spese", icon: Wallet, tripScoped: true },
   { id: "accommodations", href: "/accommodations", label: "Alloggi", icon: Building2, tripScoped: true },
   { id: "transports", href: "/transports", label: "Trasporti", icon: Car, tripScoped: true },
+  { id: "ideas", href: "/ideas", label: "Idee", icon: Lightbulb, tripScoped: true },
 ];
 
 export function Navbar() {
@@ -63,7 +63,6 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const isTripsIndex = location.pathname === "/trips";
   const tripDetailLinks = new Set([
     "/itinerary",
     "/expenses",
@@ -90,9 +89,9 @@ export function Navbar() {
   });
   const visibleNavLinks = !user 
     ? []
-    : isTripsIndex
-    ? navLinksWithTrip.filter((link) => !link.tripScoped)
-    : navLinksWithTrip;
+    : activeTripId
+    ? navLinksWithTrip
+    : navLinksWithTrip.filter((link) => !link.tripScoped);
 
   const handleSignOut = async () => {
     await signOut();
@@ -179,7 +178,7 @@ export function Navbar() {
           <div className="hidden lg:flex items-center gap-3">
             {user ? (
               <>
-                <ChecklistButton isLanding={isDarkNav} />
+                {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
                 <NotificationBell isLanding={isDarkNav} />
                 {activeTripId && (
                   <Link to={`/chat?trip=${activeTripId}`}>
@@ -282,7 +281,7 @@ export function Navbar() {
                 </div>
               </Link>
             )}
-            {user && <ChecklistButton isLanding={isDarkNav} />}
+            {user && activeTripId && <ChecklistButton isLanding={isDarkNav} />}
             {user && <NotificationBell isLanding={isDarkNav} />}
             <button
               onClick={() => setIsOpen(!isOpen)}
