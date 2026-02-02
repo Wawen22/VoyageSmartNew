@@ -1,0 +1,112 @@
+import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { it } from "date-fns/locale";
+import { MapPin, Calendar, Users, MoreHorizontal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+interface Trip {
+  id: string;
+  title: string;
+  destination: string;
+  start_date: string;
+  end_date: string;
+  cover_image: string | null;
+  status: string;
+  member_count?: number;
+}
+
+interface TripCardProps {
+  trip: Trip;
+  index?: number;
+}
+
+const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline", className?: string }> = {
+  planning: { label: "In Pianificazione", variant: "secondary", className: "bg-blue-100 text-blue-700 hover:bg-blue-100/80" },
+  upcoming: { label: "In Arrivo", variant: "default", className: "bg-emerald-500 hover:bg-emerald-600" },
+  active: { label: "In Corso", variant: "default", className: "bg-indigo-500 hover:bg-indigo-600 animate-pulse" },
+  completed: { label: "Completato", variant: "outline", className: "bg-gray-100 text-gray-600 border-gray-200" },
+};
+
+const defaultImages = [
+  "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600",
+  "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600",
+  "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=600",
+  "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=600",
+];
+
+export function TripCard({ trip, index = 0 }: TripCardProps) {
+  const statusInfo = statusConfig[trip.status] || { label: trip.status, variant: "outline" };
+  const imageUrl = trip.cover_image || defaultImages[index % defaultImages.length];
+
+  return (
+    <Link to={`/trips/${trip.id}`} className="block group">
+      <Card className="overflow-hidden border-border/40 hover:border-primary/50 transition-all duration-300 hover:shadow-lg bg-card/50 backdrop-blur-sm">
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={trip.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+          
+          <div className="absolute top-3 left-3">
+             <Badge variant={statusInfo.variant} className={statusInfo.className}>
+                {statusInfo.label}
+             </Badge>
+          </div>
+
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild onClick={(e) => e.preventDefault()}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-white bg-black/20 hover:bg-black/40 rounded-full">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>Modifica</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600">Elimina</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <CardContent className="p-5">
+          <div className="flex justify-between items-start mb-2">
+            <div>
+               <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                {trip.title}
+              </h3>
+              <div className="flex items-center gap-1.5 text-muted-foreground text-sm mt-1">
+                <MapPin className="w-4 h-4 text-primary/70" />
+                <span className="line-clamp-1">{trip.destination}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-sm mt-4 pt-4 border-t border-border/50">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="w-4 h-4 text-primary/70" />
+              <span>
+                {format(new Date(trip.start_date), "dd MMM", { locale: it })} - {format(new Date(trip.end_date), "dd MMM yyyy", { locale: it })}
+              </span>
+            </div>
+            {trip.member_count !== undefined && (
+              <div className="flex items-center gap-1.5 text-muted-foreground bg-secondary/50 px-2 py-1 rounded-md text-xs font-medium">
+                <Users className="w-3.5 h-3.5" />
+                {trip.member_count}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
