@@ -35,7 +35,7 @@ export function FloatingChatButton() {
         initial={{ opacity: 0, scale: 0.8, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.8, y: 20 }}
-        className="fixed bottom-6 left-6 z-50"
+        className="fixed bottom-6 left-6 z-50 hidden lg:block"
       >
         <Link to={`/chat?trip=${activeTripId}`}>
           <Button

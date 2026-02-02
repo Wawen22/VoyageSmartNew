@@ -1,25 +1,21 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ToolsDialog } from "@/components/tools/ToolsDialog";
 import { 
-  Plane, 
   Menu, 
-  X, 
   MapPin, 
   Wallet,
   Building2,
   Car,
   Calendar,
-  ClipboardList,
-  LogOut,
   Lightbulb,
   MessageCircle,
   Shield,
   User,
   Sparkles,
-  PocketKnife
+  PocketKnife,
+  LogOut
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,6 +25,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ChecklistButton } from "@/components/checklist/ChecklistButton";
@@ -56,6 +58,7 @@ export function Navbar() {
   const { profile } = useProfile();
   const { isAdmin } = useAdmin();
   const isLanding = location.pathname === "/";
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -89,6 +92,7 @@ export function Navbar() {
     }
     return { ...link, href: `${link.href}?trip=${activeTripId}` };
   });
+  
   const visibleNavLinks = !user 
     ? []
     : activeTripId
@@ -98,12 +102,11 @@ export function Navbar() {
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
+    setIsOpen(false);
   };
 
   const subscriptionLabel = "Il mio Abbonamento";
-
   const isDarkNav = isLanding && !scrolled;
-  const [isToolsOpen, setIsToolsOpen] = useState(false);
 
   const handleSubscriptionNav = (closeMobileMenu = false) => {
     if (closeMobileMenu) setIsOpen(false);
@@ -127,6 +130,8 @@ export function Navbar() {
     navigate(targetUrl);
   };
 
+  const chatHref = activeTripId ? `/chat?trip=${activeTripId}` : "/chat";
+
   return (
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -135,265 +140,284 @@ export function Navbar() {
           : "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm py-0"
       }`}>
         <div className="container mx-auto px-4">
-          <nav className="flex items-center justify-between h-16 lg:h-20">
-          {/* Logo */}
-          <Link 
-            to="/" 
-            className="flex items-center gap-3 group py-1 lg:py-0"
-          >
-            <img 
-              src="/logo-voyage_smart.png" 
-              alt="VoyageSmart Logo" 
-              className="w-14 h-14 sm:w-16 sm:h-16 lg:w-24 lg:h-24 object-contain transition-transform duration-300 group-hover:scale-105" 
-            />
-            <span className={`hidden md:inline text-xl md:text-3xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
-              isDarkNav ? "text-white" : "text-[#735324]"
-            }`}>
-              VoyageSmart
-            </span>
-          </Link>
+          <nav className="flex items-center h-16 lg:h-20 gap-4">
+            
+            {/* Mobile Hamburger (Left) */}
+            <div className="lg:hidden">
+              <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                <SheetTrigger asChild>
+                  <button
+                    className={`p-2 rounded-xl transition-colors ${
+                      isDarkNav 
+                        ? "text-white hover:bg-white/10" 
+                        : "text-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    <Menu className="w-6 h-6" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[90%] sm:w-[350px] flex flex-col h-full p-0 border-r border-border/60">
+                  <div className="flex flex-col h-full bg-background/95 backdrop-blur-xl">
+                    
+                    {/* Drawer Header / Top Links */}
+                    <div className="flex-1 overflow-y-auto py-6 px-4">
+                      {/* Logo in Drawer */}
+                      <div className="flex items-center gap-3 mb-8 pl-2">
+                        <img src="/logo-voyage_smart.png" alt="VoyageSmart" className="w-10 h-10 object-contain" />
+                        <span className="text-xl font-bold italic tracking-tight text-[#735324]">VoyageSmart</span>
+                      </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {visibleNavLinks.map((link) => {
-              const linkPath = link.href.split("?")[0];
-              const isActive = location.pathname === linkPath;
-              return (
-                <Link
-                  key={link.id}
-                  to={link.href}
-                  className={`px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 ${
-                    isDarkNav
-                      ? "text-white/80 hover:text-white hover:bg-white/10"
-                      : isActive
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
-                  }`}
-                >
-                  <link.icon className="w-4 h-4" />
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
+                      <div className="space-y-1">
+                        {visibleNavLinks.map((link) => {
+                          const linkPath = link.href.split("?")[0];
+                          const isActive = location.pathname === linkPath;
+                          return (
+                            <Link
+                              key={link.id}
+                              to={link.href}
+                              onClick={() => setIsOpen(false)}
+                              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
+                                isActive
+                                  ? "text-primary bg-primary/10"
+                                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                              }`}
+                            >
+                              <link.icon className="w-5 h-5" />
+                              {link.label}
+                            </Link>
+                          );
+                        })}
+                        
+                        {/* Strumenti & Utility Link */}
+                        {user && (
+                          <button
+                            onClick={() => {
+                              setIsOpen(false);
+                              setIsToolsOpen(true);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors text-left"
+                          >
+                            <PocketKnife className="w-5 h-5" />
+                            Strumenti & Utility
+                          </button>
+                        )}
+                      </div>
+                    </div>
 
-          {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-3">
-            {user ? (
-              <>
-                {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
-                
-                <button
-                  onClick={() => setIsToolsOpen(true)}
-                  className={`p-2 rounded-full transition-colors relative group ${
-                    isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
-                  }`}
-                  title="Strumenti & Utility"
-                >
-                  <PocketKnife className="w-5 h-5" />
-                </button>
+                    {/* Drawer Footer */}
+                    {user && (
+                      <div className="p-4 border-t border-border/40 space-y-2 bg-muted/20">
+                        {isAdmin && (
+                          <SheetClose asChild>
+                            <Link to="/admin/promo-codes">
+                              <Button variant="ghost" className="w-full justify-start gap-3 h-12 text-muted-foreground hover:text-foreground">
+                                <Shield className="w-5 h-5" />
+                                Pannello Admin
+                              </Button>
+                            </Link>
+                          </SheetClose>
+                        )}
+                        
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start gap-3 h-12 text-primary hover:text-primary/80 hover:bg-primary/5"
+                          onClick={() => handleSubscriptionNav(true)}
+                        >
+                          <Sparkles className="w-5 h-5" />
+                          {subscriptionLabel}
+                        </Button>
 
-                <NotificationBell isLanding={isDarkNav} />
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors outline-none cursor-pointer ${
-                      isDarkNav ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
-                    }`}>
-                      <Avatar className="w-6 h-6 border-none">
-                        <AvatarImage src={profile?.avatar_url || ""} />
-                        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                          {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className={`text-sm font-medium ${isDarkNav ? "text-white" : "text-foreground"}`}>
-                        {profile?.full_name || user?.email?.split("@")[0]}
-                      </span>
-                      {profile?.is_pro ? (
-                        <Badge className="h-5 px-1.5 text-[9px] bg-gradient-to-r from-indigo-500 to-purple-500 border-0 shadow-sm text-white hover:opacity-90">PRO</Badge>
-                      ) : (
-                        <Badge variant="secondary" className="h-5 px-1.5 text-[9px] bg-slate-200 text-slate-600 hover:bg-slate-300 border-0">FREE</Badge>
-                      )}
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="cursor-pointer flex items-center w-full">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profilo</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onSelect={() => handleSubscriptionNav()}
-                      className="cursor-pointer flex items-center w-full text-primary focus:text-primary"
-                    >
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      <span>{subscriptionLabel}</span>
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <DropdownMenuItem asChild>
-                        <Link to="/admin/promo-codes" className="cursor-pointer flex items-center w-full">
-                          <Shield className="mr-2 h-4 w-4" />
-                          <span>Admin</span>
-                        </Link>
-                      </DropdownMenuItem>
+                        <div className="pt-2">
+                           <Link to="/profile" onClick={() => setIsOpen(false)}>
+                            <div className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer">
+                              <Avatar className="w-10 h-10 border border-border/50">
+                                <AvatarImage src={profile?.avatar_url || ""} />
+                                <AvatarFallback className="bg-primary/10 text-primary">
+                                  {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col flex-1 overflow-hidden">
+                                <span className="text-sm font-semibold truncate text-foreground">
+                                  {profile?.full_name || "Il mio Profilo"}
+                                </span>
+                                <span className="text-xs text-muted-foreground truncate">
+                                  {user?.email}
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        </div>
+                      </div>
                     )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600 flex items-center w-full">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Esci</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            ) : (
-              <>
-                <Link to="/auth">
-                  <Button variant={isDarkNav ? "heroOutline" : "ghost"} size="sm">
-                    Accedi
-                  </Button>
-                </Link>
-                <Link to="/auth?signup=true">
-                  <Button variant={isDarkNav ? "hero" : "default"} size="sm">
-                    Inizia
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
+                     {!user && (
+                        <div className="p-4 border-t border-border/40 space-y-3">
+                            <Link to="/auth" onClick={() => setIsOpen(false)}>
+                              <Button variant="outline" className="w-full">Accedi</Button>
+                            </Link>
+                            <Link to="/auth?signup=true" onClick={() => setIsOpen(false)}>
+                              <Button className="w-full">Inizia</Button>
+                            </Link>
+                        </div>
+                     )}
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
 
-          {/* Mobile Actions */}
-          <div className="flex lg:hidden items-center gap-1">
-            {user && activeTripId && <ChecklistButton isLanding={isDarkNav} />}
-            <button
-              onClick={() => setIsToolsOpen(true)}
-              className={`p-2 rounded-xl transition-colors ${
-                isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
-              }`}
+            {/* Logo (Center on Mobile? Or Left after Hamburger? I'll keep it left-aligned but flexible) */}
+            <Link 
+              to="/" 
+              className="flex items-center gap-3 group py-1 lg:py-0 mr-auto lg:mr-0"
             >
-              <PocketKnife className="w-5 h-5" />
-            </button>
-            {user && <NotificationBell isLanding={isDarkNav} />}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className={`p-2 rounded-xl transition-colors ${
-                isDarkNav 
-                  ? "text-white hover:bg-white/10" 
-                  : "text-foreground hover:bg-muted/70"
-              }`}
-            >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </nav>
-      </div>
+              <img 
+                src="/logo-voyage_smart.png" 
+                alt="VoyageSmart Logo" 
+                className="w-10 h-10 sm:w-16 sm:h-16 lg:w-24 lg:h-24 object-contain transition-transform duration-300 group-hover:scale-105" 
+              />
+              <span className={`hidden md:inline text-xl md:text-3xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
+                isDarkNav ? "text-white" : "text-[#735324]"
+              }`}>
+                VoyageSmart
+              </span>
+            </Link>
 
-          {/* Mobile Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-background/95 backdrop-blur-xl border-b border-border/60"
-          >
-            <div className="container mx-auto px-4 py-4 space-y-2">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center gap-1">
               {visibleNavLinks.map((link) => {
                 const linkPath = link.href.split("?")[0];
                 const isActive = location.pathname === linkPath;
                 return (
-                <Link
-                  key={link.id}
-                  to={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${
-                    isActive
-                      ? "text-primary bg-primary/10"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
-                  }`}
-                >
-                  <link.icon className="w-5 h-5" />
-                  {link.label}
-                </Link>
+                  <Link
+                    key={link.id}
+                    to={link.href}
+                    className={`px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 ${
+                      isDarkNav
+                        ? "text-white/80 hover:text-white hover:bg-white/10"
+                        : isActive
+                        ? "text-primary bg-primary/10"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+                    }`}
+                  >
+                    <link.icon className="w-4 h-4" />
+                    {link.label}
+                  </Link>
                 );
               })}
-              <div className="pt-4 flex flex-col gap-2">
-                {user ? (
-                  <>
-                    <Link to="/profile" onClick={() => setIsOpen(false)}>
-                      <div className="flex items-center gap-3 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
-                        <Avatar className="w-8 h-8">
+            </div>
+
+            {/* Desktop Actions */}
+            <div className="hidden lg:flex items-center gap-3">
+              {user ? (
+                <>
+                  {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
+                  
+                  <button
+                    onClick={() => setIsToolsOpen(true)}
+                    className={`p-2 rounded-full transition-colors relative group ${
+                      isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
+                    }`}
+                    title="Strumenti & Utility"
+                  >
+                    <PocketKnife className="w-5 h-5" />
+                  </button>
+
+                  <NotificationBell isLanding={isDarkNav} />
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors outline-none cursor-pointer ${
+                        isDarkNav ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
+                      }`}>
+                        <Avatar className="w-6 h-6 border-none">
                           <AvatarImage src={profile?.avatar_url || ""} />
-                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                          <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
                             {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold text-foreground">
-                              {profile?.full_name || "Il mio Profilo"}
-                            </span>
-                            {profile?.is_pro ? (
-                              <Badge className="h-5 px-1.5 text-[9px] bg-gradient-to-r from-indigo-500 to-purple-500 border-0 shadow-sm text-white">PRO</Badge>
-                            ) : (
-                              <Badge variant="secondary" className="h-5 px-1.5 text-[9px] bg-slate-200 text-slate-600 border-0">FREE</Badge>
-                            )}
-                          </div>
-                          <span className="text-xs opacity-70">
-                            {user?.email}
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                    {isAdmin && (
-                      <Link to="/admin/promo-codes" onClick={() => setIsOpen(false)}>
-                        <Button variant="outline" className="w-full gap-2">
-                          <Shield className="w-4 h-4" />
-                          Pannello Admin
-                        </Button>
-                      </Link>
-                    )}
-                    <Button
-                      variant="outline"
-                      className="w-full gap-2"
-                      onClick={() => handleSubscriptionNav(true)}
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      {subscriptionLabel}
+                        <span className={`text-sm font-medium ${isDarkNav ? "text-white" : "text-foreground"}`}>
+                          {profile?.full_name || user?.email?.split("@")[0]}
+                        </span>
+                        {profile?.is_pro ? (
+                          <Badge className="h-5 px-1.5 text-[9px] bg-gradient-to-r from-indigo-500 to-purple-500 border-0 shadow-sm text-white hover:opacity-90">PRO</Badge>
+                        ) : (
+                          <Badge variant="secondary" className="h-5 px-1.5 text-[9px] bg-slate-200 text-slate-600 hover:bg-slate-300 border-0">FREE</Badge>
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>Il mio account</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/profile" className="cursor-pointer flex items-center w-full">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Profilo</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={() => handleSubscriptionNav()}
+                        className="cursor-pointer flex items-center w-full text-primary focus:text-primary"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        <span>{subscriptionLabel}</span>
+                      </DropdownMenuItem>
+                      {isAdmin && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin/promo-codes" className="cursor-pointer flex items-center w-full">
+                            <Shield className="mr-2 h-4 w-4" />
+                            <span>Admin</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 focus:text-red-600 flex items-center w-full">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Esci</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant={isDarkNav ? "heroOutline" : "ghost"} size="sm">
+                      Accedi
                     </Button>
-                    <Button 
-                      variant="outline"
-                      className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
-                      onClick={() => {
-                        handleSignOut();
-                        setIsOpen(false);
-                      }}
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Esci
+                  </Link>
+                  <Link to="/auth?signup=true">
+                    <Button variant={isDarkNav ? "hero" : "default"} size="sm">
+                      Inizia
                     </Button>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/auth" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" className="w-full">
-                        Accedi
-                      </Button>
-                    </Link>
-                    <Link to="/auth?signup=true" onClick={() => setIsOpen(false)}>
-                      <Button variant="default" className="w-full">
-                        Inizia
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
+                  </Link>
+                </>
+              )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+            {/* Mobile Actions (Right Side) */}
+            <div className="flex lg:hidden items-center gap-1">
+              {user && (
+                <>
+                   {/* Checklist */}
+                   {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
+                   
+                   {/* Chat */}
+                   <Link to={chatHref} className={`p-2 rounded-xl transition-colors relative ${
+                      isDarkNav 
+                        ? "text-white hover:bg-white/10" 
+                        : "text-foreground hover:bg-muted/70"
+                   }`}>
+                      <MessageCircle className="w-5 h-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-background" />
+                      )}
+                   </Link>
+
+                   {/* Notifications */}
+                   <NotificationBell isLanding={isDarkNav} />
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
       </header>
       <ToolsDialog open={isToolsOpen} onOpenChange={setIsToolsOpen} />
     </>
