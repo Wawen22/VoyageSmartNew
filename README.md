@@ -15,6 +15,10 @@
 
 ## 🗺️ Pianificazione & Organizzazione
 
+*   **Strumenti di Viaggio & Utility:**
+    *   **Convertitore Valuta:** Tassi di cambio in tempo reale.
+    *   **Traduttore AI:** Traduzioni naturali bidirezionali.
+    *   **Convertitore Unità:** Lunghezza, peso e temperatura.
 *   **Mappa Itinerario Interattiva:** Visualizza il tuo percorso su mappa dinamica con calcolo tempi di percorrenza.
 *   **Smart Finance:** Tracciamento spese multi-valuta, conversione automatica e gestione debiti.
 *   **Collaborazione Real-time:** Invita amici e pianifica insieme con sincronizzazione istantanea.

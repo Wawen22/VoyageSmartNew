@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { format, parseISO, differenceInDays, eachDayOfInterval, isToday as isDateToday, isSameDay, isWithinInterval } from "date-fns";
+import { format, parseISO, differenceInDays, eachDayOfInterval, isToday as isDateToday } from "date-fns";
 import { it } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { 
@@ -15,9 +15,9 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { TimelineStats } from "@/components/timeline/TimelineStats";
 import { TimelineFilters, type TimelineFilterType } from "@/components/timeline/TimelineFilters";
-import { PublicDayNav } from "@/components/public/PublicDayNav";
-import { PublicDaySection } from "@/components/public/PublicDaySection";
-import type { PublicTimelineEvent } from "@/components/public/PublicTimelineEventCard";
+import { TimelineDayNav } from "@/components/timeline/TimelineDayNav";
+import { TimelineDaySection } from "@/components/timeline/TimelineDaySection";
+import type { TimelineDay, TimelineEvent } from "@/hooks/useTimelineEvents";
 
 interface PublicTrip {
   id: string;
@@ -59,12 +59,6 @@ interface Accommodation {
   check_out: string;
   check_in_time: string | null;
   check_out_time: string | null;
-}
-
-interface TimelineDay {
-  date: Date;
-  dateStr: string;
-  events: PublicTimelineEvent[];
 }
 
 export default function PublicTripView() {
@@ -159,97 +153,98 @@ export default function PublicTripView() {
   }, [token, fetchPublicTrip]);
 
   // Generate timeline days with events
-  const timelineDays: TimelineDay[] = useMemo(() => {
+  const timelineEvents = useMemo<TimelineEvent[]>(() => {
     if (!trip) return [];
-    
+
+    const allEvents: TimelineEvent[] = [];
+
+    activities.forEach((activity) => {
+      allEvents.push({
+        id: `activity-${activity.id}`,
+        type: "activity",
+        date: activity.activity_date,
+        time: activity.start_time || undefined,
+        endTime: activity.end_time || undefined,
+        title: activity.title,
+        subtitle: activity.description || undefined,
+        location: activity.location || undefined,
+        category: activity.category || "activity",
+        originalData: activity,
+      });
+    });
+
+    transports.forEach((transport) => {
+      const depDate = new Date(transport.departure_datetime);
+      allEvents.push({
+        id: `transport-${transport.id}`,
+        type: "transport",
+        date: format(depDate, "yyyy-MM-dd"),
+        time: format(depDate, "HH:mm"),
+        endTime: transport.arrival_datetime ? format(new Date(transport.arrival_datetime), "HH:mm") : undefined,
+        title: `${transport.departure_location} → ${transport.arrival_location}`,
+        subtitle: transport.carrier || undefined,
+        location: transport.departure_location,
+        category: transport.transport_type,
+        details: {
+          carrier: transport.carrier || undefined,
+          transportType: transport.transport_type,
+        },
+        originalData: transport,
+      });
+    });
+
+    accommodations.forEach((acc) => {
+      allEvents.push({
+        id: `checkin-${acc.id}`,
+        type: "accommodation-checkin",
+        date: acc.check_in,
+        time: acc.check_in_time || "15:00",
+        title: acc.name,
+        subtitle: "Check-in",
+        location: acc.address || undefined,
+        category: "accommodation",
+        details: {},
+        originalData: acc,
+      });
+
+      allEvents.push({
+        id: `checkout-${acc.id}`,
+        type: "accommodation-checkout",
+        date: acc.check_out,
+        time: acc.check_out_time || "11:00",
+        title: acc.name,
+        subtitle: "Check-out",
+        location: acc.address || undefined,
+        category: "accommodation",
+        details: {},
+        originalData: acc,
+      });
+    });
+
+    return allEvents;
+  }, [trip, activities, transports, accommodations]);
+
+  const timelineDays = useMemo<TimelineDay[]>(() => {
+    if (!trip) return [];
+
     const start = parseISO(trip.start_date);
     const end = parseISO(trip.end_date);
     const days = eachDayOfInterval({ start, end });
 
     return days.map((date) => {
       const dateStr = format(date, "yyyy-MM-dd");
-      const events: PublicTimelineEvent[] = [];
+      const dayEvents = timelineEvents
+        .filter((event) => event.date === dateStr)
+        .sort((a, b) => {
+          if (!a.time && !b.time) return 0;
+          if (!a.time) return 1;
+          if (!b.time) return -1;
+          return a.time.localeCompare(b.time);
+        });
 
-      // Add transports
-      transports.forEach((t) => {
-        const depDate = new Date(t.departure_datetime);
-        if (isSameDay(depDate, date)) {
-          events.push({
-            id: `transport-${t.id}`,
-            type: "transport",
-            title: `${t.departure_location} → ${t.arrival_location}`,
-            time: format(depDate, "HH:mm"),
-            endTime: t.arrival_datetime ? format(new Date(t.arrival_datetime), "HH:mm") : undefined,
-            category: t.transport_type,
-            details: {
-              transportType: t.transport_type,
-              carrier: t.carrier || undefined,
-            },
-          });
-        }
-      });
-
-      // Add accommodations
-      accommodations.forEach((acc) => {
-        const checkIn = parseISO(acc.check_in);
-        const checkOut = parseISO(acc.check_out);
-        
-        if (isSameDay(date, checkIn)) {
-          events.push({
-            id: `acc-checkin-${acc.id}`,
-            type: "accommodation-checkin",
-            title: acc.name,
-            subtitle: "Check-in",
-            time: acc.check_in_time || "15:00",
-            location: acc.address || undefined,
-          });
-        } else if (isSameDay(date, checkOut)) {
-          events.push({
-            id: `acc-checkout-${acc.id}`,
-            type: "accommodation-checkout",
-            title: acc.name,
-            subtitle: "Check-out",
-            time: acc.check_out_time || "11:00",
-            location: acc.address || undefined,
-          });
-        } else if (isWithinInterval(date, { start: checkIn, end: checkOut })) {
-          events.push({
-            id: `acc-stay-${acc.id}-${dateStr}`,
-            type: "accommodation-stay",
-            title: acc.name,
-            subtitle: "Soggiorno",
-            location: acc.address || undefined,
-          });
-        }
-      });
-
-      // Add activities
-      activities.forEach((a) => {
-        if (a.activity_date === dateStr) {
-          events.push({
-            id: `activity-${a.id}`,
-            type: "activity",
-            title: a.title,
-            subtitle: a.description || undefined,
-            time: a.start_time || undefined,
-            endTime: a.end_time || undefined,
-            location: a.location || undefined,
-            category: a.category || undefined,
-          });
-        }
-      });
-
-      // Sort events by time
-      events.sort((a, b) => {
-        if (!a.time && !b.time) return 0;
-        if (!a.time) return 1;
-        if (!b.time) return -1;
-        return a.time.localeCompare(b.time);
-      });
-
-      return { date, dateStr, events };
+      return { date, dateStr, events: dayEvents };
     });
-  }, [trip, activities, transports, accommodations]);
+  }, [trip, timelineEvents]);
 
   useEffect(() => {
     if (selectedDayIndex === null) return;
@@ -259,12 +254,18 @@ export default function PublicTripView() {
   }, [selectedDayIndex, timelineDays.length]);
 
   // Calculate stats
-  const stats = useMemo(() => ({
-    total: activities.length + transports.length + accommodations.length,
-    activities: activities.length,
-    transports: transports.length,
-    accommodations: accommodations.length,
-  }), [activities, transports, accommodations]);
+  const stats = useMemo(() => {
+    const activitiesCount = timelineEvents.filter((e) => e.type === "activity").length;
+    const transportsCount = timelineEvents.filter((e) => e.type === "transport").length;
+    const accommodationsCount = timelineEvents.filter((e) => e.type === "accommodation-checkin").length;
+
+    return {
+      total: timelineEvents.length,
+      activities: activitiesCount,
+      transports: transportsCount,
+      accommodations: accommodationsCount,
+    };
+  }, [timelineEvents]);
 
   // Filter events based on active filter
   const filteredDays = useMemo(() => {
@@ -280,8 +281,7 @@ export default function PublicTripView() {
             return event.type === "transport";
           case "accommodations":
             return event.type === "accommodation-checkin" || 
-                   event.type === "accommodation-checkout" || 
-                   event.type === "accommodation-stay";
+                   event.type === "accommodation-checkout";
           default:
             return true;
         }
@@ -384,7 +384,7 @@ export default function PublicTripView() {
                   >
                     <TimelineStats stats={stats} daysCount={timelineDays.length} />
 
-                    <PublicDayNav
+                    <TimelineDayNav
                       days={timelineDays}
                       selectedDayIndex={selectedDayIndex}
                       onDaySelect={(index) => setSelectedDayIndex(index === -1 ? null : index)}
@@ -399,12 +399,12 @@ export default function PublicTripView() {
 
                     <div className="space-y-2">
                       {displayDays.map((day, index) => (
-                        <PublicDaySection
+                        <TimelineDaySection
                           key={day.dateStr}
-                          date={day.date}
+                          day={day}
                           dayNumber={selectedDayIndex !== null ? selectedDayIndex + 1 : index + 1}
                           isToday={isDateToday(day.date)}
-                          events={day.events}
+                          tripId={trip.id}
                         />
                       ))}
                     </div>

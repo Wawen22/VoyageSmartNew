@@ -38,9 +38,17 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 *   **Stato:** Implementato.
 *   **Dettagli:** Export feed `.ics` per importazione in Google Calendar, Outlook e Apple Calendar.
 
-### 7. Mappa Itinerario Interattiva 🗺️ (✅ Completato)
+### 8. Mappa Itinerario Interattiva 🗺️ (✅ Completato)
 *   **Stato:** Implementato.
 *   **Dettagli:** Visualizzazione su mappa dinamica Mapbox con percorsi e tempi stimati.
+
+### 9. Strumenti di Viaggio & Utility 🧰 (✅ Completato)
+*   **Stato:** Implementato.
+*   **Dettagli:**
+    *   **Convertitore Valuta**: Tassi live via API Frankfurter.
+    *   **Traduttore AI**: Traduzione contestuale bidirezionale.
+    *   **Convertitore Unità**: Misure internazionali (metrico/imperiale).
+    *   **UI**: Dialog accessibile ovunque tramite icona "Chiave Inglese".
 
 ---
 
@@ -79,11 +87,7 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 *   **Stato:** Pianificato.
 *   **Dettagli:** Tema scuro completo per tutta l'app con switch automatico.
 
-### 6. Traduttore & Convertitore Rapido 🧰
-*   **Stato:** Pianificato.
-*   **Dettagli:** Traduzione istantanea e convertitore di unità/misure rapido.
-
-### 7. Notifiche Push 🔔
+### 6. Notifiche Push 🔔
 *   **Stato:** Pianificato.
 *   **Dettagli:** Notifiche native per attività imminenti, messaggi e inviti.
 
