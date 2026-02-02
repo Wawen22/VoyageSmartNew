@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { ToolsDialog } from "@/components/tools/ToolsDialog";
 import { 
   Plane, 
   Menu, 
@@ -17,7 +18,8 @@ import {
   MessageCircle,
   Shield,
   User,
-  Sparkles
+  Sparkles,
+  Wrench
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -101,6 +103,7 @@ export function Navbar() {
   const subscriptionLabel = "Il mio Abbonamento";
 
   const isDarkNav = isLanding && !scrolled;
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
 
   const handleSubscriptionNav = (closeMobileMenu = false) => {
     if (closeMobileMenu) setIsOpen(false);
@@ -180,21 +183,16 @@ export function Navbar() {
               <>
                 {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
                 <NotificationBell isLanding={isDarkNav} />
-                {activeTripId && (
-                  <Link to={`/chat?trip=${activeTripId}`}>
-                    <div className={`p-2 rounded-full transition-colors relative group ${
-                      isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
-                    }`}>
-                      <MessageCircle className="w-5 h-5" />
-                      {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground animate-in zoom-in">
-                          {unreadCount > 9 ? "9+" : unreadCount}
-                        </span>
-                      )}
-                      <span className="sr-only">Chat Viaggio</span>
-                    </div>
-                  </Link>
-                )}
+                
+                <button
+                  onClick={() => setIsToolsOpen(true)}
+                  className={`p-2 rounded-full transition-colors relative group ${
+                    isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
+                  }`}
+                  title="Strumenti & Utility"
+                >
+                  <Wrench className="w-5 h-5" />
+                </button>
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -267,20 +265,13 @@ export function Navbar() {
 
           {/* Mobile Actions */}
           <div className="flex lg:hidden items-center gap-1">
-            {user && activeTripId && (
-              <Link to={`/chat?trip=${activeTripId}`}>
-                <div className={`p-2 rounded-xl transition-colors relative ${
-                  isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
-                }`}>
-                  <MessageCircle className="w-6 h-6" />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground animate-in zoom-in">
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            )}
+            <button
+              onClick={() => setIsToolsOpen(true)}
+              className={`p-2 rounded-xl transition-colors ${
+                isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
+              }`}>
+              <Wrench className="w-6 h-6" />
+            </button>
             {user && activeTripId && <ChecklistButton isLanding={isDarkNav} />}
             {user && <NotificationBell isLanding={isDarkNav} />}
             <button
@@ -402,6 +393,7 @@ export function Navbar() {
         )}
       </AnimatePresence>
       </header>
+      <ToolsDialog open={isToolsOpen} onOpenChange={setIsToolsOpen} />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { format, parseISO, differenceInDays, eachDayOfInterval, isToday as isDateToday, isSameDay, isWithinInterval } from "date-fns";
 import { it } from "date-fns/locale";
@@ -17,7 +17,7 @@ import { TimelineStats } from "@/components/timeline/TimelineStats";
 import { TimelineFilters, type TimelineFilterType } from "@/components/timeline/TimelineFilters";
 import { PublicDayNav } from "@/components/public/PublicDayNav";
 import { PublicDaySection } from "@/components/public/PublicDaySection";
-import type { PublicTimelineEvent, PublicEventType } from "@/components/public/PublicTimelineEventCard";
+import type { PublicTimelineEvent } from "@/components/public/PublicTimelineEventCard";
 
 interface PublicTrip {
   id: string;
@@ -77,46 +77,86 @@ export default function PublicTripView() {
   const [error, setError] = useState<string | null>(null);
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
   const [activeFilter, setActiveFilter] = useState<TimelineFilterType>("all");
+  const hasLoadedOnceRef = useRef(false);
+  const tripRef = useRef<PublicTrip | null>(null);
+
+  const fetchPublicTrip = useCallback(async (showLoader = false) => {
+    if (!token) return;
+
+    try {
+      if (showLoader) {
+        setLoading(true);
+      }
+      if (showLoader || !hasLoadedOnceRef.current) {
+        setError(null);
+      }
+
+      const { data: tripData, error: tripError } = await supabase
+        .rpc("get_public_trip_by_token", { _token: token });
+
+      if (tripError) throw tripError;
+      if (!tripData || tripData.length === 0) {
+        if (showLoader || !hasLoadedOnceRef.current) {
+          setTrip(null);
+          tripRef.current = null;
+          setError("Viaggio non trovato o link non valido");
+        }
+        return;
+      }
+
+      const tripInfo = tripData[0] as PublicTrip;
+      setTrip(tripInfo);
+      tripRef.current = tripInfo;
+
+      const [activitiesRes, transportsRes, accommodationsRes] = await Promise.all([
+        supabase.rpc("get_public_trip_activities", { _trip_id: tripInfo.id, _token: token }),
+        supabase.rpc("get_public_trip_transports", { _trip_id: tripInfo.id, _token: token }),
+        supabase.rpc("get_public_trip_accommodations", { _trip_id: tripInfo.id, _token: token }),
+      ]);
+
+      if (activitiesRes.data) setActivities(activitiesRes.data as Activity[]);
+      if (transportsRes.data) setTransports(transportsRes.data as Transport[]);
+      if (accommodationsRes.data) setAccommodations(accommodationsRes.data as Accommodation[]);
+    } catch (err: any) {
+      console.error("Error fetching public trip:", err);
+      if (showLoader || !hasLoadedOnceRef.current || !tripRef.current) {
+        setError("Errore nel caricamento del viaggio");
+      }
+    } finally {
+      if (showLoader) {
+        setLoading(false);
+      }
+      hasLoadedOnceRef.current = true;
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+    fetchPublicTrip(true);
+  }, [token, fetchPublicTrip]);
 
   useEffect(() => {
     if (!token) return;
 
-    const fetchPublicTrip = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    const refreshInterval = setInterval(() => {
+      if (hasLoadedOnceRef.current) {
+        fetchPublicTrip(false);
+      }
+    }, 60000);
 
-        const { data: tripData, error: tripError } = await supabase
-          .rpc("get_public_trip_by_token", { _token: token });
-
-        if (tripError) throw tripError;
-        if (!tripData || tripData.length === 0) {
-          setError("Viaggio non trovato o link non valido");
-          return;
-        }
-
-        const tripInfo = tripData[0] as PublicTrip;
-        setTrip(tripInfo);
-
-        const [activitiesRes, transportsRes, accommodationsRes] = await Promise.all([
-          supabase.rpc("get_public_trip_activities", { _trip_id: tripInfo.id, _token: token }),
-          supabase.rpc("get_public_trip_transports", { _trip_id: tripInfo.id, _token: token }),
-          supabase.rpc("get_public_trip_accommodations", { _trip_id: tripInfo.id, _token: token }),
-        ]);
-
-        if (activitiesRes.data) setActivities(activitiesRes.data as Activity[]);
-        if (transportsRes.data) setTransports(transportsRes.data as Transport[]);
-        if (accommodationsRes.data) setAccommodations(accommodationsRes.data as Accommodation[]);
-      } catch (err: any) {
-        console.error("Error fetching public trip:", err);
-        setError("Errore nel caricamento del viaggio");
-      } finally {
-        setLoading(false);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && hasLoadedOnceRef.current) {
+        fetchPublicTrip(false);
       }
     };
 
-    fetchPublicTrip();
-  }, [token]);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(refreshInterval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [token, fetchPublicTrip]);
 
   // Generate timeline days with events
   const timelineDays: TimelineDay[] = useMemo(() => {
@@ -211,6 +251,13 @@ export default function PublicTripView() {
     });
   }, [trip, activities, transports, accommodations]);
 
+  useEffect(() => {
+    if (selectedDayIndex === null) return;
+    if (selectedDayIndex >= timelineDays.length) {
+      setSelectedDayIndex(null);
+    }
+  }, [selectedDayIndex, timelineDays.length]);
+
   // Calculate stats
   const stats = useMemo(() => ({
     total: activities.length + transports.length + accommodations.length,
@@ -283,108 +330,119 @@ export default function PublicTripView() {
 
   return (
     <AppLayout>
-      <main className="pt-20 relative z-10">
-        {/* Hero Section */}
-        <div className="relative h-64 md:h-80 overflow-hidden">
-          {trip.cover_image ? (
-            <img 
-              src={trip.cover_image} 
-              alt={trip.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-hero" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-            <div className="container mx-auto">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm mb-3">
-                🔗 Vista pubblica
-              </div>
-              <h1 className="text-3xl md:text-4xl font-semibold text-white mb-2">
-                {trip.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-white/90">
-                <span className="flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4" />
-                  {trip.destination}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4" />
-                  {format(parseISO(trip.start_date), "d MMM", { locale: it })} - {format(parseISO(trip.end_date), "d MMM yyyy", { locale: it })}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4" />
-                  {tripDuration} giorni
-                </span>
+      <main className="pt-24 pb-16 min-h-screen bg-background relative z-10">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="bg-card rounded-xl border shadow-sm">
+            <div className="relative h-44 md:h-56 overflow-hidden rounded-t-xl">
+              {trip.cover_image ? (
+                <img
+                  src={trip.cover_image}
+                  alt={trip.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-hero" />
+              )}
+            </div>
+
+            <div className="p-6 md:p-8">
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-semibold w-fit">
+                    🔗 Vista pubblica
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                      {trip.title}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-sm md:text-base">
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4" />
+                        {trip.destination}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="h-4 w-4" />
+                        {format(parseISO(trip.start_date), "d MMM", { locale: it })} - {format(parseISO(trip.end_date), "d MMM yyyy", { locale: it })}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" />
+                        {tripDuration} giorni
+                      </span>
+                    </div>
+                  </div>
+                  {trip.description && (
+                    <p className="text-muted-foreground max-w-2xl">
+                      {trip.description}
+                    </p>
+                  )}
+                </div>
+
+                {timelineDays.length > 0 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <TimelineStats stats={stats} daysCount={timelineDays.length} />
+
+                    <PublicDayNav
+                      days={timelineDays}
+                      selectedDayIndex={selectedDayIndex}
+                      onDaySelect={(index) => setSelectedDayIndex(index === -1 ? null : index)}
+                    />
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                      <TimelineFilters
+                        activeFilter={activeFilter}
+                        onFilterChange={setActiveFilter}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      {displayDays.map((day, index) => (
+                        <PublicDaySection
+                          key={day.dateStr}
+                          date={day.date}
+                          dayNumber={selectedDayIndex !== null ? selectedDayIndex + 1 : index + 1}
+                          isToday={isDateToday(day.date)}
+                          events={day.events}
+                        />
+                      ))}
+                    </div>
+
+                    {displayDays.every((d) => d.events.length === 0) && activeFilter !== "all" && (
+                      <div className="text-center py-12">
+                        <div className="p-4 rounded-full bg-muted inline-block mb-4">
+                          <CalendarDays className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                          Nessun evento trovato
+                        </h3>
+                        <p className="text-muted-foreground mb-4">
+                          Non ci sono eventi di tipo "{activeFilter}" per i giorni selezionati
+                        </p>
+                        <Button variant="outline" onClick={() => setActiveFilter("all")}>
+                          Mostra tutti gli eventi
+                        </Button>
+                      </div>
+                    )}
+                  </motion.div>
+                ) : (
+                  <div className="text-center py-12">
+                    <div className="p-4 rounded-full bg-muted inline-block mb-4">
+                      <CalendarDays className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      Itinerario vuoto
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Non ci sono eventi pianificati per questo viaggio.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Content */}
-        <div className="container mx-auto px-4 py-8">
-          {trip.description && (
-            <div className="app-section p-5 mb-6 max-w-2xl">
-              <p className="text-muted-foreground">{trip.description}</p>
-            </div>
-          )}
-
-          {timelineDays.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {/* Stats */}
-              <TimelineStats stats={stats} daysCount={timelineDays.length} />
-
-              {/* Day Navigation */}
-              <PublicDayNav
-                days={timelineDays}
-                selectedDayIndex={selectedDayIndex}
-                onDaySelect={(index) => setSelectedDayIndex(index === -1 ? null : index)}
-              />
-
-              {/* Filters */}
-              <TimelineFilters
-                activeFilter={activeFilter}
-                onFilterChange={setActiveFilter}
-              />
-
-              {/* Timeline content */}
-              <div className="space-y-2">
-                {displayDays.map((day, index) => (
-                  <PublicDaySection
-                    key={day.dateStr}
-                    date={day.date}
-                    dayNumber={selectedDayIndex !== null ? selectedDayIndex + 1 : index + 1}
-                    isToday={isDateToday(day.date)}
-                    events={day.events}
-                  />
-                ))}
-              </div>
-
-              {/* Empty state for filtered results */}
-              {displayDays.every((d) => d.events.length === 0) && activeFilter !== "all" && (
-                <div className="text-center py-12">
-                  <div className="p-4 rounded-full bg-muted inline-block mb-4">
-                    <CalendarDays className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Nessun evento trovato
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Non ci sono eventi di tipo "{activeFilter}" per i giorni selezionati
-                  </p>
-                  <Button variant="outline" onClick={() => setActiveFilter("all")}>
-                    Mostra tutti gli eventi
-                  </Button>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* Footer */}
           <div className="mt-8 text-center text-sm text-muted-foreground">
             <p>Pianificato con ❤️ su <Link to="/" className="text-primary hover:underline">VoyageSmart</Link></p>
           </div>

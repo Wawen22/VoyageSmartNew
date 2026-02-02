@@ -51,7 +51,19 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 *   **Priorità:** Alta.
 *   **Dettagli:** L'AI analizza meteo e orari liberi per proporre modifiche all'itinerario spontaneamente (es. "Domani piove, vuoi visitare un museo?").
 
-### 2. Offline Mode & PWA 📶
+### 2. Integrazione Meteo Intelligente nell'Itinerario 🌦️
+*   **Stato:** Proposto.
+*   **Dettagli:** Mostrare le previsioni meteo specifiche per ogni giorno e luogo direttamente nella timeline dell'itinerario.
+
+### 3. Mappa Interattiva delle Idee 🗺️
+*   **Stato:** Proposto.
+*   **Dettagli:** Visualizzazione su mappa di tutte le idee salvate nella bacheca che hanno un luogo specificato, per facilitare il clustering geografico.
+
+### 4. Limiti PRO per Upload Immagini & Documenti 🔒
+*   **Stato:** Proposto (Business).
+*   **Dettagli:** Implementare restrizioni sul numero di immagini/documenti caricabili dagli utenti Free per incentivare l'upgrade a PRO.
+
+### 5. Offline Mode & PWA 📶
 *   **Stato:** Pianificato.
 *   **Dettagli:** Supporto per installazione mobile e cache intelligente per accesso ai dati offline.
 
