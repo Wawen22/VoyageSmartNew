@@ -3,22 +3,22 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Languages, Loader2, Copy, Check, ArrowRightLeft } from "lucide-react";
+import { Loader2, Copy, Check, ArrowRightLeft, Sparkles, MessageSquareQuote, ArrowRight } from "lucide-react";
 import { aiService } from "@/lib/ai/service";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 const LANGUAGES = [
-  { code: "it", name: "Italiano" },
-  { code: "en", name: "Inglese" },
-  { code: "es", name: "Spagnolo" },
-  { code: "fr", name: "Francese" },
-  { code: "de", name: "Tedesco" },
-  { code: "pt", name: "Portoghese" },
-  { code: "ja", name: "Giapponese" },
-  { code: "zh", name: "Cinese" },
-  { code: "ru", name: "Russo" },
-  { code: "ar", name: "Arabo" },
-  { code: "hi", name: "Hindi" },
+  { code: "it", name: "Italiano", flag: "🇮🇹" },
+  { code: "en", name: "Inglese", flag: "🇬🇧" },
+  { code: "es", name: "Spagnolo", flag: "🇪🇸" },
+  { code: "fr", name: "Francese", flag: "🇫🇷" },
+  { code: "de", name: "Tedesco", flag: "🇩🇪" },
+  { code: "pt", name: "Portoghese", flag: "🇵🇹" },
+  { code: "ja", name: "Giapponese", flag: "🇯🇵" },
+  { code: "zh", name: "Cinese", flag: "🇨🇳" },
+  { code: "ru", name: "Russo", flag: "🇷🇺" },
+  { code: "ar", name: "Arabo", flag: "🇸🇦" },
 ];
 
 export function Translator() {
@@ -34,26 +34,22 @@ export function Translator() {
     if (sourceLang === "auto") {
       toast({
         description: "Seleziona una lingua specifica per invertire.",
-        variant: "destructive" // Or just standard
+        variant: "destructive"
       });
       return;
     }
-    
-    // Swap languages
     const tempSource = sourceLang;
     setSourceLang(targetLang);
     setTargetLang(tempSource);
     
-    // Swap text if there is a translation
     if (translation) {
       setText(translation);
-      setTranslation(""); // Clear result to force user to translate again or we could auto-trigger
+      setTranslation(""); 
     }
   };
 
   const handleTranslate = async () => {
     if (!text.trim()) return;
-    
     setLoading(true);
     try {
       const sourceLangName = sourceLang === "auto" ? "la lingua rilevata" : (LANGUAGES.find(l => l.code === sourceLang)?.name || sourceLang);
@@ -61,14 +57,8 @@ export function Translator() {
       
       const prompt = `Sei un traduttore esperto e madrelingua. 
       Compito: Traduci il seguente testo ${sourceLang === 'auto' ? 'rilevando la lingua originale' : `dall'${sourceLangName}`} all'${targetLangName}.
-      
-      Regole:
-      1. Rispondi SOLO con il testo tradotto.
-      2. Non aggiungere virgolette, spiegazioni o note.
-      3. Mantieni il tono, lo stile e la formattazione originale.
-      
-      Testo:
-      "${text}"`;
+      Regole: Rispondi SOLO con il testo tradotto. Mantieni tono e stile.
+      Testo: "${text}"`;
 
       const response = await aiService.sendMessage([
         { role: "user", content: prompt }
@@ -100,77 +90,93 @@ export function Translator() {
   };
 
   return (
-    <div className="space-y-6 py-4">
-      <div className="flex flex-col items-center text-center space-y-2 mb-2">
-        <div className="p-3 bg-primary/10 rounded-full">
-          <Languages className="w-6 h-6 text-primary" />
-        </div>
-        <h3 className="font-semibold text-lg">Traduttore AI</h3>
-        <p className="text-sm text-muted-foreground">Traduzioni naturali e contestuali</p>
-      </div>
-
-      <div className="grid grid-cols-[1fr,auto,1fr] gap-2 items-end">
-        <div className="space-y-2">
-          <Label>Da</Label>
-          <Select value={sourceLang} onValueChange={setSourceLang}>
-            <SelectTrigger>
-              <SelectValue />
+    <div className="w-full h-full flex flex-col justify-start md:justify-center gap-6 p-1">
+      
+      {/* Action Bar (Responsive) */}
+      <div className="flex flex-col md:flex-row justify-center items-center gap-3 md:gap-4 w-full">
+         <Select value={sourceLang} onValueChange={setSourceLang}>
+            <SelectTrigger className="w-full md:w-[180px] h-12 rounded-xl bg-background border-border/60 font-medium order-1">
+               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="auto" className="font-semibold text-primary">✨ Rileva lingua</SelectItem>
-              {LANGUAGES.map((l) => (
-                <SelectItem key={l.code} value={l.code}>{l.name}</SelectItem>
-              ))}
+                <SelectItem value="auto" className="font-semibold text-indigo-500">✨ Rileva lingua</SelectItem>
+                {LANGUAGES.map((l) => (
+                    <SelectItem key={l.code} value={l.code}>{l.flag} {l.name}</SelectItem>
+                ))}
             </SelectContent>
-          </Select>
-        </div>
+         </Select>
 
-        <Button variant="ghost" size="icon" className="mb-0.5" onClick={handleSwap} disabled={sourceLang === "auto"}>
-          <ArrowRightLeft className="w-4 h-4" />
-        </Button>
+         <Button size="icon" variant="ghost" className="rounded-full hover:bg-muted order-2 md:order-none rotate-90 md:rotate-0 shrink-0" onClick={handleSwap} disabled={sourceLang === "auto"}>
+             <ArrowRightLeft className="w-5 h-5 text-muted-foreground" />
+         </Button>
 
-        <div className="space-y-2">
-          <Label>A</Label>
-          <Select value={targetLang} onValueChange={setTargetLang}>
-            <SelectTrigger>
-              <SelectValue />
+         <Select value={targetLang} onValueChange={setTargetLang}>
+            <SelectTrigger className="w-full md:w-[180px] h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/20 font-medium text-indigo-700 dark:text-indigo-300 order-3">
+               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {LANGUAGES.map((l) => (
-                <SelectItem key={l.code} value={l.code}>{l.name}</SelectItem>
-              ))}
+                {LANGUAGES.map((l) => (
+                    <SelectItem key={l.code} value={l.code}>{l.flag} {l.name}</SelectItem>
+                ))}
             </SelectContent>
-          </Select>
-        </div>
+         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Textarea 
-          placeholder="Digita o incolla qui il testo da tradurre..." 
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="resize-none min-h-[100px] text-base"
-        />
-      </div>
-
-      <Button className="w-full" onClick={handleTranslate} disabled={loading || !text.trim()}>
-        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Languages className="w-4 h-4 mr-2" />}
-        Traduci ora
-      </Button>
-
-      {translation && (
-        <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-primary font-medium">Traduzione</Label>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={copyToClipboard}>
-              {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-            </Button>
-          </div>
-          <div className="bg-muted/50 rounded-lg p-4 text-base border border-border/50 min-h-[80px] whitespace-pre-wrap">
-            {translation}
-          </div>
+      {/* Main Grid */}
+      <div className="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-6 min-h-[400px] h-full md:h-[400px]">
+        
+        {/* Source Text Area */}
+        <div className="relative group flex-1 md:flex-auto min-h-[200px]">
+            <Textarea 
+                placeholder="Digita o incolla qui..." 
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                className="w-full h-full resize-none border-border/60 bg-background/50 rounded-3xl p-6 text-lg md:text-xl leading-relaxed focus-visible:ring-indigo-500/30 shadow-sm"
+            />
+            <div className="absolute bottom-4 right-4 z-10">
+                 <Button 
+                    size="lg" 
+                    className="rounded-2xl bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 transition-all px-4 md:px-6 font-semibold"
+                    onClick={handleTranslate}
+                    disabled={loading || !text.trim()}
+                 >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Sparkles className="w-5 h-5 mr-2" />}
+                    Traduci
+                 </Button>
+            </div>
         </div>
-      )}
+
+        {/* Target Result Area */}
+        <div className={cn(
+            "relative w-full h-full min-h-[200px] rounded-3xl border transition-all duration-500 p-6 flex flex-col flex-1 md:flex-auto",
+            translation 
+                ? "bg-indigo-500/5 border-indigo-500/20 shadow-inner" 
+                : "bg-muted/20 border-border/30 border-dashed justify-center items-center"
+        )}>
+            {translation ? (
+                <>
+                    <div className="flex-1 overflow-auto custom-scrollbar">
+                        <p className="text-xl text-foreground/90 leading-relaxed font-medium">{translation}</p>
+                    </div>
+                    <div className="pt-4 flex justify-end">
+                        <Button 
+                            variant="outline" 
+                            className="rounded-xl gap-2 border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                            onClick={copyToClipboard}
+                        >
+                            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                            {copied ? "Copiato!" : "Copia testo"}
+                        </Button>
+                    </div>
+                </>
+            ) : (
+                <div className="text-center opacity-40">
+                    <MessageSquareQuote className="w-12 h-12 mx-auto mb-2 text-indigo-400" />
+                    <p className="text-lg font-medium">La traduzione apparirà qui</p>
+                </div>
+            )}
+        </div>
+      </div>
     </div>
   );
 }
