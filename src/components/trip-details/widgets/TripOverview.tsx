@@ -16,6 +16,8 @@ import { Progress } from "@/components/ui/progress";
 import { useTripStats } from "@/hooks/useTripStats";
 import { NextActivityWidget } from "@/components/trip-details/widgets/NextActivityWidget";
 import { TripStatusWidget } from "@/components/trip-details/widgets/TripStatusWidget";
+import { CurrencyWidget } from "@/components/trip-details/widgets/CurrencyWidget";
+import { WorldClocksWidget } from "@/components/trip-details/widgets/WorldClocksWidget";
 import { TripMembersList } from "@/components/trips/TripMembersList";
 import { cn } from "@/lib/utils";
 
@@ -25,11 +27,6 @@ interface TripOverviewProps {
 
 export function TripOverview({ trip }: TripOverviewProps) {
   const stats = useTripStats(trip.id);
-
-  // Calculate quick stats
-  const budgetUsedPercent = stats.totalBudget > 0 
-    ? Math.min(Math.round((stats.totalExpenses / stats.totalBudget) * 100), 100) 
-    : 0;
   
   // Widget Animation Variants
   const container = {
@@ -54,21 +51,26 @@ export function TripOverview({ trip }: TripOverviewProps) {
       animate="show"
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
     >
-      {/* 0. NEXT ACTIVITY WIDGET (Prossima Tappa) */}
+      {/* 0. NEXT ACTIVITY WIDGET (Prossima Tappa) - 2 Cols */}
       <NextActivityWidget tripId={trip.id} />
 
-      {/* 1. STATUS / COUNTDOWN (Large: col-span-2) */}
+      {/* 1. STATUS / COUNTDOWN - 2 Cols */}
       <TripStatusWidget trip={trip} />
+
+      {/* 2. WORLD CLOCKS (Home & Destination) - 2 Cols */}
+      <WorldClocksWidget 
+        latitude={trip.latitude} 
+        longitude={trip.longitude} 
+        destinationName={trip.destination} 
+      />
+
+      {/* 3. CURRENCY CONVERTER - 2 Cols */}
+      <div className="col-span-1 md:col-span-2">
+         <CurrencyWidget tripCurrency={stats.currency} userCurrency="EUR" />
+      </div>
 
       {/* 4. COMPANIONS (Wide, auto-height) */}
       <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-4 rounded-3xl border border-border/60 bg-card shadow-sm overflow-hidden flex flex-col">
-          {/* <div className="p-6 border-b border-border/50 bg-muted/20">
-             <h3 className="font-semibold flex items-center gap-2">
-                <Users className="w-4 h-4 text-blue-500" />
-                Compagni
-             </h3>
-          </div> */}
-          {/* Reverting to standard layout inside */}
           <div className="p-1">
              <TripMembersList tripId={trip.id} />
           </div>
@@ -88,7 +90,6 @@ export function TripOverview({ trip }: TripOverviewProps) {
            </div>
         </motion.div>
       )}
-
     </motion.div>
   );
 }
