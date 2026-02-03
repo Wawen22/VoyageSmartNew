@@ -31,6 +31,7 @@ import { BalancesSidebar } from "@/components/expenses/BalancesSidebar";
 import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
+import { TripNavBar } from "@/components/trip-details/navigation/TripNavBar";
 
 interface Trip {
   id: string;
@@ -203,7 +204,8 @@ export default function Expenses() {
 
   return (
     <AppLayout>
-      <main className="pt-24 pb-16 min-h-screen bg-background">
+      {selectedTripId && <TripNavBar tripId={selectedTripId} />}
+      <main className="pt-24 pb-24 min-h-screen bg-background">
         <div className="container mx-auto px-3 sm:px-4 max-w-7xl">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 mb-6">

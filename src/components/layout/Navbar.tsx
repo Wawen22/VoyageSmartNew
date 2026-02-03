@@ -362,12 +362,12 @@ export function Navbar() {
                     </div>
                     {link.label}
                     {count !== null && count > 0 && (
-                      <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold leading-none ${
+                      <span className={`ml-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold leading-none shadow-sm transition-all ${
                         isDarkNav
-                          ? "bg-white/20 text-white"
+                          ? "bg-white/20 text-white border border-white/10"
                           : isActive 
-                            ? "bg-primary text-primary-foreground" 
-                            : "bg-muted text-muted-foreground"
+                            ? "bg-primary text-primary-foreground border border-primary/20" 
+                            : "bg-muted text-muted-foreground border border-border/50"
                       }`}>
                         {count}
                       </span>

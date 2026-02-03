@@ -92,7 +92,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
     }}>
       <SheetTrigger asChild>
         <Button
-          className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 border-2 border-white/20"
+          className="fixed bottom-24 lg:bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 border-2 border-white/20 transition-all duration-300"
           size="icon"
         >
           <Bot className="h-7 w-7 text-white" />

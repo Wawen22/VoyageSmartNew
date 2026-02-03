@@ -17,6 +17,7 @@ import { ActivityDetailDialog } from "@/components/itinerary/ActivityDetailDialo
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { TripNavBar } from "@/components/trip-details/navigation/TripNavBar";
 
 export default function Itinerary() {
   const [searchParams] = useSearchParams();
@@ -146,7 +147,8 @@ export default function Itinerary() {
 
   return (
     <AppLayout>
-      <main className="pt-24 pb-16 min-h-screen bg-background">
+      {tripId && <TripNavBar tripId={tripId} />}
+      <main className="pt-24 pb-24 min-h-screen bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
           {/* Breadcrumb Navigation */}
           <div className="flex items-center gap-2 mb-6">

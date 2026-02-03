@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
+import { TripNavBar } from "@/components/trip-details/navigation/TripNavBar";
 
 export default function TripIdeas() {
   const [searchParams] = useSearchParams();
@@ -40,7 +41,8 @@ export default function TripIdeas() {
 
   return (
     <AppLayout>
-      <main className="pt-24 pb-16 min-h-screen bg-background">
+      {tripId && <TripNavBar tripId={tripId} />}
+      <main className="pt-24 pb-24 min-h-screen bg-background">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center gap-2 mb-6">
             <Button variant="ghost" size="sm" onClick={() => navigate(`/trips/${tripId}`)}>
