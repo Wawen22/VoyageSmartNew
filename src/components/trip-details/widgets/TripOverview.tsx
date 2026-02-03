@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useTripStats } from "@/hooks/useTripStats";
-import { TripMembersList } from "@/components/trips/TripMembersList"; 
+import { NextActivityWidget } from "@/components/trip-details/widgets/NextActivityWidget";
+import { TripMembersList } from "@/components/trips/TripMembersList";
 import { cn } from "@/lib/utils";
 
 interface TripOverviewProps {
@@ -54,6 +55,9 @@ export function TripOverview({ trip }: TripOverviewProps) {
       animate="show"
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
     >
+      {/* 0. NEXT ACTIVITY WIDGET (Prossima Tappa) */}
+      <NextActivityWidget tripId={trip.id} />
+
       {/* 1. STATUS / COUNTDOWN (Large: col-span-2) */}
       <motion.div variants={item} className="col-span-1 md:col-span-2 relative overflow-hidden rounded-3xl p-6 bg-gradient-to-br from-primary/10 via-card to-card border border-border/60 shadow-sm group hover:shadow-md transition-all">
          <div className="flex flex-col h-full justify-between relative z-10">
