@@ -79,16 +79,8 @@ export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden bg-background/95 backdrop-blur-2xl border-white/10 shadow-2xl flex flex-col [&>button]:hidden">
+      <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden bg-background/95 backdrop-blur-2xl border-white/10 shadow-2xl flex flex-col">
         
-        {/* Custom Close Button - Glassy Reddish */}
-        <div className="absolute right-4 top-4 z-[60]">
-          <DialogClose className="h-10 w-10 flex items-center justify-center rounded-full bg-red-500/10 backdrop-blur-xl border border-red-500/20 text-red-600 hover:bg-red-500/20 hover:text-red-700 transition-all active:scale-95 shadow-lg shadow-red-500/10">
-             <X className="h-5 w-5" />
-             <span className="sr-only">Chiudi</span>
-          </DialogClose>
-        </div>
-
         {/* Unified Header */}
         <div className="flex-none p-6 pb-4 border-b border-border/40 flex items-center justify-between relative z-20 bg-background/50 backdrop-blur-md">
            <div className="flex items-center gap-4 pr-12">
