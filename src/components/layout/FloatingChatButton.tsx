@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bot, Sparkles } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useUnreadChat } from "@/hooks/useUnreadChat";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,20 +39,20 @@ export function FloatingChatButton() {
       >
         <Link to={`/chat?trip=${activeTripId}`}>
           <div className="relative">
-            {/* Pulsing background glow */}
-            <div className="absolute inset-0 rounded-2xl bg-indigo-500 blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-500 animate-pulse" />
+            {/* Pulsing background glow - Now slate/blue */}
+            <div className="absolute inset-0 rounded-2xl bg-slate-500 blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-500 animate-pulse" />
             
             <Button
               size="icon"
-              className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-indigo-600 bg-[length:200%_200%] animate-gradient-xy border border-white/20 shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-1 overflow-hidden"
+              className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-slate-700 via-slate-800 to-indigo-900 bg-[length:200%_200%] animate-gradient-xy border border-white/20 shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-1 overflow-hidden"
             >
               {/* Shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:animate-shine" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:animate-shine" />
               
-              <Bot className="h-7 w-7 text-white drop-shadow-md" />
+              <MessageCircle className="h-7 w-7 text-white drop-shadow-md" />
               
               {unreadCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-background shadow-sm animate-in zoom-in">
+                <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white border-2 border-background shadow-sm animate-in zoom-in">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
