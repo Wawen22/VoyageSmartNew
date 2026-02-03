@@ -91,13 +91,23 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
       }
     }}>
       <SheetTrigger asChild>
-        <Button
-          className="fixed bottom-24 lg:bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 border-2 border-white/20 transition-all duration-300"
-          size="icon"
-        >
-          <Bot className="h-7 w-7 text-white" />
-          <span className="sr-only">Apri Assistente AI</span>
-        </Button>
+        <div className="fixed bottom-24 lg:bottom-6 right-6 z-50 group">
+          <div className="relative">
+             {/* Pulsing background glow */}
+             <div className="absolute inset-0 rounded-2xl bg-violet-500 blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-500 animate-pulse" />
+             
+             <Button
+              className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-violet-600 bg-[length:200%_200%] animate-gradient-xy border border-white/20 shadow-xl transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-1 overflow-hidden"
+              size="icon"
+            >
+              {/* Shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:animate-shine" />
+              
+              <Sparkles className="h-7 w-7 text-white drop-shadow-md" />
+              <span className="sr-only">Apri Assistente AI</span>
+            </Button>
+          </div>
+        </div>
       </SheetTrigger>
       <SheetContent className="w-[95%] sm:w-[540px] flex flex-col p-0 h-full border-l-2 border-indigo-100 dark:border-indigo-900 [&>button]:hidden">
         {/* Main Header */}
@@ -105,11 +115,11 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-600/20">
-                <Bot className="h-5 w-5 text-white" />
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
               <div>
-                <SheetTitle className="text-lg font-bold">Voyage AI</SheetTitle>
-                <SheetDescription className="text-xs">Travel Assistant</SheetDescription>
+                <SheetTitle className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">Voyage AI</SheetTitle>
+                <SheetDescription className="text-xs font-medium">Il tuo Assistente di Viaggio Intelligente</SheetDescription>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -201,7 +211,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
                   {msg.role === "assistant" && (
                     <div className="flex flex-col gap-2 items-center justify-end">
                       <Avatar className="h-8 w-8 border bg-indigo-100 dark:bg-indigo-900/50 flex-shrink-0">
-                        <AvatarFallback><Bot className="h-4 w-4 text-indigo-600" /></AvatarFallback>
+                        <AvatarFallback><Sparkles className="h-4 w-4 text-indigo-600" /></AvatarFallback>
                       </Avatar>
                       <Button
                         variant="ghost"
@@ -256,7 +266,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
               {isLoading && (
                 <div className="flex gap-3 justify-start">
                   <Avatar className="h-8 w-8 border bg-indigo-100 dark:bg-indigo-900/50">
-                    <AvatarFallback><Bot className="h-4 w-4 text-indigo-600" /></AvatarFallback>
+                    <AvatarFallback><Sparkles className="h-4 w-4 text-indigo-600" /></AvatarFallback>
                   </Avatar>
                   <div className="bg-white dark:bg-slate-800 border rounded-2xl rounded-bl-none px-4 py-3 shadow-sm flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />
