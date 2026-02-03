@@ -82,17 +82,6 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
       shadow: "shadow-teal-500/30"
     },
     {
-      to: `/checklist?trip=${tripId}`,
-      label: "Checklist",
-      icon: ClipboardList,
-      active: location.pathname.includes('/checklist'),
-      count: stats.checklistTotal,
-      color: "text-indigo-500",
-      bgColor: "bg-indigo-500/10",
-      activeBg: "bg-indigo-500",
-      shadow: "shadow-indigo-500/30"
-    },
-    {
       to: `/ideas?trip=${tripId}`,
       label: "Idee",
       icon: Lightbulb,
