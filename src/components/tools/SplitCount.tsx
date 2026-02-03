@@ -99,7 +99,7 @@ export function SplitCount() {
             {/* Tip Selection */}
             <div className="space-y-3">
                 <Label className="text-xs font-bold uppercase text-muted-foreground tracking-wider ml-1">Mancia ({tip}%)</Label>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 p-1">
                     {TIP_OPTIONS.map((t) => (
                         <button
                             key={t}

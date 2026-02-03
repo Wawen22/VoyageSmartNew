@@ -174,7 +174,12 @@ export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
                     />
                     
                     {/* Coming Soon */}
-                    <div className="opacity-50 grayscale hover:grayscale-0 hover:opacity-80 transition-all cursor-not-allowed">
+                    <div className="relative group/soon opacity-50 grayscale hover:grayscale-0 hover:opacity-80 transition-all cursor-not-allowed">
+                        <div className="absolute -top-2 left-4 z-20">
+                           <span className="bg-sky-500/20 backdrop-blur-xl border border-sky-500/30 text-sky-600 dark:text-sky-400 text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full shadow-lg shadow-sky-500/10">
+                              Coming Soon
+                           </span>
+                        </div>
                         <ToolCard 
                           index={4}
                           title="Meteo Avanzato"
