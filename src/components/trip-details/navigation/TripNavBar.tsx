@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +20,7 @@ interface TripNavBarProps {
 export function TripNavBar({ tripId }: TripNavBarProps) {
   const location = useLocation();
   const stats = useTripStats(tripId);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const navItems = [
     {
@@ -99,17 +101,35 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
     },
   ];
 
+  // Auto-scroll active item into view
+  useEffect(() => {
+    if (containerRef.current) {
+      const activeElement = containerRef.current.querySelector('[data-active="true"]');
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  }, [location.pathname]);
+
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 pb-safe">
       {/* Premium Glass Background */}
       <div className="absolute inset-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-2xl border-t border-white/20 dark:border-white/10 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]" />
       
       {/* Scrollable Content Container */}
-      <div className="relative flex items-center overflow-x-auto no-scrollbar px-4 gap-3 h-[5.5rem] pt-2 scroll-smooth">
+      <div 
+        ref={containerRef}
+        className="relative flex items-center overflow-x-auto no-scrollbar px-4 gap-3 h-[5.5rem] pt-2 scroll-smooth"
+      >
         {navItems.map((item) => (
           <Link
             key={item.to}
             to={item.to}
+            data-active={item.active}
             className={cn(
               "group flex flex-col items-center justify-center min-w-[4.5rem] h-full gap-1.5 transition-all duration-300 active:scale-90 shrink-0 select-none",
               item.active ? "opacity-100" : "opacity-60 hover:opacity-100"
