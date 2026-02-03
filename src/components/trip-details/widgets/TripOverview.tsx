@@ -70,10 +70,8 @@ export function TripOverview({ trip }: TripOverviewProps) {
       </div>
 
       {/* 4. COMPANIONS (Wide, auto-height) */}
-      <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-4 rounded-3xl border border-border/60 bg-card shadow-sm overflow-hidden flex flex-col">
-          <div className="p-1">
-             <TripMembersList tripId={trip.id} />
-          </div>
+      <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-4">
+         <TripMembersList tripId={trip.id} />
       </motion.div>
       
       {/* 5. DESCRIPTION / NOTES (Full width if text exists) */}

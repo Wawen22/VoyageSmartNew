@@ -12,6 +12,8 @@ import {
   Clock,
   X,
   Loader2,
+  Check,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,9 +62,9 @@ const roleLabels: Record<TripMemberRole, string> = {
 };
 
 const roleColors: Record<TripMemberRole, string> = {
-  owner: "text-amber-500",
-  admin: "text-primary",
-  member: "text-muted-foreground",
+  owner: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+  admin: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+  member: "text-slate-500 bg-slate-500/10 border-slate-500/20",
 };
 
 export function TripMembersList({ tripId }: TripMembersListProps) {
@@ -113,40 +115,51 @@ export function TripMembersList({ tripId }: TripMembersListProps) {
 
   if (loading) {
     return (
-      <div className="app-surface p-6">
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      <div className="p-6">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="app-surface p-6">
+    <div className="relative overflow-hidden bg-card/40 backdrop-blur-xl border border-border/60 rounded-3xl p-6 shadow-sm">
+      {/* Decorative Background */}
+      <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-foreground">
-            Viaggiatori ({members.length})
-          </h3>
+      <div className="flex items-center justify-between mb-6 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-sm">
+            <Users className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg text-foreground leading-tight">
+              Viaggiatori
+            </h3>
+            <p className="text-xs text-muted-foreground font-medium">
+              {members.length} {members.length === 1 ? 'partecipante' : 'partecipanti'}
+            </p>
+          </div>
         </div>
+
         {isAdmin && (
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="rounded-xl border-primary/20 hover:bg-primary/5 hover:text-primary transition-all shadow-sm">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Invita
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-card">
+            <DialogContent className="bg-card/95 backdrop-blur-xl border-border/60 rounded-[2rem]">
               <DialogHeader>
-                <DialogTitle>Invita un viaggiatore</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-xl font-bold">Invita un viaggiatore</DialogTitle>
+                <DialogDescription className="font-medium">
                   Inserisci l'email della persona che vuoi invitare al viaggio.
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4 py-4">
+              <div className="space-y-4 py-6">
                 <div className="space-y-2">
                   <Input
                     type="email"
@@ -156,21 +169,25 @@ export function TripMembersList({ tripId }: TripMembersListProps) {
                       setInviteEmail(e.target.value);
                       setEmailError(null);
                     }}
-                    className={cn(emailError && "border-destructive")}
+                    className={cn(
+                        "rounded-xl border-border/60 bg-muted/30 focus-visible:ring-primary/20",
+                        emailError && "border-destructive focus-visible:ring-destructive/20"
+                    )}
                   />
                   {emailError && (
-                    <p className="text-sm text-destructive">{emailError}</p>
+                    <p className="text-sm text-destructive font-medium pl-1">{emailError}</p>
                   )}
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="gap-2 sm:gap-0">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => setInviteDialogOpen(false)}
+                  className="rounded-xl"
                 >
                   Annulla
                 </Button>
-                <Button onClick={handleInvite} disabled={inviting}>
+                <Button onClick={handleInvite} disabled={inviting} className="rounded-xl bg-primary shadow-lg shadow-primary/20">
                   {inviting ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
@@ -184,8 +201,8 @@ export function TripMembersList({ tripId }: TripMembersListProps) {
         )}
       </div>
 
-      {/* Members List */}
-      <div className="space-y-3">
+      {/* Members Grid/List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
         <AnimatePresence mode="popLayout">
           {members.map((member, index) => (
             <MemberCard
@@ -203,12 +220,14 @@ export function TripMembersList({ tripId }: TripMembersListProps) {
 
       {/* Pending Invitations */}
       {invitations.length > 0 && (
-        <div className="mt-6 pt-6 border-t border-border/60">
-          <h4 className="text-sm font-medium text-muted-foreground mb-3 flex items-center gap-2">
-            <Clock className="w-4 h-4" />
-            Inviti in sospeso ({invitations.length})
-          </h4>
-          <div className="space-y-2">
+        <div className="mt-8 pt-6 border-t border-border/40 relative z-10">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5" />
+                Inviti in sospeso ({invitations.length})
+            </h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <AnimatePresence mode="popLayout">
               {invitations.map((invitation) => (
                 <InvitationCard
@@ -244,58 +263,72 @@ function MemberCard({
   getInitials,
 }: MemberCardProps) {
   const RoleIcon = roleIcons[member.role];
+  const roleStyle = roleColors[member.role] || "text-slate-500 bg-slate-500/10 border-slate-500/20";
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
       transition={{ delay: index * 0.05 }}
-      className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted/70 transition-colors border border-border/40"
+      className="group flex items-center gap-3 p-3.5 rounded-2xl bg-background/50 border border-border/40 hover:border-primary/20 hover:bg-background transition-all shadow-sm hover:shadow-md"
     >
-      <Avatar className="w-10 h-10">
-        <AvatarImage src={member.profile?.avatar_url || undefined} />
-        <AvatarFallback className="bg-primary/10 text-primary font-medium">
-          {getInitials(member.profile?.full_name)}
-        </AvatarFallback>
-      </Avatar>
-
-      <div className="flex-1 min-w-0">
-        <p className="font-medium text-foreground truncate">
-          {member.profile?.full_name || "Utente"}
-        </p>
-        <div className="flex items-center gap-1.5">
-          <RoleIcon className={cn("w-3 h-3", roleColors[member.role])} />
-          <span className={cn("text-xs", roleColors[member.role])}>
-            {roleLabels[member.role]}
-          </span>
+      <div className="relative">
+        <Avatar className="w-11 h-11 border-2 border-background shadow-sm">
+            <AvatarImage src={member.profile?.avatar_url || undefined} />
+            <AvatarFallback className="bg-primary/5 text-primary font-bold text-sm">
+            {getInitials(member.profile?.full_name)}
+            </AvatarFallback>
+        </Avatar>
+        <div className={cn(
+            "absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background flex items-center justify-center shadow-sm",
+            roleStyle.split(' ')[1], // bg color
+            roleStyle.split(' ')[0]  // text color
+        )}>
+            <RoleIcon className="w-2.5 h-2.5" />
         </div>
       </div>
 
-      {isAdmin && member.role !== "owner" && (
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+            <p className="font-bold text-foreground/90 truncate text-sm">
+            {member.profile?.full_name || "Utente"}
+            </p>
+        </div>
+        <p className="text-[10px] font-bold uppercase tracking-tighter text-muted-foreground/70">
+            {roleLabels[member.role]}
+        </p>
+      </div>
+
+      {isAdmin && member.role !== "owner" ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="w-4 h-4" />
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+              <MoreVertical className="w-4 h-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-card">
+          <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-xl border-border/60 rounded-xl">
             <DropdownMenuItem
+              className="rounded-lg gap-2 font-medium"
               onClick={() => onUpdateRole(member.role === "admin" ? "member" : "admin")}
             >
-              <Shield className="w-4 h-4 mr-2" />
+              <Shield className="w-4 h-4 text-blue-500" />
               {member.role === "admin" ? "Rimuovi Admin" : "Promuovi ad Admin"}
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="opacity-50" />
             <DropdownMenuItem
               onClick={onRemove}
-              className="text-destructive focus:text-destructive"
+              className="text-destructive focus:text-destructive rounded-lg gap-2 font-medium"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
+              <Trash2 className="w-4 h-4" />
               Rimuovi dal viaggio
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      ) : (
+          <div className="h-8 w-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <ChevronRight className="w-4 h-4 text-muted-foreground/30" />
+          </div>
       )}
     </motion.div>
   );
@@ -310,27 +343,30 @@ interface InvitationCardProps {
 function InvitationCard({ invitation, isAdmin, onCancel }: InvitationCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      className="flex items-center gap-3 p-3 rounded-2xl bg-amber-500/5 border border-amber-500/10 hover:bg-amber-500/10 transition-colors group"
     >
-      <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+      <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
         <Mail className="w-5 h-5 text-amber-500" />
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-foreground truncate">
+        <p className="font-bold text-foreground/90 truncate text-xs">
           {invitation.invited_email}
         </p>
-        <p className="text-xs text-muted-foreground">In attesa di risposta</p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+            <div className="w-1 h-1 rounded-full bg-amber-500 animate-pulse" />
+            <p className="text-[10px] font-bold text-amber-600/70 uppercase tracking-tight">In attesa</p>
+        </div>
       </div>
 
       {isAdmin && (
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+          className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={onCancel}
         >
           <X className="w-4 h-4" />
