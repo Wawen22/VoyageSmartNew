@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
@@ -8,7 +8,9 @@ import {
   Building2,
   Plane,
   ClipboardList,
-  Lightbulb
+  Lightbulb,
+  ChevronRight,
+  ChevronLeft
 } from "lucide-react";
 import { useTripStats } from "@/hooks/useTripStats";
 
@@ -21,6 +23,8 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
   const location = useLocation();
   const stats = useTripStats(tripId);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   const navItems = [
     {
@@ -101,6 +105,20 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
     },
   ];
 
+  const checkScroll = () => {
+    if (containerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5); // 5px tolerance
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, []);
+
   // Auto-scroll active item into view
   useEffect(() => {
     if (containerRef.current) {
@@ -112,6 +130,8 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
           inline: 'center'
         });
       }
+      // Check scroll after animation
+      setTimeout(checkScroll, 500);
     }
   }, [location.pathname]);
 
@@ -123,6 +143,7 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
       {/* Scrollable Content Container */}
       <div 
         ref={containerRef}
+        onScroll={checkScroll}
         className="relative flex items-center overflow-x-auto no-scrollbar px-4 gap-3 h-[5.5rem] pt-2 scroll-smooth"
       >
         {navItems.map((item) => (
@@ -166,9 +187,24 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
         <div className="w-2 shrink-0" />
       </div>
 
-      {/* Scroll Indicators (Fade Gradients) */}
-      <div className="absolute left-0 top-0 bottom-0 w-6 bg-gradient-to-r from-white/90 via-white/50 to-transparent dark:from-zinc-950/90 dark:via-zinc-950/50 pointer-events-none pb-safe" />
-      <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white/90 via-white/50 to-transparent dark:from-zinc-950/90 dark:via-zinc-950/50 pointer-events-none pb-safe" />
+      {/* Dynamic Scroll Indicators */}
+      <div 
+        className={cn(
+          "absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-zinc-950 to-transparent pointer-events-none pb-safe flex items-center justify-start pl-1 transition-opacity duration-300",
+          canScrollLeft ? "opacity-100" : "opacity-0"
+        )}
+      >
+        <ChevronLeft className="w-5 h-5 text-primary animate-pulse drop-shadow-md" />
+      </div>
+      
+      <div 
+        className={cn(
+          "absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-zinc-950 to-transparent pointer-events-none pb-safe flex items-center justify-end pr-1 transition-opacity duration-300",
+          canScrollRight ? "opacity-100" : "opacity-0"
+        )}
+      >
+        <ChevronRight className="w-5 h-5 text-primary animate-pulse drop-shadow-md" />
+      </div>
     </div>
   );
 }
