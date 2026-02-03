@@ -106,7 +106,7 @@ export function Translator() {
             </SelectContent>
          </Select>
 
-         <Button size="icon" variant="ghost" className="rounded-full hover:bg-muted order-2 md:order-none rotate-90 md:rotate-0 shrink-0" onClick={handleSwap} disabled={sourceLang === "auto"}>
+         <Button size="icon" variant="ghost" className="rounded-full hover:bg-muted order-2 md:order-2 rotate-90 md:rotate-0 shrink-0" onClick={handleSwap} disabled={sourceLang === "auto"}>
              <ArrowRightLeft className="w-5 h-5 text-muted-foreground" />
          </Button>
 

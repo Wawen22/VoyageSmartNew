@@ -20,6 +20,7 @@ import {
 import { CurrencyConverter } from "./CurrencyConverter";
 import { UnitConverter } from "./UnitConverter";
 import { Translator } from "./Translator";
+import { SplitCount } from "./SplitCount";
 import { ToolCard } from "./ToolCard";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,7 +32,7 @@ interface ToolsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type ToolType = "menu" | "currency" | "units" | "translate";
+type ToolType = "menu" | "currency" | "units" | "translate" | "split";
 
 export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
   const [activeTool, setActiveTool] = useState<ToolType>("menu");
@@ -52,6 +53,8 @@ export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
         return <UnitConverter />;
       case "translate":
         return <Translator />;
+      case "split":
+        return <SplitCount />;
       default:
         return null;
     }
@@ -62,7 +65,18 @@ export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
       case "currency": return "Convertitore Valuta";
       case "units": return "Convertitore Unità";
       case "translate": return "Traduttore AI";
+      case "split": return "Split Count";
       default: return "Strumenti di Viaggio";
+    }
+  };
+
+  const getToolDescription = () => {
+    switch (activeTool) {
+      case "currency": return "Tassi di cambio aggiornati in tempo reale.";
+      case "units": return "Misure internazionali e conversioni rapide.";
+      case "translate": return "Traduci testi istantaneamente con l'IA.";
+      case "split": return "Dividi il conto in un attimo.";
+      default: return "Seleziona uno strumento per gestire al meglio il tuo viaggio.";
     }
   };
 
@@ -71,6 +85,7 @@ export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
       case "currency": return Coins;
       case "units": return Ruler;
       case "translate": return Languages;
+      case "split": return Calculator;
       default: return LayoutGrid;
     }
   };
@@ -105,10 +120,7 @@ export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
                  {getToolTitle()}
                </DialogTitle>
                <DialogDescription className="text-base hidden sm:block">
-                 {activeTool === "menu" 
-                   ? "Seleziona uno strumento per gestire al meglio il tuo viaggio."
-                   : "Gestisci le tue necessità in modo rapido e semplice."
-                 }
+                 {getToolDescription()}
                </DialogDescription>
              </div>
            </div>
@@ -152,25 +164,23 @@ export function ToolsDialog({ open, onOpenChange }: ToolsDialogProps) {
                       theme="indigo"
                       onClick={() => handleToolSelect("translate")}
                     />
+                    <ToolCard 
+                      index={3}
+                      title="Split Count"
+                      description="Dividi le spese di gruppo in modo rapido e calcola le mance."
+                      icon={Calculator}
+                      theme="rose"
+                      onClick={() => handleToolSelect("split")}
+                    />
                     
                     {/* Coming Soon */}
                     <div className="opacity-50 grayscale hover:grayscale-0 hover:opacity-80 transition-all cursor-not-allowed">
                         <ToolCard 
-                          index={3}
+                          index={4}
                           title="Meteo Avanzato"
                           description="Previsioni dettagliate per tutte le tappe."
                           icon={CloudSun}
                           theme="sky"
-                          onClick={() => {}} 
-                        />
-                    </div>
-                     <div className="opacity-50 grayscale hover:grayscale-0 hover:opacity-80 transition-all cursor-not-allowed">
-                        <ToolCard 
-                          index={4}
-                          title="Split Count"
-                          description="Dividi le spese di gruppo in modo rapido."
-                          icon={Calculator}
-                          theme="rose"
                           onClick={() => {}} 
                         />
                     </div>
