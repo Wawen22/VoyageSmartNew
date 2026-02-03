@@ -69,7 +69,7 @@ interface EditTripDialogProps {
 
 const statusOptions = [
   { value: "planning", label: "In Pianificazione", icon: Clock, color: "text-amber-500" },
-  { value: "upcoming", label: "In Arrivo", icon: Plane, color: "text-blue-500" },
+  { value: "upcoming", label: "In Arrivo", icon: Plane, color: "text-lime-500" },
   { value: "completed", label: "Completato", icon: CheckCircle2, color: "text-emerald-500" },
 ];
 
