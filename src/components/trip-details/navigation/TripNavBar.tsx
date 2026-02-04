@@ -133,7 +133,7 @@ export function TripNavBar({ tripId }: TripNavBarProps) {
       <div 
         ref={containerRef}
         onScroll={checkScroll}
-        className="relative flex items-center overflow-x-auto no-scrollbar px-4 gap-3 h-[5.5rem] pt-2 scroll-smooth"
+        className="relative flex items-center overflow-x-auto scrollbar-hide px-4 gap-3 h-[5.5rem] pt-2 touch-pan-y"
       >
         {navItems.map((item) => (
           <Link

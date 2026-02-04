@@ -17,10 +17,10 @@ export function TripDocumentsHub({ tripId }: TripDocumentsHubProps) {
 
   return (
     <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 text-white shadow-2xl">
-      <div className="absolute -right-12 -top-10 opacity-[0.06]">
+      <div className="absolute -right-12 -top-10 opacity-[0.06] pointer-events-none">
         <Wallet className="h-44 w-44" />
       </div>
-      <div className="absolute -left-10 -bottom-12 opacity-[0.06]">
+      <div className="absolute -left-10 -bottom-12 opacity-[0.06] pointer-events-none">
         <ShieldCheck className="h-44 w-44" />
       </div>
       <div className="absolute inset-0 opacity-70">
@@ -71,11 +71,11 @@ export function TripDocumentsHub({ tripId }: TripDocumentsHubProps) {
           ))}
         </div>
 
-        <div className="grid gap-6">
-          <div className={cn("rounded-2xl border border-white/10 bg-white/5 p-4", activeTab !== "wallet" && "hidden")}>
+        <div className="grid gap-6 overflow-hidden">
+          <div className={cn("rounded-2xl border border-white/10 bg-white/5 p-4 overflow-hidden", activeTab !== "wallet" && "hidden")}>
             <TripWalletStrip tripId={tripId} variant="embedded" />
           </div>
-          <div className={cn("rounded-2xl border border-white/10 bg-white/5 p-4", activeTab !== "vault" && "hidden")}>
+          <div className={cn("rounded-2xl border border-white/10 bg-white/5 p-4 overflow-hidden", activeTab !== "vault" && "hidden")}>
             <TripVaultPanel tripId={tripId} variant="embedded" />
           </div>
         </div>

@@ -69,7 +69,7 @@ export function TripNavigation({ tripId }: TripNavigationProps) {
   ];
 
   return (
-    <div className="w-full overflow-x-auto pb-2 -mt-4 relative z-30 no-scrollbar">
+    <div className="w-full overflow-x-auto pb-2 -mt-4 relative z-30 scrollbar-hide touch-pan-y">
       <div className="flex items-center gap-3 px-4 md:px-8 min-w-max">
          {navItems.map((item) => {
            const isActive = location.pathname.includes(item.to.split('?')[0]);

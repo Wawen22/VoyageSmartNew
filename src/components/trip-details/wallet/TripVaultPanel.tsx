@@ -420,7 +420,8 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
               </div>
             </div>
           )}
-          <div className="max-h-[420px] space-y-3 overflow-y-auto pr-2">
+          <div className="relative flex-1 min-h-0 overflow-hidden">
+            <div className="h-full max-h-[380px] space-y-3 overflow-y-auto overscroll-y-contain scroll-smooth pr-2">
             {isLoading ? (
               <div className="flex items-center gap-2 text-sm text-white/70">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -508,6 +509,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
                 </div>
               ))
             )}
+            </div>
           </div>
         </div>
       )}

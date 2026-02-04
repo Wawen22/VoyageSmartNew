@@ -183,54 +183,56 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
               </div>
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth touch-pan-x">
-              {pinnedDocuments.map((doc) => {
-                const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
-                const Icon = meta.icon;
-                return (
-                  <div
-                    key={doc.id}
-                    className={cn(
-                      "relative min-w-[220px] shrink-0 overflow-hidden rounded-2xl border p-4 backdrop-blur",
-                      CATEGORY_CARD_DARK[(doc.category as WalletDocumentCategory) || "other"],
-                    )}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
-                          <Icon className="h-5 w-5" />
+            <div className="relative w-full overflow-hidden">
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide touch-pan-x overscroll-x-contain snap-x snap-mandatory scroll-smooth">
+                {pinnedDocuments.map((doc) => {
+                  const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
+                  const Icon = meta.icon;
+                  return (
+                    <div
+                      key={doc.id}
+                      className={cn(
+                        "relative min-w-[220px] max-w-[260px] shrink-0 overflow-hidden rounded-2xl border p-4 backdrop-blur snap-start",
+                        CATEGORY_CARD_DARK[(doc.category as WalletDocumentCategory) || "other"],
+                      )}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
+                            {meta.label}
+                          </Badge>
                         </div>
-                        <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
-                          {meta.label}
-                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-white/70 hover:text-white"
+                          onClick={() => handlePinToggle(doc.id, doc.is_pinned)}
+                        >
+                          {doc.is_pinned ? (
+                            <BookmarkCheck className="h-4 w-4" />
+                          ) : (
+                            <Bookmark className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                      <div className="mt-3 space-y-1">
+                        <p className="text-sm font-semibold text-white line-clamp-2">{doc.title}</p>
                       </div>
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="text-white/70 hover:text-white"
-                        onClick={() => handlePinToggle(doc.id, doc.is_pinned)}
+                        className="mt-4 w-full border border-white/10 text-white hover:bg-white/10"
+                        onClick={() => window.open(doc.document_url, "_blank")}
                       >
-                        {doc.is_pinned ? (
-                          <BookmarkCheck className="h-4 w-4" />
-                        ) : (
-                          <Bookmark className="h-4 w-4" />
-                        )}
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Apri
                       </Button>
                     </div>
-                    <div className="mt-3 space-y-1">
-                      <p className="text-sm font-semibold text-white line-clamp-2">{doc.title}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      className="mt-4 w-full border border-white/10 text-white hover:bg-white/10"
-                      onClick={() => window.open(doc.document_url, "_blank")}
-                    >
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      Apri
-                    </Button>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -352,10 +354,6 @@ function TripWalletUploadDialog({ tripId, open, onOpenChange }: TripWalletDialog
     handleFileSelected(file);
   };
 
-  const handlePinToggle = (docId: string, pinned: boolean) => {
-    updateDocument.mutate({ id: docId, is_pinned: !pinned });
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md p-0 overflow-hidden">
@@ -471,15 +469,16 @@ function TripWalletManageDialog({ tripId, open, onOpenChange }: TripWalletDialog
             <h4 className="text-sm font-semibold text-foreground">Documenti salvati</h4>
             <span className="text-xs text-muted-foreground">{documents.length} file</span>
           </div>
-          <div className="max-h-[420px] space-y-3 overflow-y-auto pr-2">
-            {documents.length === 0 ? (
-              <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
-                Nessun documento salvato. Inizia caricando un file.
-              </div>
-            ) : (
-              documents.map((doc) => {
-                const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
-                const Icon = meta.icon;
+          <div className="relative flex-1 min-h-0 overflow-hidden">
+            <div className="h-full max-h-[380px] space-y-3 overflow-y-auto overscroll-y-contain scroll-smooth pr-2">
+              {documents.length === 0 ? (
+                <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                  Nessun documento salvato. Inizia caricando un file.
+                </div>
+              ) : (
+                documents.map((doc) => {
+                  const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
+                  const Icon = meta.icon;
                   return (
                     <div
                       key={doc.id}
@@ -488,36 +487,37 @@ function TripWalletManageDialog({ tripId, open, onOpenChange }: TripWalletDialog
                         CATEGORY_CARD_LIGHT[(doc.category as WalletDocumentCategory) || "other"],
                       )}
                     >
-                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
-                      <Icon className="h-5 w-5" />
+                      <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
+                        <Badge className={cn("mt-1 text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
+                          {meta.label}
+                        </Badge>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => handlePinToggle(doc.id, doc.is_pinned)}>
+                        {doc.is_pinned ? (
+                          <BookmarkCheck className="h-4 w-4 text-primary" />
+                        ) : (
+                          <Bookmark className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => window.open(doc.document_url, "_blank")}
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => deleteDocument.mutate(doc)}>
+                        <X className="h-4 w-4 text-red-500" />
+                      </Button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
-                      <Badge className={cn("mt-1 text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
-                        {meta.label}
-                      </Badge>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => handlePinToggle(doc.id, doc.is_pinned)}>
-                      {doc.is_pinned ? (
-                        <BookmarkCheck className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Bookmark className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => window.open(doc.document_url, "_blank")}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteDocument.mutate(doc)}>
-                      <X className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </div>
-                );
-              })
-            )}
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>
