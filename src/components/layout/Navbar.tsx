@@ -218,21 +218,31 @@ export function Navbar() {
                             </Link>
                           );
                         })}
-                        
-                        {/* Strumenti & Utility Link */}
-                        {user && (
+                      </div>
+
+                      {/* Strumenti & Utility - Modern Card Version */}
+                      {user && (
+                        <div className="mt-8 px-1">
                           <button
                             onClick={() => {
                               setIsOpen(false);
                               setIsToolsOpen(true);
                             }}
-                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors text-left"
+                            className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/10 hover:border-indigo-500/30 hover:bg-indigo-500/10 transition-all text-left group relative overflow-hidden"
                           >
-                            <PocketKnife className="w-5 h-5" />
-                            Strumenti & Utility
+                            <div className="absolute -right-2 -bottom-2 opacity-5 group-hover:opacity-10 transition-opacity">
+                              <PocketKnife className="w-16 h-16 text-indigo-500" />
+                            </div>
+                            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 group-hover:rotate-12 transition-transform relative z-10">
+                              <PocketKnife className="w-5 h-5" />
+                            </div>
+                            <div className="relative z-10">
+                              <p className="text-sm font-bold text-foreground">Strumenti & Utility</p>
+                              <p className="text-[11px] text-muted-foreground">Traduttore, Valuta e Toolkit</p>
+                            </div>
                           </button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Drawer Footer */}
