@@ -179,7 +179,7 @@ export function Features() {
                 </div>
               </div>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Conserva biglietti e voucher nel Wallet rapido, e proteggi passaporti e assicurazioni nella Cassaforte cifrata (PRO).
+                Conserva biglietti e voucher nel Wallet rapido, e proteggi passaporti e assicurazioni nella Cassaforte cifrata.
               </p>
               <div className="flex gap-2">
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
