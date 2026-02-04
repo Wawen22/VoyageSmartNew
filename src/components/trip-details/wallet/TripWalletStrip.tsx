@@ -118,6 +118,7 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
             variant="secondary"
             className="bg-white/10 text-white hover:bg-white/20"
             onClick={handleOpenDialog}
+            disabled={!isPro}
           >
             <Plus className="mr-2 h-4 w-4" />
             Aggiungi
@@ -126,6 +127,7 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
             variant="ghost"
             className="border border-white/20 text-white hover:bg-white/10"
             onClick={handleOpenDialog}
+            disabled={!isPro}
           >
             Gestisci
           </Button>

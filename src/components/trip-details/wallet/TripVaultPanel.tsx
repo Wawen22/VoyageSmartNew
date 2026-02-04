@@ -291,7 +291,10 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
               <ShieldCheck className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold">Documenti cifrati</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold">Documenti cifrati</h3>
+                {!isPro && <Badge className="bg-amber-400/20 text-amber-200">PRO</Badge>}
+              </div>
               <p className="text-sm text-white/70">
                 Copie critiche protette da passphrase, accessibili solo da te.
               </p>

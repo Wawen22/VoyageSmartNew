@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Wallet, ShieldCheck } from "lucide-react";
+import { Lock, ShieldCheck, Wallet } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useSubscription } from "@/hooks/useSubscription";
 import { TripWalletStrip } from "@/components/trip-details/wallet/TripWalletStrip";
 import { TripVaultPanel } from "@/components/trip-details/wallet/TripVaultPanel";
 import { cn } from "@/lib/utils";
@@ -10,6 +12,7 @@ interface TripDocumentsHubProps {
 }
 
 export function TripDocumentsHub({ tripId }: TripDocumentsHubProps) {
+  const { isPro } = useSubscription();
   const [activeTab, setActiveTab] = useState<"wallet" | "vault">("wallet");
 
   return (
@@ -24,6 +27,14 @@ export function TripDocumentsHub({ tripId }: TripDocumentsHubProps) {
         <div className="absolute -top-24 -right-16 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl" />
         <div className="absolute -bottom-24 -left-16 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl" />
       </div>
+
+      {!isPro && (
+        <div className="absolute right-4 top-4 z-20">
+          <Badge className="rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-amber-200 shadow-[0_0_18px_-10px_rgba(251,191,36,0.8)]">
+            PRO
+          </Badge>
+        </div>
+      )}
 
       <div className="relative z-10 space-y-6 p-6">
         <div className="space-y-2">
@@ -44,13 +55,18 @@ export function TripDocumentsHub({ tripId }: TripDocumentsHubProps) {
               type="button"
               onClick={() => setActiveTab(tab.key as "wallet" | "vault")}
               className={cn(
-                "flex-1 rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest transition-all",
+                "flex-1 rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest transition-all flex items-center justify-center gap-2",
                 activeTab === tab.key
                   ? "bg-white/15 text-white shadow-sm"
                   : "text-white/60 hover:text-white",
               )}
             >
-              {tab.label}
+              <span>{tab.label}</span>
+              {!isPro && (
+                <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[9px] font-semibold tracking-widest text-amber-100">
+                  PRO
+                </span>
+              )}
             </button>
           ))}
         </div>
