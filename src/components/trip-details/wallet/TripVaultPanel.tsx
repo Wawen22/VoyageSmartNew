@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useTripVaultDocuments, VaultDocumentCategory, TripVaultDocument } from "@/hooks/useTripVaultDocuments";
 import { useSubscription } from "@/hooks/useSubscription";
@@ -63,6 +64,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
     data: vaultDocs = [],
     createVaultDocument,
     deleteVaultDocument,
+    deleteAllVaultDocuments,
     isLoading,
   } = useTripVaultDocuments(tripId, isPro);
 
@@ -76,6 +78,12 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
   const [category, setCategory] = useState<VaultDocumentCategory>("passport");
   const [loadingPreviewId, setLoadingPreviewId] = useState<string | null>(null);
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [resetAck, setResetAck] = useState(false);
+  const [resetTarget, setResetTarget] = useState<TripVaultDocument | null>(null);
+  const [resetPassphraseInput, setResetPassphraseInput] = useState("");
+  const [showResetPassphrase, setShowResetPassphrase] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scanInputRef = useRef<HTMLInputElement>(null);
 
@@ -87,6 +95,13 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
   const resetPassphraseDialog = () => {
     setShowPassphrase(false);
     setPassphraseInput("");
+  };
+
+  const resetVaultDialogState = () => {
+    setResetAck(false);
+    setResetTarget(null);
+    setResetPassphraseInput("");
+    setShowResetPassphrase(false);
   };
 
   const requirePassphrase = (action: VaultPendingAction) => {
@@ -268,6 +283,37 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
     setPendingAction(null);
   };
 
+  const handleResetVault = async () => {
+    if (!resetAck) {
+      toast({
+        title: "Conferma mancante",
+        description: "Seleziona la casella per continuare.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsResetting(true);
+    const resolved = resetPassphraseInput.trim();
+    try {
+      if (resolved && resetTarget) {
+        const ok = await verifyPassphraseAgainstDoc(resetTarget, resolved);
+        if (!ok) return;
+      } else if (passphrase) {
+        setPassphrase(passphrase);
+      } else {
+        setPassphrase("");
+      }
+
+      await deleteAllVaultDocuments.mutateAsync(vaultDocs);
+      setPassphrase("");
+      setShowResetDialog(false);
+      resetVaultDialogState();
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const handleFileSelected = async (file: File) => {
     if (!isPro) {
       setShowSubscriptionDialog(true);
@@ -363,15 +409,17 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
               {passphrase ? "Cassaforte sbloccata" : "Cassaforte bloccata"}
             </Badge>
           )}
-          <Button
-            variant="secondary"
-            className="bg-white/10 text-white hover:bg-white/20"
-            onClick={() => setShowUploadDialog(true)}
-            disabled={!isPro}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Aggiungi
-          </Button>
+          {passphrase && (
+            <Button
+              variant="secondary"
+              className="bg-white/10 text-white hover:bg-white/20"
+              onClick={() => setShowUploadDialog(true)}
+              disabled={!isPro}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Aggiungi
+            </Button>
+          )}
           {passphrase ? (
             <Button
               variant="ghost"
@@ -383,18 +431,28 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
               Blocca Cassaforte
             </Button>
           ) : (
-            <Button
-              variant="ghost"
-              className="border border-white/20 text-white hover:bg-white/10"
-              onClick={() => {
-                setPendingAction(null);
-                setShowPassphraseDialog(true);
-              }}
-              disabled={!isPro}
-            >
-              <KeyRound className="mr-2 h-4 w-4" />
-              Inserisci passphrase
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                className="border border-white/20 text-white hover:bg-white/10"
+                onClick={() => {
+                  setPendingAction(null);
+                  setShowPassphraseDialog(true);
+                }}
+                disabled={!isPro}
+              >
+                <KeyRound className="mr-2 h-4 w-4" />
+                {sortedDocs.length === 0 ? "Imposta passphrase" : "Inserisci passphrase"}
+              </Button>
+              <Button
+                variant="ghost"
+                className="border border-amber-300/40 text-amber-100 hover:bg-amber-400/10"
+                onClick={() => setShowResetDialog(true)}
+                disabled={!isPro || vaultDocs.length === 0}
+              >
+                Ripristina Cassaforte
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -666,6 +724,131 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
             <Button className="w-full" onClick={handlePassphraseConfirm}>
               Sblocca Cassaforte
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={showResetDialog}
+        onOpenChange={(open) => {
+          if (!open) resetVaultDialogState();
+          setShowResetDialog(open);
+        }}
+      >
+        <DialogContent className="max-w-lg p-0 overflow-hidden">
+          <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
+            <div className="absolute -right-6 -top-6 opacity-[0.08]">
+              <Lock className="h-28 w-28" />
+            </div>
+            <DialogHeader className="relative z-10 text-left">
+              <DialogTitle className="text-2xl">Ripristina la Cassaforte</DialogTitle>
+              <DialogDescription className="text-white/70">
+                Se hai perso la passphrase, l'unica opzione e' eliminare i documenti cifrati e crearne
+                una nuova.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="space-y-4 bg-background px-6 py-6 text-sm text-foreground">
+            <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-4 text-amber-900">
+              <p className="text-xs font-semibold uppercase tracking-widest text-amber-700">Attenzione</p>
+              <p className="text-sm">
+                Questo rimuove definitivamente i documenti salvati nella Cassaforte. Non potrai
+                recuperarli senza la passphrase originale.
+              </p>
+            </div>
+            <div className="space-y-2 text-xs text-muted-foreground">
+              <p>Documenti presenti: {vaultDocs.length}</p>
+              <p>
+                Per cambiare passphrase devi eliminare i file cifrati e caricarli di nuovo.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border/60 bg-card/60 p-4 space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Passphrase attuale (opzionale)</p>
+              <p className="text-xs text-muted-foreground">
+                Se la conosci, inseriscila per verificare che sia quella corretta prima del reset.
+              </p>
+              <div className="relative">
+                <Input
+                  type={showResetPassphrase ? "text" : "password"}
+                  value={resetPassphraseInput}
+                  onChange={(event) => setResetPassphraseInput(event.target.value)}
+                  placeholder="Passphrase attuale"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowResetPassphrase((prev) => !prev)}
+                >
+                  {showResetPassphrase ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={async () => {
+                  const resolved = resetPassphraseInput.trim();
+                  if (!resolved) {
+                    toast({
+                      title: "Inserisci la passphrase",
+                      description: "Serve una passphrase per verificare.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  if (sortedDocs.length === 0) return;
+                  const ok = await verifyPassphraseAgainstDoc(sortedDocs[0], resolved);
+                  if (!ok) {
+                    setResetTarget(null);
+                    return;
+                  }
+                  setResetTarget(sortedDocs[0]);
+                  toast({
+                    title: "Passphrase corretta",
+                    description: "La passphrase corrisponde ai documenti cifrati.",
+                  });
+                }}
+              >
+                Verifica passphrase
+              </Button>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-muted/60 p-4">
+              <Checkbox
+                id="vault-reset-ack"
+                checked={resetAck}
+                onCheckedChange={(checked) => setResetAck(Boolean(checked))}
+              />
+              <label htmlFor="vault-reset-ack" className="text-sm text-muted-foreground">
+                Ho compreso che i documenti nella Cassaforte verranno eliminati e dovro' caricarli di
+                nuovo con una nuova passphrase.
+              </label>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => setShowResetDialog(false)}
+                disabled={isResetting || deleteAllVaultDocuments.isPending}
+              >
+                Annulla
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 bg-amber-500 text-amber-950 hover:bg-amber-400"
+                onClick={handleResetVault}
+                disabled={!resetAck || isResetting || deleteAllVaultDocuments.isPending}
+              >
+                {isResetting || deleteAllVaultDocuments.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Ripristina e crea nuova passphrase
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

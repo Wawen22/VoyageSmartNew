@@ -107,10 +107,12 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
           {/* Features Grid */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             {[
-              { text: "AI Illimitato", sub: "No limiti" },
-              { text: "Export Pro", sub: "PDF & Cal" },
+              { text: "AI Illimitato", sub: "Senza limiti" },
+              { text: "Travel Wallet", sub: "Veloce e organizzato" },
+              { text: "Cassaforte", sub: "Documenti cifrati" },
+              { text: "Export Pro", sub: "PDF e Calendario" },
               { text: "Priorità", sub: "Supporto 24h" },
-              { text: "Badge Pro", sub: "Status" }
+              { text: "Badge Pro", sub: "Status Profilo" }
             ].map((feature, i) => (
               <div key={i} className="flex items-start gap-2 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors border border-transparent hover:border-slate-100">
                 <div className="mt-0.5 w-4 h-4 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0">
@@ -118,7 +120,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">{feature.text}</p>
-                  <p className="text-[10px] text-slate-500">{feature.sub}</p>
+                  <p className="text-[10px] text-slate-500 leading-tight">{feature.sub}</p>
                 </div>
               </div>
             ))}

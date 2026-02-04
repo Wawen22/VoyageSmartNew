@@ -130,9 +130,57 @@ export function useTripVaultDocuments(tripId?: string, enabled = true) {
     },
   });
 
+  const deleteAllMutation = useMutation({
+    mutationFn: async (docs: TripVaultDocument[]) => {
+      if (!tripId) throw new Error("Viaggio non valido");
+      if (!docs.length) return { storageError: null as unknown };
+
+      const docIds = docs.map((doc) => doc.id);
+      const filePaths = docs.map((doc) => doc.file_path);
+
+      const { error } = await supabase
+        .from("trip_vault_documents")
+        .delete()
+        .in("id", docIds);
+      if (error) throw error;
+
+      const { error: storageError } = await supabase.storage
+        .from("vault-documents")
+        .remove(filePaths);
+
+      if (storageError) {
+        console.error(storageError);
+        return { storageError };
+      }
+
+      return { storageError: null as unknown };
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["trip-vault-documents", tripId] });
+      if (result?.storageError) {
+        toast({
+          title: "Cassaforte ripristinata",
+          description: "Alcuni file non sono stati rimossi dallo storage. Riprova piu' tardi.",
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({ title: "Cassaforte ripristinata" });
+    },
+    onError: (error: any) => {
+      console.error(error);
+      toast({
+        title: "Errore",
+        description: error?.message || "Impossibile ripristinare la Cassaforte.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     ...query,
     createVaultDocument: createMutation,
     deleteVaultDocument: deleteMutation,
+    deleteAllVaultDocuments: deleteAllMutation,
   };
 }
