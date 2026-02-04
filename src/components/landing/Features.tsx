@@ -12,7 +12,9 @@ import {
   Lightbulb,
   PocketKnife,
   Languages,
-  Coins
+  Coins,
+  ShieldCheck,
+  FileScan,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -64,7 +66,7 @@ export function Features() {
           {/* Main Feature: AI Assistant (Span 2 cols on md) */}
           <motion.div 
             variants={itemVariants}
-            className="md:col-span-2 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-indigo-500/20 transition-all"
+            className="order-1 md:order-1 md:col-span-2 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-indigo-500/20 transition-all"
           >
             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
               <Bot className="w-40 h-40 text-indigo-500" />
@@ -101,9 +103,9 @@ export function Features() {
           {/* Feature: Travel Tools (NEW) */}
           <motion.div 
             variants={itemVariants}
-            className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group relative overflow-hidden"
+            className="order-2 md:order-2 bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group relative overflow-hidden"
           >
-            <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-100 transition-opacity text-slate-500">
+            <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity text-slate-500">
               <PocketKnife className="w-32 h-32" />
             </div>
             <div className="w-12 h-12 rounded-xl bg-slate-500/10 flex items-center justify-center mb-6 text-slate-600 group-hover:scale-110 transition-transform">
@@ -119,10 +121,28 @@ export function Features() {
             </div>
           </motion.div>
 
+          {/* Feature: Smart Finance */}
+          <motion.div 
+            variants={itemVariants}
+            className="order-4 md:order-3 bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group relative overflow-hidden"
+          >
+            <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity text-emerald-500">
+              <Wallet className="w-32 h-32" />
+            </div>
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
+              <Wallet className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Divisione Spese</h3>
+            <p className="text-muted-foreground">
+              Traccia chi ha pagato cosa e lascia che calcoliamo chi deve a chi. 
+              Supporta valute multiple con conversione automatica.
+            </p>
+          </motion.div>
+
           {/* Feature: Trip Ideas (NEW - Span 2) */}
           <motion.div 
             variants={itemVariants}
-            className="md:col-span-2 bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-amber-500/20 transition-all"
+            className="order-3 md:order-4 md:col-span-2 bg-gradient-to-br from-amber-500/5 to-orange-500/5 border border-amber-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-amber-500/20 transition-all"
           >
             <div className="absolute bottom-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
               <Lightbulb className="w-40 h-40 text-amber-500" />
@@ -140,26 +160,48 @@ export function Features() {
             </div>
           </motion.div>
 
-          {/* Feature: Smart Finance */}
+          {/* Feature: Travel Wallet & Vault (NEW) */}
           <motion.div 
             variants={itemVariants}
-            className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group"
+            className="order-5 md:order-5 md:col-span-2 bg-gradient-to-br from-slate-900/5 to-indigo-900/5 border border-slate-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-slate-500/20 transition-all"
           >
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6 text-emerald-600 group-hover:scale-110 transition-transform">
-              <Wallet className="w-6 h-6" />
+            <div className="absolute bottom-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+              <FileScan className="w-40 h-40 text-slate-500" />
             </div>
-            <h3 className="text-xl font-bold mb-3">Divisione Spese</h3>
-            <p className="text-muted-foreground">
-              Traccia chi ha pagato cosa e lascia che calcoliamo chi deve a chi. 
-              Supporta valute multiple con conversione automatica.
-            </p>
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-xl bg-slate-900/10 flex items-center justify-center mb-6 text-slate-700">
+                <FileScan className="w-6 h-6" />
+              </div>
+              <h3 className="text-2xl font-bold mb-3">Travel Wallet & Cassaforte</h3>
+              <div className="absolute right-0 top-0">
+                <div className="px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-400/10 text-[10px] font-semibold uppercase tracking-widest text-amber-600">
+                  PRO
+                </div>
+              </div>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Conserva biglietti e voucher nel Wallet rapido, e proteggi passaporti e assicurazioni nella Cassaforte cifrata (PRO).
+              </p>
+              <div className="flex gap-2">
+                <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
+                  <Wallet className="w-3.5 h-3.5 text-emerald-500" />
+                  Wallet
+                </div>
+                <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />
+                  Vault PRO
+                </div>
+              </div>
+            </div>
           </motion.div>
 
           {/* Feature: Interactive Maps */}
           <motion.div 
             variants={itemVariants}
-            className="bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group"
+            className="order-6 md:order-6 bg-card border rounded-3xl p-8 hover:shadow-lg transition-all group relative overflow-hidden"
           >
+            <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity text-blue-500">
+              <Map className="w-32 h-32" />
+            </div>
             <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6 text-blue-600 group-hover:scale-110 transition-transform">
               <Map className="w-6 h-6" />
             </div>
@@ -173,7 +215,7 @@ export function Features() {
           {/* Feature: Collaboration (Span 2) */}
           <motion.div 
             variants={itemVariants}
-            className="md:col-span-2 bg-gradient-to-br from-pink-500/5 to-rose-500/5 border border-pink-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-pink-500/20 transition-all"
+            className="order-7 md:order-7 md:col-span-2 bg-gradient-to-br from-pink-500/5 to-rose-500/5 border border-pink-500/10 rounded-3xl p-8 relative overflow-hidden group hover:border-pink-500/20 transition-all"
           >
              <div className="absolute bottom-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
               <Users className="w-40 h-40 text-pink-500" />

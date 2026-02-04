@@ -19,6 +19,9 @@
     *   **Convertitore Valuta:** Tassi di cambio in tempo reale.
     *   **Traduttore AI:** Traduzioni naturali bidirezionali.
     *   **Convertitore Unità:** Lunghezza, peso e temperatura.
+*   **Documenti di Viaggio (PRO):**
+    *   **Travel Wallet:** Accesso rapido ai documenti essenziali (biglietti, voucher, passaporti).
+    *   **Cassaforte Cifrata:** Archivia documenti sensibili con cifratura client-side e passphrase.
 *   **Mappa Itinerario Interattiva:** Visualizza il tuo percorso su mappa dinamica con calcolo tempi di percorrenza.
 *   **Smart Finance:** Tracciamento spese multi-valuta, conversione automatica e gestione debiti.
 *   **Collaborazione Real-time:** Invita amici e pianifica insieme con sincronizzazione istantanea.
@@ -26,7 +29,7 @@
 
 ### 💎 Piani & Monetizzazione
 *   **Piano Free:** Accesso completo alla pianificazione, AI limitata (5 msg), funzionalità base.
-*   **Piano Pro:** AI illimitata, Export PDF/Calendario sbloccati, Supporto prioritario.
+*   **Piano Pro:** AI illimitata, Export PDF/Calendario sbloccati, Travel Wallet + Cassaforte cifrata, Supporto prioritario.
 
 ## 🛠️ Tecnologie Utilizzate
 
