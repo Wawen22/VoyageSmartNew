@@ -19,8 +19,7 @@ import { TripStatusWidget } from "@/components/trip-details/widgets/TripStatusWi
 import { CurrencyWidget } from "@/components/trip-details/widgets/CurrencyWidget";
 import { WorldClocksWidget } from "@/components/trip-details/widgets/WorldClocksWidget";
 import { TripMembersList } from "@/components/trips/TripMembersList";
-import { TripWalletStrip } from "@/components/trip-details/wallet/TripWalletStrip";
-import { TripVaultPanel } from "@/components/trip-details/wallet/TripVaultPanel";
+import { TripDocumentsHub } from "@/components/trip-details/wallet/TripDocumentsHub";
 import { cn } from "@/lib/utils";
 
 interface TripOverviewProps {
@@ -71,14 +70,9 @@ export function TripOverview({ trip }: TripOverviewProps) {
          <CurrencyWidget tripCurrency={stats.currency} userCurrency="EUR" />
       </div>
 
-      {/* 3.5 TRAVEL WALLET STRIP */}
+      {/* 3.5 DOCUMENTS HUB */}
       <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-4">
-         <TripWalletStrip tripId={trip.id} />
-      </motion.div>
-
-      {/* 3.6 VAULT / SCANNER */}
-      <motion.div variants={item} className="col-span-1 md:col-span-2 lg:col-span-4">
-         <TripVaultPanel tripId={trip.id} />
+         <TripDocumentsHub tripId={trip.id} />
       </motion.div>
 
       {/* 4. COMPANIONS (Wide, auto-height) */}

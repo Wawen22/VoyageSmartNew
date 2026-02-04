@@ -5,13 +5,14 @@ import {
   ScanLine,
   FileText,
   UploadCloud,
-  Eye,
   EyeOff,
   Download,
   Trash2,
   Loader2,
   FolderKey,
   KeyRound,
+  Eye,
+  Plus,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,9 +53,10 @@ type VaultPendingAction =
 
 interface TripVaultPanelProps {
   tripId: string;
+  variant?: "standalone" | "embedded";
 }
 
-export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
+export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPanelProps) {
   const { isPro } = useSubscription();
   const { toast } = useToast();
   const {
@@ -68,6 +70,7 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
   const [passphraseInput, setPassphraseInput] = useState("");
   const [showPassphrase, setShowPassphrase] = useState(false);
   const [showPassphraseDialog, setShowPassphraseDialog] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [pendingAction, setPendingAction] = useState<VaultPendingAction>(null);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<VaultDocumentCategory>("passport");
@@ -105,6 +108,7 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
       passphrase: passphraseValue,
     });
     setTitle("");
+    setShowUploadDialog(false);
   };
 
   const performOpen = async (doc: TripVaultDocument, passphraseValue: string) => {
@@ -276,239 +280,273 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
     </div>
   ) : null;
 
-  return (
-    <>
-      <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 text-white shadow-2xl">
-        <div className="absolute -right-10 -top-10 opacity-[0.08]">
-          <ShieldCheck className="h-40 w-40" />
-        </div>
-        <div className="absolute inset-0 opacity-70">
-          <div className="absolute -top-24 -right-16 h-48 w-48 rounded-full bg-indigo-500/20 blur-3xl" />
-          <div className="absolute -bottom-24 -left-16 h-48 w-48 rounded-full bg-rose-500/20 blur-3xl" />
-        </div>
-
-        <div className="relative z-10 space-y-6 p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/60">Cassaforte privata</p>
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-                  <ShieldCheck className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold">Documenti cifrati</h3>
-                  <p className="text-sm text-white/70">
-                    Copie critiche protette da passphrase, accessibili solo da te.
-                  </p>
-                </div>
-              </div>
+  const content = (
+    <div className={cn("space-y-6", variant === "embedded" ? "p-0" : "p-6")}
+    >
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-white/60">Scanner & Cassaforte</p>
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <ShieldCheck className="h-6 w-6" />
             </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {isPro && (
-                <Badge className={cn("border border-white/20 bg-white/10", passphrase ? "text-emerald-200" : "text-amber-200")}>
-                  {passphrase ? "Cassaforte sbloccata" : "Cassaforte bloccata"}
-                </Badge>
-              )}
-              <Button
-                variant="ghost"
-                className="border border-white/20 text-white hover:bg-white/10"
-                onClick={() => {
-                  setPendingAction(null);
-                  setShowPassphraseDialog(true);
-                }}
-                disabled={!isPro}
-              >
-                <KeyRound className="mr-2 h-4 w-4" />
-                {passphrase ? "Cambia passphrase" : "Inserisci passphrase"}
-              </Button>
+            <div>
+              <h3 className="text-xl font-semibold">Documenti cifrati</h3>
+              <p className="text-sm text-white/70">
+                Copie critiche protette da passphrase, accessibili solo da te.
+              </p>
             </div>
           </div>
+        </div>
 
-          {lockedView ? (
-            lockedView
-          ) : (
-            <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-              <div className="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-white">Nuovo documento cifrato</p>
-                  <Badge className="bg-white/10 text-white/80">AES-256</Badge>
-                </div>
-                <Input
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  placeholder="Titolo documento"
-                  className="border-white/10 bg-white/10 text-white placeholder:text-white/50 focus-visible:ring-white/30"
-                />
-                <select
-                  value={category}
-                  onChange={(event) => setCategory(event.target.value as VaultDocumentCategory)}
-                  className="h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white"
-                >
-                  {VAULT_CATEGORIES.map((option) => (
-                    <option key={option.value} value={option.value} className="text-slate-900">
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-white/60">
-                  La passphrase viene richiesta quando apri o scarichi un documento.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*,.pdf"
-                    className="hidden"
-                    onChange={handleInputChange}
-                  />
-                  <input
-                    ref={scanInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={handleInputChange}
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="flex-1 bg-white/10 text-white hover:bg-white/20"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={createVaultDocument.isPending}
-                  >
-                    {createVaultDocument.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <UploadCloud className="mr-2 h-4 w-4" />
-                    )}
-                    Carica file
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="flex-1 border border-white/20 text-white hover:bg-white/10"
-                    onClick={() => scanInputRef.current?.click()}
-                    disabled={createVaultDocument.isPending}
-                  >
-                    <ScanLine className="mr-2 h-4 w-4" />
-                    Scansiona
-                  </Button>
-                </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {isPro && (
+            <Badge className={cn("border border-white/20 bg-white/10", passphrase ? "text-emerald-200" : "text-amber-200")}>
+              {passphrase ? "Cassaforte sbloccata" : "Cassaforte bloccata"}
+            </Badge>
+          )}
+          <Button
+            variant="secondary"
+            className="bg-white/10 text-white hover:bg-white/20"
+            onClick={() => setShowUploadDialog(true)}
+            disabled={!isPro}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Aggiungi
+          </Button>
+          <Button
+            variant="ghost"
+            className="border border-white/20 text-white hover:bg-white/10"
+            onClick={() => {
+              setPendingAction(null);
+              setShowPassphraseDialog(true);
+            }}
+            disabled={!isPro}
+          >
+            <KeyRound className="mr-2 h-4 w-4" />
+            {passphrase ? "Cambia passphrase" : "Inserisci passphrase"}
+          </Button>
+        </div>
+      </div>
+
+      {lockedView ? (
+        lockedView
+      ) : (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold text-white">Documenti cifrati</h4>
+            <span className="text-xs text-white/60">{sortedDocs.length} file</span>
+          </div>
+          {!passphrase && (
+            <div className="flex items-center gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-amber-100 shadow-[0_0_20px_-12px_rgba(251,191,36,0.6)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/20">
+                <Lock className="h-5 w-5" />
               </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-semibold text-white">Documenti cifrati</h4>
-                  <span className="text-xs text-white/60">{sortedDocs.length} file</span>
-                </div>
-                {!passphrase && (
-                  <div className="flex items-center gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-amber-100 shadow-[0_0_20px_-12px_rgba(251,191,36,0.6)]">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/20">
-                      <Lock className="h-5 w-5" />
-                    </div>
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-semibold">Cassaforte bloccata</p>
-                      <p className="text-xs text-amber-100/80">
-                        Inserisci la passphrase per aprire o scaricare i documenti cifrati.
-                      </p>
-                    </div>
-                  </div>
-                )}
-                <div className="max-h-[420px] space-y-3 overflow-y-auto pr-2">
-                  {isLoading ? (
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Caricamento Cassaforte...
-                    </div>
-                  ) : sortedDocs.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-white/70">
-                      Nessun documento salvato in Cassaforte.
-                    </div>
-                  ) : (
-                    sortedDocs.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className={cn(
-                          "relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all",
-                          !passphrase && "ring-1 ring-amber-400/30",
-                        )}
-                      >
-                        {!passphrase && (
-                          <div className="pointer-events-none absolute inset-0">
-                            <div className="absolute inset-0 flex items-center justify-center opacity-[0.14] text-amber-200">
-                              <Lock className="h-28 w-28" />
-                            </div>
-                          </div>
-                        )}
-                        <div className="absolute right-3 top-3 flex items-center gap-2">
-                          <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as VaultDocumentCategory) || "other"])}>
-                            {VAULT_CATEGORIES.find((item) => item.value === doc.category)?.label || "Altro"}
-                          </Badge>
-                          {!passphrase && (
-                            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-300/40 bg-amber-400/15 text-amber-100">
-                              <Lock className="h-3.5 w-3.5" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
-                            {passphrase ? (
-                              <FileText className="h-5 w-5 text-white/70" />
-                            ) : (
-                              <Lock className="h-5 w-5 text-amber-200" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-white">{doc.title}</p>
-                            <p className="text-xs text-white/60">{doc.file_name}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            className="bg-white/10 text-white hover:bg-white/20"
-                            onClick={() => handleOpen(doc)}
-                            disabled={loadingPreviewId === doc.id}
-                          >
-                            {loadingPreviewId === doc.id ? (
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                              <FolderKey className="mr-2 h-4 w-4" />
-                            )}
-                            Apri
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="border border-white/20 text-white hover:bg-white/10"
-                            onClick={() => handleDownload(doc)}
-                            disabled={loadingPreviewId === doc.id}
-                          >
-                            <Download className="mr-2 h-4 w-4" />
-                            Scarica
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => deleteVaultDocument.mutate(doc)}
-                            disabled={deleteVaultDocument.isPending}
-                            className="border border-white/20 text-red-200 hover:text-red-100 hover:bg-white/10"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Elimina
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+              <div className="space-y-0.5">
+                <p className="text-sm font-semibold">Cassaforte bloccata</p>
+                <p className="text-xs text-amber-100/80">
+                  Inserisci la passphrase per aprire o scaricare i documenti cifrati.
+                </p>
               </div>
             </div>
           )}
+          <div className="max-h-[420px] space-y-3 overflow-y-auto pr-2">
+            {isLoading ? (
+              <div className="flex items-center gap-2 text-sm text-white/70">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Caricamento Cassaforte...
+              </div>
+            ) : sortedDocs.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-white/70">
+                Nessun documento salvato in Cassaforte.
+              </div>
+            ) : (
+              sortedDocs.map((doc) => (
+                <div
+                  key={doc.id}
+                  className={cn(
+                    "relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all",
+                    !passphrase && "ring-1 ring-amber-400/30",
+                  )}
+                >
+                  {!passphrase && (
+                    <div className="pointer-events-none absolute inset-0">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-[0.14] text-amber-200">
+                        <Lock className="h-28 w-28" />
+                      </div>
+                    </div>
+                  )}
+                  <div className="absolute right-3 top-3 flex items-center gap-2">
+                    <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as VaultDocumentCategory) || "other"])}>
+                      {VAULT_CATEGORIES.find((item) => item.value === doc.category)?.label || "Altro"}
+                    </Badge>
+                    {!passphrase && (
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-300/40 bg-amber-400/15 text-amber-100">
+                        <Lock className="h-3.5 w-3.5" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
+                      {passphrase ? (
+                        <FileText className="h-5 w-5 text-white/70" />
+                      ) : (
+                        <Lock className="h-5 w-5 text-amber-200" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-white">{doc.title}</p>
+                      <p className="text-xs text-white/60">{doc.file_name}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="bg-white/10 text-white hover:bg-white/20"
+                      onClick={() => handleOpen(doc)}
+                      disabled={loadingPreviewId === doc.id}
+                    >
+                      {loadingPreviewId === doc.id ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <FolderKey className="mr-2 h-4 w-4" />
+                      )}
+                      Apri
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="border border-white/20 text-white hover:bg-white/10"
+                      onClick={() => handleDownload(doc)}
+                      disabled={loadingPreviewId === doc.id}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Scarica
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteVaultDocument.mutate(doc)}
+                      disabled={deleteVaultDocument.isPending}
+                      className="border border-white/20 text-red-200 hover:text-red-100 hover:bg-white/10"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Elimina
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </Card>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {variant === "standalone" ? (
+        <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 text-white shadow-2xl">
+          <div className="absolute -right-10 -top-10 opacity-[0.08]">
+            <ShieldCheck className="h-40 w-40" />
+          </div>
+          <div className="absolute inset-0 opacity-70">
+            <div className="absolute -top-24 -right-16 h-48 w-48 rounded-full bg-indigo-500/20 blur-3xl" />
+            <div className="absolute -bottom-24 -left-16 h-48 w-48 rounded-full bg-rose-500/20 blur-3xl" />
+          </div>
+          {content}
+        </Card>
+      ) : (
+        content
+      )}
+
+      <Dialog
+        open={showUploadDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            setTitle("");
+            setCategory("passport");
+          }
+          setShowUploadDialog(open);
+        }}
+      >
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
+            <div className="absolute -right-6 -top-6 opacity-[0.08]">
+              <UploadCloud className="h-28 w-28" />
+            </div>
+            <DialogHeader className="relative z-10 text-left">
+              <DialogTitle className="text-2xl">Nuovo documento cifrato</DialogTitle>
+              <DialogDescription className="text-white/70">
+                Carica passaporti, assicurazioni o visti nella Cassaforte protetta.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="space-y-4 bg-background px-6 py-6">
+            <Input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Titolo documento"
+            />
+            <select
+              value={category}
+              onChange={(event) => setCategory(event.target.value as VaultDocumentCategory)}
+              className="h-11 w-full rounded-xl border border-input/70 bg-card/80 px-3 text-sm text-foreground"
+            >
+              {VAULT_CATEGORIES.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground">
+              La passphrase viene richiesta quando apri o scarichi un documento.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.pdf"
+                className="hidden"
+                onChange={handleInputChange}
+              />
+              <input
+                ref={scanInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleInputChange}
+              />
+              <Button
+                type="button"
+                variant="default"
+                className="flex-1"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={createVaultDocument.isPending}
+              >
+                {createVaultDocument.isPending ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <UploadCloud className="mr-2 h-4 w-4" />
+                )}
+                Carica file
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => scanInputRef.current?.click()}
+                disabled={createVaultDocument.isPending}
+              >
+                <ScanLine className="mr-2 h-4 w-4" />
+                Scansiona
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog
         open={showPassphraseDialog}

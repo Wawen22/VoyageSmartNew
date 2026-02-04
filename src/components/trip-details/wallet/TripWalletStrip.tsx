@@ -42,6 +42,17 @@ const CATEGORY_META: Record<
   other: { label: "Altro", icon: FileText, color: "text-slate-200 bg-slate-500/20" },
 };
 
+const CATEGORY_BADGE: Record<WalletDocumentCategory, string> = {
+  flight: "bg-sky-500/20 text-sky-100",
+  hotel: "bg-indigo-500/20 text-indigo-100",
+  passport: "bg-emerald-500/20 text-emerald-100",
+  insurance: "bg-amber-500/20 text-amber-100",
+  visa: "bg-rose-500/20 text-rose-100",
+  ticket: "bg-purple-500/20 text-purple-100",
+  other: "bg-slate-500/20 text-slate-100",
+};
+
+
 const CATEGORY_OPTIONS: { value: WalletDocumentCategory; label: string }[] = [
   { value: "flight", label: "Biglietto aereo" },
   { value: "hotel", label: "Voucher hotel" },
@@ -54,9 +65,10 @@ const CATEGORY_OPTIONS: { value: WalletDocumentCategory; label: string }[] = [
 
 interface TripWalletStripProps {
   tripId: string;
+  variant?: "standalone" | "embedded";
 }
 
-export function TripWalletStrip({ tripId }: TripWalletStripProps) {
+export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletStripProps) {
   const { isPro } = useSubscription();
   const { data: documents = [], isLoading, updateDocument } = useTripDocuments(tripId, isPro);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -79,138 +91,150 @@ export function TripWalletStrip({ tripId }: TripWalletStripProps) {
     setIsDialogOpen(true);
   };
 
-  return (
-    <>
-      <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 text-white shadow-2xl">
-        <div className="absolute -right-10 -top-10 opacity-[0.08]">
-          <Wallet className="h-40 w-40" />
-        </div>
-        <div className="absolute inset-0 opacity-70">
-          <div className="absolute -top-24 -right-16 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl" />
-          <div className="absolute -bottom-24 -left-16 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl" />
-        </div>
-
-        <div className="relative z-10 space-y-6 p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/60">Travel Wallet di gruppo</p>
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
-                  <Wallet className="h-6 w-6" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-semibold">Documenti rapidi</h3>
-                    {!isPro && <Badge className="bg-amber-400/20 text-amber-200">PRO</Badge>}
-                  </div>
-                  <p className="text-sm text-white/70">
-                    Biglietti, voucher e passaporti sempre a portata di tap.
-                  </p>
-                </div>
-              </div>
+  const content = (
+    <div className={cn("relative z-10 space-y-6", variant === "embedded" ? "p-0" : "p-6")}
+    >
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-white/60">Travel Wallet</p>
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+              <Wallet className="h-6 w-6" />
             </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant="secondary"
-                className="bg-white/10 text-white hover:bg-white/20"
-                onClick={handleOpenDialog}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Aggiungi
-              </Button>
-              <Button
-                variant="ghost"
-                className="border border-white/20 text-white hover:bg-white/10"
-                onClick={handleOpenDialog}
-              >
-                Gestisci
-              </Button>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold">Documenti rapidi</h3>
+                {!isPro && <Badge className="bg-amber-400/20 text-amber-200">PRO</Badge>}
+              </div>
+              <p className="text-sm text-white/70">
+                Biglietti, voucher e passaporti sempre a portata di tap.
+              </p>
             </div>
           </div>
+        </div>
 
-          {!isPro ? (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <div className="flex flex-col items-start gap-3 text-white/80">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
-                  <Lock className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="text-base font-semibold text-white">Wallet disponibile solo per PRO</p>
-                  <p className="text-sm text-white/70">
-                    Sblocca il Travel Wallet per avere accesso rapido ai documenti essenziali.
-                  </p>
-                </div>
-                <Button
-                  className="mt-2 bg-white text-slate-900 hover:bg-slate-100"
-                  onClick={() => setShowSubscriptionDialog(true)}
-                >
-                  Passa a PRO
-                </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            className="bg-white/10 text-white hover:bg-white/20"
+            onClick={handleOpenDialog}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Aggiungi
+          </Button>
+          <Button
+            variant="ghost"
+            className="border border-white/20 text-white hover:bg-white/10"
+            onClick={handleOpenDialog}
+          >
+            Gestisci
+          </Button>
+        </div>
+      </div>
+
+      {!isPro ? (
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+          <div className="flex flex-col items-start gap-3 text-white/80">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10">
+              <Lock className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-base font-semibold text-white">Wallet disponibile solo per PRO</p>
+              <p className="text-sm text-white/70">
+                Sblocca il Travel Wallet per avere accesso rapido ai documenti essenziali.
+              </p>
+            </div>
+            <Button
+              className="mt-2 bg-white text-slate-900 hover:bg-slate-100"
+              onClick={() => setShowSubscriptionDialog(true)}
+            >
+              Passa a PRO
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-white/70">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Caricamento documenti...
+            </div>
+          ) : pinnedDocuments.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-white/70">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                Nessun documento pinnato. Aggiungi i file essenziali per un accesso immediato.
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
-              {isLoading ? (
-                <div className="flex items-center gap-2 text-white/70">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Caricamento documenti...
-                </div>
-              ) : pinnedDocuments.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-white/70">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Nessun documento pinnato. Aggiungi i file essenziali per un accesso immediato.
-                  </div>
-                </div>
-              ) : (
-                <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-                  {pinnedDocuments.map((doc) => {
-                    const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
-                    const Icon = meta.icon;
-                    return (
-                      <div
-                        key={doc.id}
-                        className="min-w-[220px] rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
-                            <Icon className="h-5 w-5" />
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-white/70 hover:text-white"
-                            onClick={() => handlePinToggle(doc.id, doc.is_pinned)}
-                          >
-                            {doc.is_pinned ? (
-                              <BookmarkCheck className="h-4 w-4" />
-                            ) : (
-                              <Bookmark className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                        <div className="mt-3 space-y-1">
-                          <p className="text-sm font-semibold text-white line-clamp-2">{doc.title}</p>
-                          <Badge className="bg-white/10 text-white/80">{meta.label}</Badge>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          className="mt-4 w-full border border-white/10 text-white hover:bg-white/10"
-                          onClick={() => window.open(doc.document_url, "_blank")}
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Apri documento
-                        </Button>
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+              {pinnedDocuments.map((doc) => {
+                const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
+                const Icon = meta.icon;
+                return (
+                  <div
+                    key={doc.id}
+                    className="relative min-w-[220px] overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
+                  >
+                    <div className="absolute left-3 top-3">
+                      <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
+                        {meta.label}
+                      </Badge>
+                    </div>
+                    <div className="flex items-start justify-between">
+                      <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
+                        <Icon className="h-5 w-5" />
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-white/70 hover:text-white"
+                        onClick={() => handlePinToggle(doc.id, doc.is_pinned)}
+                      >
+                        {doc.is_pinned ? (
+                          <BookmarkCheck className="h-4 w-4" />
+                        ) : (
+                          <Bookmark className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <div className="mt-3 space-y-1">
+                      <p className="text-sm font-semibold text-white line-clamp-2">{doc.title}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="mt-4 w-full border border-white/10 text-white hover:bg-white/10"
+                      onClick={() => window.open(doc.document_url, "_blank")}
+                    >
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Apri
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
-      </Card>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {variant === "standalone" ? (
+        <Card className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 text-white shadow-2xl">
+          <div className="absolute -right-10 -top-10 opacity-[0.08]">
+            <Wallet className="h-40 w-40" />
+          </div>
+          <div className="absolute inset-0 opacity-70">
+            <div className="absolute -top-24 -right-16 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl" />
+            <div className="absolute -bottom-24 -left-16 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl" />
+          </div>
+          {content}
+        </Card>
+      ) : (
+        content
+      )}
 
       <TripWalletDialog tripId={tripId} open={isDialogOpen} onOpenChange={setIsDialogOpen} />
 
