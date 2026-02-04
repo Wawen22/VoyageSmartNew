@@ -131,6 +131,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
       const url = URL.createObjectURL(decryptedBlob);
       window.open(url, "_blank");
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      return true;
     } catch (error: any) {
       console.error(error);
       toast({
@@ -138,6 +139,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
         description: "Passphrase errata o documento non decifrabile.",
         variant: "destructive",
       });
+      return false;
     } finally {
       setLoadingPreviewId(null);
     }
@@ -168,6 +170,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
       link.click();
       document.body.removeChild(link);
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      return true;
     } catch (error: any) {
       console.error(error);
       toast({
@@ -175,8 +178,37 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
         description: "Passphrase errata o documento non decifrabile.",
         variant: "destructive",
       });
+      return false;
     } finally {
       setLoadingPreviewId(null);
+    }
+  };
+
+  const verifyPassphraseAgainstDoc = async (doc: TripVaultDocument, passphraseValue: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("vault-documents")
+        .download(doc.file_path);
+
+      if (error || !data) throw error || new Error("Download fallito");
+
+      await decryptBlob(
+        data,
+        passphraseValue,
+        doc.encryption_iv,
+        doc.encryption_salt,
+        doc.mime_type,
+      );
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Passphrase non valida",
+        description: "Non corrisponde ai documenti cifrati salvati.",
+        variant: "destructive",
+      });
+      return false;
     }
   };
 
@@ -191,10 +223,6 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
     }
 
     const resolvedPassphrase = passphraseInput.trim();
-    setPassphrase(resolvedPassphrase);
-    setShowPassphraseDialog(false);
-    resetPassphraseDialog();
-
     if (pendingAction?.type === "upload") {
       await performUpload(
         pendingAction.file,
@@ -202,16 +230,41 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
         pendingAction.title,
         pendingAction.category,
       );
+      setPassphrase(resolvedPassphrase);
+      setShowPassphraseDialog(false);
+      resetPassphraseDialog();
+      setPendingAction(null);
+      return;
     }
 
     if (pendingAction?.type === "open") {
-      await performOpen(pendingAction.doc, resolvedPassphrase);
+      const ok = await performOpen(pendingAction.doc, resolvedPassphrase);
+      if (!ok) return;
+      setPassphrase(resolvedPassphrase);
+      setShowPassphraseDialog(false);
+      resetPassphraseDialog();
+      setPendingAction(null);
+      return;
     }
 
     if (pendingAction?.type === "download") {
-      await performDownload(pendingAction.doc, resolvedPassphrase);
+      const ok = await performDownload(pendingAction.doc, resolvedPassphrase);
+      if (!ok) return;
+      setPassphrase(resolvedPassphrase);
+      setShowPassphraseDialog(false);
+      resetPassphraseDialog();
+      setPendingAction(null);
+      return;
     }
 
+    if (sortedDocs.length > 0) {
+      const ok = await verifyPassphraseAgainstDoc(sortedDocs[0], resolvedPassphrase);
+      if (!ok) return;
+    }
+
+    setPassphrase(resolvedPassphrase);
+    setShowPassphraseDialog(false);
+    resetPassphraseDialog();
     setPendingAction(null);
   };
 
@@ -250,7 +303,8 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
       requirePassphrase({ type: "open", doc });
       return;
     }
-    await performOpen(doc, passphrase);
+    const ok = await performOpen(doc, passphrase);
+    if (!ok) setPassphrase("");
   };
 
   const handleDownload = async (doc: TripVaultDocument) => {
@@ -258,7 +312,8 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
       requirePassphrase({ type: "download", doc });
       return;
     }
-    await performDownload(doc, passphrase);
+    const ok = await performDownload(doc, passphrase);
+    if (!ok) setPassphrase("");
   };
 
   const lockedView = !isPro ? (
@@ -317,18 +372,30 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
             <Plus className="mr-2 h-4 w-4" />
             Aggiungi
           </Button>
-          <Button
-            variant="ghost"
-            className="border border-white/20 text-white hover:bg-white/10"
-            onClick={() => {
-              setPendingAction(null);
-              setShowPassphraseDialog(true);
-            }}
-            disabled={!isPro}
-          >
-            <KeyRound className="mr-2 h-4 w-4" />
-            {passphrase ? "Cambia passphrase" : "Inserisci passphrase"}
-          </Button>
+          {passphrase ? (
+            <Button
+              variant="ghost"
+              className="border border-white/20 text-white hover:bg-white/10"
+              onClick={() => setPassphrase("")}
+              disabled={!isPro}
+            >
+              <Lock className="mr-2 h-4 w-4" />
+              Blocca Cassaforte
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              className="border border-white/20 text-white hover:bg-white/10"
+              onClick={() => {
+                setPendingAction(null);
+                setShowPassphraseDialog(true);
+              }}
+              disabled={!isPro}
+            >
+              <KeyRound className="mr-2 h-4 w-4" />
+              Inserisci passphrase
+            </Button>
+          )}
         </div>
       </div>
 
@@ -408,7 +475,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
                       size="sm"
                       className="bg-white/10 text-white hover:bg-white/20"
                       onClick={() => handleOpen(doc)}
-                      disabled={loadingPreviewId === doc.id}
+                      disabled={loadingPreviewId === doc.id || !passphrase}
                     >
                       {loadingPreviewId === doc.id ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -422,7 +489,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
                       size="sm"
                       className="border border-white/20 text-white hover:bg-white/10"
                       onClick={() => handleDownload(doc)}
-                      disabled={loadingPreviewId === doc.id}
+                      disabled={loadingPreviewId === doc.id || !passphrase}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Scarica
@@ -431,7 +498,7 @@ export function TripVaultPanel({ tripId, variant = "standalone" }: TripVaultPane
                       variant="ghost"
                       size="sm"
                       onClick={() => deleteVaultDocument.mutate(doc)}
-                      disabled={deleteVaultDocument.isPending}
+                      disabled={deleteVaultDocument.isPending || !passphrase}
                       className="border border-white/20 text-red-200 hover:text-red-100 hover:bg-white/10"
                     >
                       <Trash2 className="mr-2 h-4 w-4" />

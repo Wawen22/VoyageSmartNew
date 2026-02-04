@@ -43,13 +43,33 @@ const CATEGORY_META: Record<
 };
 
 const CATEGORY_BADGE: Record<WalletDocumentCategory, string> = {
-  flight: "bg-sky-500/20 text-sky-100",
+  flight: "bg-teal-500/20 text-teal-100",
   hotel: "bg-indigo-500/20 text-indigo-100",
   passport: "bg-emerald-500/20 text-emerald-100",
   insurance: "bg-amber-500/20 text-amber-100",
   visa: "bg-rose-500/20 text-rose-100",
   ticket: "bg-purple-500/20 text-purple-100",
   other: "bg-slate-500/20 text-slate-100",
+};
+
+const CATEGORY_CARD_DARK: Record<WalletDocumentCategory, string> = {
+  flight: "bg-gradient-to-br from-teal-500/15 via-white/5 to-emerald-500/15 border-teal-500/20",
+  hotel: "bg-gradient-to-br from-indigo-500/15 via-white/5 to-violet-500/15 border-indigo-500/20",
+  passport: "bg-gradient-to-br from-emerald-500/15 via-white/5 to-teal-500/15 border-emerald-500/20",
+  insurance: "bg-gradient-to-br from-amber-500/15 via-white/5 to-orange-500/15 border-amber-500/20",
+  visa: "bg-gradient-to-br from-rose-500/15 via-white/5 to-pink-500/15 border-rose-500/20",
+  ticket: "bg-gradient-to-br from-purple-500/15 via-white/5 to-fuchsia-500/15 border-purple-500/20",
+  other: "bg-gradient-to-br from-slate-500/15 via-white/5 to-slate-700/15 border-white/10",
+};
+
+const CATEGORY_CARD_LIGHT: Record<WalletDocumentCategory, string> = {
+  flight: "bg-gradient-to-br from-teal-500/10 via-white to-emerald-500/5 border-teal-500/20",
+  hotel: "bg-gradient-to-br from-indigo-500/10 via-white to-violet-500/5 border-indigo-500/20",
+  passport: "bg-gradient-to-br from-emerald-500/10 via-white to-teal-500/5 border-emerald-500/20",
+  insurance: "bg-gradient-to-br from-amber-500/10 via-white to-orange-500/5 border-amber-500/20",
+  visa: "bg-gradient-to-br from-rose-500/10 via-white to-pink-500/5 border-rose-500/20",
+  ticket: "bg-gradient-to-br from-purple-500/10 via-white to-fuchsia-500/5 border-purple-500/20",
+  other: "bg-gradient-to-br from-slate-500/10 via-white to-slate-500/5 border-slate-200",
 };
 
 
@@ -71,7 +91,8 @@ interface TripWalletStripProps {
 export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletStripProps) {
   const { isPro } = useSubscription();
   const { data: documents = [], isLoading, updateDocument } = useTripDocuments(tripId, isPro);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showManageDialog, setShowManageDialog] = useState(false);
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
 
   const pinnedDocuments = useMemo(
@@ -83,13 +104,6 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
     updateDocument.mutate({ id: docId, is_pinned: !isPinned });
   };
 
-  const handleOpenDialog = () => {
-    if (!isPro) {
-      setShowSubscriptionDialog(true);
-      return;
-    }
-    setIsDialogOpen(true);
-  };
 
   const content = (
     <div className={cn("relative z-10 space-y-6", variant === "embedded" ? "p-0" : "p-6")}
@@ -117,7 +131,7 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
           <Button
             variant="secondary"
             className="bg-white/10 text-white hover:bg-white/20"
-            onClick={handleOpenDialog}
+            onClick={() => (isPro ? setShowUploadDialog(true) : setShowSubscriptionDialog(true))}
             disabled={!isPro}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -126,7 +140,7 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
           <Button
             variant="ghost"
             className="border border-white/20 text-white hover:bg-white/10"
-            onClick={handleOpenDialog}
+            onClick={() => (isPro ? setShowManageDialog(true) : setShowSubscriptionDialog(true))}
             disabled={!isPro}
           >
             Gestisci
@@ -169,23 +183,26 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
               </div>
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+            <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar scroll-smooth touch-pan-x">
               {pinnedDocuments.map((doc) => {
                 const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
                 const Icon = meta.icon;
                 return (
                   <div
                     key={doc.id}
-                    className="relative min-w-[220px] overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"
+                    className={cn(
+                      "relative min-w-[220px] shrink-0 overflow-hidden rounded-2xl border p-4 backdrop-blur",
+                      CATEGORY_CARD_DARK[(doc.category as WalletDocumentCategory) || "other"],
+                    )}
                   >
-                    <div className="absolute left-3 top-3">
-                      <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
-                        {meta.label}
-                      </Badge>
-                    </div>
                     <div className="flex items-start justify-between">
-                      <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
-                        <Icon className="h-5 w-5" />
+                      <div className="flex items-center gap-2">
+                        <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
+                          {meta.label}
+                        </Badge>
                       </div>
                       <Button
                         variant="ghost"
@@ -238,7 +255,17 @@ export function TripWalletStrip({ tripId, variant = "standalone" }: TripWalletSt
         content
       )}
 
-      <TripWalletDialog tripId={tripId} open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+      <TripWalletUploadDialog
+        tripId={tripId}
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+      />
+
+      <TripWalletManageDialog
+        tripId={tripId}
+        open={showManageDialog}
+        onOpenChange={setShowManageDialog}
+      />
 
       <SubscriptionDialog open={showSubscriptionDialog} onOpenChange={setShowSubscriptionDialog} />
     </>
@@ -251,9 +278,9 @@ interface TripWalletDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-function TripWalletDialog({ tripId, open, onOpenChange }: TripWalletDialogProps) {
+function TripWalletUploadDialog({ tripId, open, onOpenChange }: TripWalletDialogProps) {
   const { toast } = useToast();
-  const { data: documents = [], createDocument, deleteDocument, updateDocument } = useTripDocuments(tripId, true);
+  const { createDocument } = useTripDocuments(tripId, true);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<WalletDocumentCategory>("flight");
   const [isPinned, setIsPinned] = useState(true);
@@ -331,140 +358,166 @@ function TripWalletDialog({ tripId, open, onOpenChange }: TripWalletDialogProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+      <DialogContent className="max-w-md p-0 overflow-hidden">
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
+          <div className="absolute -right-6 -top-6 opacity-[0.08]">
+            <Wallet className="h-28 w-28" />
+          </div>
+          <DialogHeader className="relative z-10 text-left">
+            <DialogTitle className="text-2xl">Nuovo documento</DialogTitle>
+            <DialogDescription className="text-white/70">
+              Carica biglietti, voucher e documenti essenziali nel Wallet rapido.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <div className="space-y-4 bg-background px-6 py-6">
+          <Input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Titolo documento"
+          />
+          <select
+            value={category}
+            onChange={(event) => setCategory(event.target.value as WalletDocumentCategory)}
+            className="h-11 w-full rounded-xl border border-input/70 bg-card/80 px-3 text-sm text-foreground"
+          >
+            {CATEGORY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <label className="flex items-center gap-2 text-sm text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={isPinned}
+              onChange={(event) => setIsPinned(event.target.checked)}
+              className="h-4 w-4 rounded border border-input"
+            />
+            Pinnalo nel Wallet rapido
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*,.pdf,.doc,.docx"
+              className="hidden"
+              onChange={handleFileInput}
+            />
+            <input
+              ref={scanRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleFileInput}
+            />
+            <Button
+              type="button"
+              variant="default"
+              className="flex-1"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="mr-2 h-4 w-4" />
+              )}
+              Carica file
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={() => scanRef.current?.click()}
+              disabled={uploading}
+            >
+              <Scan className="mr-2 h-4 w-4" />
+              Scansiona
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TripWalletManageDialog({ tripId, open, onOpenChange }: TripWalletDialogProps) {
+  const { data: documents = [], deleteDocument, updateDocument } = useTripDocuments(tripId, true);
+
+  const handlePinToggle = (docId: string, pinned: boolean) => {
+    updateDocument.mutate({ id: docId, is_pinned: !pinned });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl p-0 overflow-hidden">
         <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
           <div className="absolute -right-8 -top-6 opacity-[0.08]">
             <Wallet className="h-32 w-32" />
           </div>
           <DialogHeader className="relative z-10 text-left">
-            <DialogTitle className="text-2xl">Travel Wallet</DialogTitle>
+            <DialogTitle className="text-2xl">Gestisci documenti</DialogTitle>
             <DialogDescription className="text-white/70">
-              Aggiungi e organizza i documenti essenziali per il viaggio.
+              Organizza, pinna e apri rapidamente i documenti del tuo viaggio.
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        <div className="grid gap-6 bg-background px-6 py-6 lg:grid-cols-[1fr_1.4fr]">
-          <div className="space-y-4 rounded-2xl border bg-muted/20 p-4">
-            <h4 className="text-sm font-semibold text-foreground">Nuovo documento</h4>
-            <div className="space-y-3">
-              <Input
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="Titolo documento"
-              />
-              <select
-                value={category}
-                onChange={(event) => setCategory(event.target.value as WalletDocumentCategory)}
-                className="h-11 w-full rounded-xl border border-input/70 bg-card/80 px-3 text-sm text-foreground"
-              >
-                {CATEGORY_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="flex flex-wrap gap-2">
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept="image/*,.pdf,.doc,.docx"
-                  className="hidden"
-                  onChange={handleFileInput}
-                />
-                <input
-                  ref={scanRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={handleFileInput}
-                />
-                <Button
-                  type="button"
-                  variant="default"
-                  className="flex-1"
-                  onClick={() => inputRef.current?.click()}
-                  disabled={uploading}
-                >
-                  {uploading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Plus className="mr-2 h-4 w-4" />
-                  )}
-                  Carica file
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => scanRef.current?.click()}
-                  disabled={uploading}
-                >
-                  <Scan className="mr-2 h-4 w-4" />
-                  Scansiona
-                </Button>
-              </div>
-              <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                <input
-                  type="checkbox"
-                  checked={isPinned}
-                  onChange={(event) => setIsPinned(event.target.checked)}
-                  className="h-4 w-4 rounded border border-input"
-                />
-                Pinnalo nel Wallet rapido
-              </label>
-            </div>
+        <div className="space-y-4 bg-background px-6 py-6">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold text-foreground">Documenti salvati</h4>
+            <span className="text-xs text-muted-foreground">{documents.length} file</span>
           </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-foreground">Documenti salvati</h4>
-              <span className="text-xs text-muted-foreground">{documents.length} file</span>
-            </div>
-            <div className="max-h-[360px] space-y-3 overflow-y-auto pr-2">
-              {documents.length === 0 ? (
-                <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
-                  Nessun documento salvato. Inizia caricando un file.
-                </div>
-              ) : (
-                documents.map((doc) => {
-                  const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
-                  const Icon = meta.icon;
+          <div className="max-h-[420px] space-y-3 overflow-y-auto pr-2">
+            {documents.length === 0 ? (
+              <div className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+                Nessun documento salvato. Inizia caricando un file.
+              </div>
+            ) : (
+              documents.map((doc) => {
+                const meta = CATEGORY_META[(doc.category as WalletDocumentCategory) || "other"] || CATEGORY_META.other;
+                const Icon = meta.icon;
                   return (
                     <div
                       key={doc.id}
-                      className="flex items-center gap-3 rounded-xl border bg-background p-3"
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl border p-3",
+                        CATEGORY_CARD_LIGHT[(doc.category as WalletDocumentCategory) || "other"],
+                      )}
                     >
-                      <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
-                        <p className="text-xs text-muted-foreground">{meta.label}</p>
-                      </div>
-                      <Button variant="ghost" size="icon" onClick={() => handlePinToggle(doc.id, doc.is_pinned)}>
-                        {doc.is_pinned ? (
-                          <BookmarkCheck className="h-4 w-4 text-primary" />
-                        ) : (
-                          <Bookmark className="h-4 w-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => window.open(doc.document_url, "_blank")}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => deleteDocument.mutate(doc)}>
-                        <X className="h-4 w-4 text-red-500" />
-                      </Button>
+                    <div className={cn("flex h-10 w-10 items-center justify-center rounded-xl", meta.color)}>
+                      <Icon className="h-5 w-5" />
                     </div>
-                  );
-                })
-              )}
-            </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{doc.title}</p>
+                      <Badge className={cn("mt-1 text-[10px]", CATEGORY_BADGE[(doc.category as WalletDocumentCategory) || "other"])}>
+                        {meta.label}
+                      </Badge>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => handlePinToggle(doc.id, doc.is_pinned)}>
+                      {doc.is_pinned ? (
+                        <BookmarkCheck className="h-4 w-4 text-primary" />
+                      ) : (
+                        <Bookmark className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => window.open(doc.document_url, "_blank")}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => deleteDocument.mutate(doc)}>
+                      <X className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </DialogContent>
