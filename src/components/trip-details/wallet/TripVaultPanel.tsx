@@ -290,7 +290,7 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
         <div className="relative z-10 space-y-6 p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/60">Scanner & Cassaforte</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-white/60">Cassaforte privata</p>
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
                   <ShieldCheck className="h-6 w-6" />
@@ -402,6 +402,19 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
                   <h4 className="text-sm font-semibold text-white">Documenti cifrati</h4>
                   <span className="text-xs text-white/60">{sortedDocs.length} file</span>
                 </div>
+                {!passphrase && (
+                  <div className="flex items-center gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-amber-100 shadow-[0_0_20px_-12px_rgba(251,191,36,0.6)]">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/20">
+                      <Lock className="h-5 w-5" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-semibold">Cassaforte bloccata</p>
+                      <p className="text-xs text-amber-100/80">
+                        Inserisci la passphrase per aprire o scaricare i documenti cifrati.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <div className="max-h-[420px] space-y-3 overflow-y-auto pr-2">
                   {isLoading ? (
                     <div className="flex items-center gap-2 text-sm text-white/70">
@@ -416,19 +429,40 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
                     sortedDocs.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4"
+                        className={cn(
+                          "relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 transition-all",
+                          !passphrase && "ring-1 ring-amber-400/30",
+                        )}
                       >
+                        {!passphrase && (
+                          <div className="pointer-events-none absolute inset-0">
+                            <div className="absolute inset-0 flex items-center justify-center opacity-[0.14] text-amber-200">
+                              <Lock className="h-28 w-28" />
+                            </div>
+                          </div>
+                        )}
+                        <div className="absolute right-3 top-3 flex items-center gap-2">
+                          <Badge className={cn("text-[10px]", CATEGORY_BADGE[(doc.category as VaultDocumentCategory) || "other"])}>
+                            {VAULT_CATEGORIES.find((item) => item.value === doc.category)?.label || "Altro"}
+                          </Badge>
+                          {!passphrase && (
+                            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-300/40 bg-amber-400/15 text-amber-100">
+                              <Lock className="h-3.5 w-3.5" />
+                            </div>
+                          )}
+                        </div>
                         <div className="flex items-start gap-3">
                           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10">
-                            <FileText className="h-5 w-5 text-white/70" />
+                            {passphrase ? (
+                              <FileText className="h-5 w-5 text-white/70" />
+                            ) : (
+                              <Lock className="h-5 w-5 text-amber-200" />
+                            )}
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-semibold text-white">{doc.title}</p>
                             <p className="text-xs text-white/60">{doc.file_name}</p>
                           </div>
-                          <Badge className={cn("text-xs", CATEGORY_BADGE[(doc.category as VaultDocumentCategory) || "other"])}>
-                            {VAULT_CATEGORIES.find((item) => item.value === doc.category)?.label || "Altro"}
-                          </Badge>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <Button
@@ -460,7 +494,7 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
                             size="sm"
                             onClick={() => deleteVaultDocument.mutate(doc)}
                             disabled={deleteVaultDocument.isPending}
-                            className="text-red-200 hover:text-red-100"
+                            className="border border-white/20 text-red-200 hover:text-red-100 hover:bg-white/10"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
                             Elimina
@@ -486,14 +520,19 @@ export function TripVaultPanel({ tripId }: TripVaultPanelProps) {
           setShowPassphraseDialog(open);
         }}
       >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Inserisci passphrase</DialogTitle>
-            <DialogDescription>
-              Serve per cifrare e decifrare i documenti della Cassaforte. Non viene mai salvata.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
+            <div className="absolute -right-6 -top-6 opacity-[0.08]">
+              <ShieldCheck className="h-28 w-28" />
+            </div>
+            <DialogHeader className="relative z-10 text-left">
+              <DialogTitle className="text-2xl">Inserisci passphrase</DialogTitle>
+              <DialogDescription className="text-white/70">
+                Serve per cifrare e decifrare i documenti della Cassaforte. Non viene mai salvata.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="space-y-4 bg-background px-6 py-6">
             <div className="relative">
               <Input
                 type={showPassphrase ? "text" : "password"}

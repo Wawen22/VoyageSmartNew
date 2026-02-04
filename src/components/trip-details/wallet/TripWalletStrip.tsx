@@ -93,7 +93,7 @@ export function TripWalletStrip({ tripId }: TripWalletStripProps) {
         <div className="relative z-10 space-y-6 p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">
-              <p className="text-xs font-bold uppercase tracking-widest text-white/60">Travel Wallet</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-white/60">Travel Wallet di gruppo</p>
               <div className="flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
                   <Wallet className="h-6 w-6" />
@@ -305,13 +305,20 @@ function TripWalletDialog({ tripId, open, onOpenChange }: TripWalletDialogProps)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Travel Wallet</DialogTitle>
-          <DialogDescription>Aggiungi e organizza i documenti essenziali per il viaggio.</DialogDescription>
-        </DialogHeader>
+      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
+          <div className="absolute -right-8 -top-6 opacity-[0.08]">
+            <Wallet className="h-32 w-32" />
+          </div>
+          <DialogHeader className="relative z-10 text-left">
+            <DialogTitle className="text-2xl">Travel Wallet</DialogTitle>
+            <DialogDescription className="text-white/70">
+              Aggiungi e organizza i documenti essenziali per il viaggio.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
+        <div className="grid gap-6 bg-background px-6 py-6 lg:grid-cols-[1fr_1.4fr]">
           <div className="space-y-4 rounded-2xl border bg-muted/20 p-4">
             <h4 className="text-sm font-semibold text-foreground">Nuovo documento</h4>
             <div className="space-y-3">
