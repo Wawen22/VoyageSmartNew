@@ -27,3 +27,6 @@ Database tables `badges` and `user_badges` exist but are currently secondary to 
 1. Update `src/utils/gamification.ts` adding the new badge object to the `badges` array.
 2. Implement the logic to calculate `unlocked` boolean and `progress`.
 3. If using a new Icon, update `getBadgeIcon` mapping in `src/pages/PublicProfile.tsx`.
+
+### Design Guidelines
+Fai riferimento a docs/DESIGN_SYSTEM.md per la gestione degli stili e degli elementi UI.

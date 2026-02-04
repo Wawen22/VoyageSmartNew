@@ -590,6 +590,115 @@ export type Database = {
           },
         ]
       }
+      trip_documents: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          document_url: string
+          id: string
+          is_pinned: boolean
+          notes: string | null
+          storage_path: string | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by: string
+          document_url: string
+          id?: string
+          is_pinned?: boolean
+          notes?: string | null
+          storage_path?: string | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          document_url?: string
+          id?: string
+          is_pinned?: boolean
+          notes?: string | null
+          storage_path?: string | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_documents_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_vault_documents: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string
+          encryption_iv: string
+          encryption_salt: string
+          encryption_version: number
+          file_name: string
+          file_path: string
+          id: string
+          mime_type: string | null
+          size_bytes: number | null
+          title: string
+          trip_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by: string
+          encryption_iv: string
+          encryption_salt: string
+          encryption_version?: number
+          file_name: string
+          file_path: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          title: string
+          trip_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string
+          encryption_iv?: string
+          encryption_salt?: string
+          encryption_version?: number
+          file_name?: string
+          file_path?: string
+          id?: string
+          mime_type?: string | null
+          size_bytes?: number | null
+          title?: string
+          trip_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_vault_documents_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_invitations: {
         Row: {
           created_at: string
