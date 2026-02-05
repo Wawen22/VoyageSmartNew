@@ -108,10 +108,52 @@ export function PollMessage({ pollId, isMe }: PollMessageProps) {
 
     const isAlreadyVoted = poll.user_votes.includes(optionId);
     setVoting(optionId);
+    
+    // Save current state for rollback
+    const previousPoll = JSON.parse(JSON.stringify(poll));
+    
+    // Optimistic Update
+    setPoll(prev => {
+      if (!prev) return null;
+      
+      let newUserVotes = [...prev.user_votes];
+      let newOptions = prev.options.map(opt => ({ ...opt }));
+      
+      if (isAlreadyVoted) {
+        // Remove vote
+        newUserVotes = newUserVotes.filter(id => id !== optionId);
+        newOptions = newOptions.map(opt => 
+          opt.id === optionId ? { ...opt, votes_count: Math.max(0, opt.votes_count - 1) } : opt
+        );
+      } else {
+        // Add vote
+        if (!prev.allow_multiple_answers) {
+          // If single choice, remove previous votes from counts
+          newOptions = newOptions.map(opt => {
+            if (newUserVotes.includes(opt.id)) {
+              return { ...opt, votes_count: Math.max(0, opt.votes_count - 1) };
+            }
+            return opt;
+          });
+          newUserVotes = [];
+        }
+        
+        newUserVotes.push(optionId);
+        newOptions = newOptions.map(opt => 
+          opt.id === optionId ? { ...opt, votes_count: opt.votes_count + 1 } : opt
+        );
+      }
+      
+      return {
+        ...prev,
+        user_votes: newUserVotes,
+        options: newOptions
+      };
+    });
 
     try {
       if (isAlreadyVoted) {
-        // Remove vote
+        // Remove vote from DB
         const { error } = await supabase
           .from('trip_poll_votes')
           .delete()
@@ -120,8 +162,8 @@ export function PollMessage({ pollId, isMe }: PollMessageProps) {
           .eq('user_id', user.id);
         if (error) throw error;
       } else {
-        // If multiple answers not allowed, remove existing votes first
-        if (!poll.allow_multiple_answers && poll.user_votes.length > 0) {
+        // If single choice, delete all existing votes for this user/poll first
+        if (!poll.allow_multiple_answers) {
           const { error: deleteError } = await supabase
             .from('trip_poll_votes')
             .delete()
@@ -131,7 +173,7 @@ export function PollMessage({ pollId, isMe }: PollMessageProps) {
           if (deleteError) throw deleteError;
         }
 
-        // Add new vote
+        // Insert new vote
         const { error } = await supabase
           .from('trip_poll_votes')
           .insert({
@@ -143,6 +185,7 @@ export function PollMessage({ pollId, isMe }: PollMessageProps) {
       }
     } catch (error) {
       console.error("Error voting:", error);
+      setPoll(previousPoll); // Rollback on error
     } finally {
       setVoting(null);
     }
