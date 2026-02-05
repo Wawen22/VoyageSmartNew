@@ -14,13 +14,19 @@ import { it } from "date-fns/locale";
 import { ReactionPicker } from "@/components/chat/reactions/ReactionPicker";
 import { MessageReactions } from "@/components/chat/reactions/MessageReactions";
 import { ReplyPreview } from "@/components/chat/reply/ReplyPreview";
-import { Reply } from "lucide-react";
+import { Reply, CalendarPlus, Wallet, MoreHorizontal } from "lucide-react";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CreatePollDialog } from "@/components/chat/CreatePollDialog";
 import { PollMessage } from "@/components/chat/PollMessage";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AddActivityDialog } from "@/components/itinerary/AddActivityDialog";
+import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
+import { useItinerary } from "@/hooks/useItinerary";
+import { useExpenses } from "@/hooks/useExpenses";
+import { ChatMessage } from "@/hooks/useTripChat";
 
 export default function TripChat() {
   const [searchParams] = useSearchParams();
@@ -31,10 +37,19 @@ export default function TripChat() {
   const [tripTitle, setTripTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const [isPollDialogOpen, setIsPollDialogOpen] = useState(false);
-  const [replyTo, setReplyTo] = useState<any | null>(null);
+  const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
+  const [chatToPlan, setChatToPlan] = useState<{ msg: ChatMessage, type: 'activity' | 'expense' } | null>(null);
   
   const { messages, loading, members, sendMessage, sendPoll, toggleReaction, scrollRef } = useTripChat(tripId || "");
   const { data: tripDetails } = useTripDetails(tripId);
+  const { createActivity } = useItinerary(tripId || undefined);
+  const { createExpense } = useExpenses(tripId || "");
+
+  // Convert members map to array for expense dialog
+  const memberList = Object.entries(members).map(([id, profile]) => ({
+    user_id: id,
+    profile
+  }));
 
   // Fetch trip title
   useEffect(() => {
@@ -190,11 +205,33 @@ export default function TripChat() {
                                 <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                               </div>
                               
-                              {/* Reaction Picker Button & Reply Button */}
+                              {/* Reaction Picker Button & Reply Button & Context Menu */}
                               <div className={`
                                 absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200 flex items-center gap-1
-                                ${isMe ? "-left-16" : "-right-16"}
+                                ${isMe ? "-left-24" : "-right-24"}
                               `}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary hover:bg-muted/50"
+                                    >
+                                      <MoreHorizontal className="w-4 h-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align={isMe ? "end" : "start"}>
+                                    <DropdownMenuItem onClick={() => setChatToPlan({ msg, type: 'activity' })}>
+                                      <CalendarPlus className="w-4 h-4 mr-2" />
+                                      Crea Attività
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setChatToPlan({ msg, type: 'expense' })}>
+                                      <Wallet className="w-4 h-4 mr-2" />
+                                      Crea Spesa
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -296,6 +333,36 @@ export default function TripChat() {
         onOpenChange={setIsPollDialogOpen}
         onSubmit={handleCreatePoll}
       />
+
+      {tripId && (
+        <>
+          <AddActivityDialog
+            tripId={tripId}
+            open={chatToPlan?.type === 'activity'}
+            onOpenChange={(open) => !open && setChatToPlan(null)}
+            initialTitle={chatToPlan?.msg.content || ""}
+            onAdd={async (data) => {
+              const success = await createActivity(data);
+              if (success) setChatToPlan(null);
+              return success;
+            }}
+          />
+          
+          <AddExpenseDialog
+            open={chatToPlan?.type === 'expense'}
+            onOpenChange={(open) => !open && setChatToPlan(null)}
+            tripId={tripId}
+            members={memberList}
+            currentUserId={user.id}
+            initialDescription={chatToPlan?.msg.content || ""}
+            onSubmit={async (data) => {
+              const success = await createExpense(data);
+              if (success) setChatToPlan(null);
+              return success;
+            }}
+          />
+        </>
+      )}
 
       {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>

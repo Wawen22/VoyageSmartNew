@@ -8,9 +8,13 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 
 ## ✅ Completati
 
-### 1. Chat di Gruppo Real-time 💬 (✅ Completato)
+### 1. Chat di Gruppo Evoluta 💬 (✅ Completato)
 *   **Stato:** Implementato.
-*   **Dettagli:** Supporto Realtime con Supabase e notifiche non lette.
+*   **Dettagli:** Supporto Realtime con Supabase, notifiche badge non lette e:
+    *   **Reazioni Emoji:** Feedback rapido sui messaggi.
+    *   **Risposte Dirette:** Sistema di quote con auto-scroll al messaggio originale.
+    *   **Sondaggi Interattivi:** Creazione di sondaggi (scelta singola/multipla) con visualizzazione dettagliata dei voti.
+    *   **Chat-to-Plan:** Integrazione diretta con Itinerario e Spese dai messaggi della chat.
 
 ### 2. Gestione Spese Multi-Valuta (Smart Finance) 💱 (✅ Completato)
 *   **Stato:** Implementato.

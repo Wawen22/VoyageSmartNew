@@ -37,6 +37,7 @@ interface AddExpenseDialogProps {
   members: TripMember[];
   currentUserId: string;
   expenseToEdit?: ExpenseWithSplits | null;
+  initialDescription?: string;
   onSubmit: (data: {
     id?: string;
     trip_id: string;
@@ -69,6 +70,7 @@ export function AddExpenseDialog({
   members,
   currentUserId,
   expenseToEdit,
+  initialDescription,
   onSubmit
 }: AddExpenseDialogProps) {
   const [description, setDescription] = useState("");
@@ -105,7 +107,7 @@ export function AddExpenseDialog({
       setReceiptUrl(expenseToEdit.receipt_url);
     } else if (open && !expenseToEdit) {
       // Reset form if opening as new
-      setDescription("");
+      setDescription(initialDescription || "");
       setOriginalAmount("");
       setCurrency("EUR");
       setCategory("food");

@@ -9,6 +9,19 @@ This file serves as a memory and instruction set for the Gemini CLI agent workin
 - Do NOT assume direct access to execute SQL on the database; provide the migration file for the user or for version control.
 - Naming convention for migrations: `YYYYMMDDHHMMSS_description.sql` (e.g., `20260130090000_add_users.sql`).
 
+## Chat & Collaboration System
+
+### Features
+- **Polls:** Managed via `trip_polls`, `trip_poll_options`, and `trip_poll_votes`. Support for single/multiple answers.
+- **Reactions:** Stored in `trip_message_reactions`.
+- **Replies:** Self-referencing column `reply_to_message_id` in `trip_messages`.
+- **Chat-to-Plan:** Context menu logic in `src/pages/TripChat.tsx` connecting chat to `AddActivityDialog` and `AddExpenseDialog`.
+
+### UI Conventions
+- Polls use the Emerald/Teal color scheme.
+- Chat notifications use the Pink/Rose color scheme.
+- All new components follow the `shadcn/ui` pattern.
+
 ## Gamification System (Badges)
 
 The badge system is dynamically calculated in `src/utils/gamification.ts`.

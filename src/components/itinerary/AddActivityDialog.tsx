@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,10 @@ import { LocationInput } from "@/components/ui/LocationInput";
 
 interface AddActivityDialogProps {
   tripId: string;
-  selectedDate: string;
+  selectedDate?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialTitle?: string;
   onAdd: (data: {
     trip_id: string;
     title: string;
@@ -37,17 +40,29 @@ const CATEGORIES = [
   { value: "other", label: "Altro" },
 ];
 
-export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDialogProps) {
-  const [open, setOpen] = useState(false);
+export function AddActivityDialog({ tripId, selectedDate, open: controlledOpen, onOpenChange, initialTitle, onAdd }: AddActivityDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? onOpenChange! : setInternalOpen;
+
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(initialTitle || "");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [locationCoords, setLocationCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [date, setDate] = useState(selectedDate || new Date().toISOString().split("T")[0]);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [category, setCategory] = useState("activity");
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (open) {
+      if (initialTitle) setTitle(initialTitle);
+      if (selectedDate) setDate(selectedDate);
+    }
+  }, [open, initialTitle, selectedDate]);
 
   const resetForm = () => {
     setTitle("");
@@ -58,6 +73,7 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
     setEndTime("");
     setCategory("activity");
     setNotes("");
+    setDate(new Date().toISOString().split("T")[0]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -82,7 +98,7 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
       location: trimmedLocation || undefined,
       latitude: coords?.lat ?? null,
       longitude: coords?.lng ?? null,
-      activity_date: selectedDate,
+      activity_date: date,
       start_time: startTime || undefined,
       end_time: endTime || undefined,
       category,
@@ -98,12 +114,14 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="gap-1.5 px-2.5 md:px-3">
-          <Plus className="h-4 w-4" />
-          <span className="hidden md:inline">Aggiungi attività</span>
-        </Button>
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button size="sm" className="gap-1.5 px-2.5 md:px-3">
+            <Plus className="h-4 w-4" />
+            <span className="hidden md:inline">Aggiungi attività</span>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle>Nuova attività</DialogTitle>
@@ -116,6 +134,17 @@ export function AddActivityDialog({ tripId, selectedDate, onAdd }: AddActivityDi
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Es. Visita al Colosseo"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="date">Data *</Label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               required
             />
           </div>
