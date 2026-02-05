@@ -126,9 +126,14 @@ export function MobileMessageActions({
               <span className="text-[10px] font-medium">{message.is_pinned ? "Rimuovi" : "Fissa"}</span>
             </Button>
 
+            <Button variant="outline" className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-muted/50 hover:text-primary" onClick={() => { navigator.clipboard.writeText(message.content || ""); setOpen(false); }}>
+              <Copy className="w-6 h-6 mb-1" />
+              <span className="text-[10px] font-medium">Copia</span>
+            </Button>
+
             <Button 
               variant="outline" 
-              className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-muted/50 hover:text-primary disabled:opacity-30" 
+              className="flex flex-col gap-1 h-20 bg-blue-50/50 border-blue-100 text-blue-600 hover:bg-blue-100 hover:text-blue-700 disabled:opacity-30" 
               onClick={() => { onEdit(message); setOpen(false); }}
               disabled={!isEditable()}
             >
@@ -136,15 +141,10 @@ export function MobileMessageActions({
               <span className="text-[10px] font-medium">Modifica</span>
             </Button>
 
-            <Button variant="outline" className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-muted/50 hover:text-primary" onClick={() => { navigator.clipboard.writeText(message.content || ""); setOpen(false); }}>
-              <Copy className="w-6 h-6 mb-1" />
-              <span className="text-[10px] font-medium">Copia</span>
-            </Button>
-
             {message.sender_id === userId && (
                <Button 
                 variant="outline" 
-                className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-destructive/10 text-destructive hover:text-destructive disabled:opacity-30 disabled:grayscale" 
+                className="flex flex-col gap-1 h-20 bg-destructive/5 border-destructive/20 text-destructive hover:bg-destructive/10 disabled:opacity-30 disabled:grayscale" 
                 onClick={() => { onDelete(message.id); setOpen(false); }}
                 disabled={!isDeletable()}
               >
@@ -156,17 +156,25 @@ export function MobileMessageActions({
 
           <div className="space-y-2 mt-4">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">Azioni Rapide</p>
-            <Button variant="secondary" className="w-full justify-start gap-3 h-12" onClick={() => { onAction(message, 'activity'); setOpen(false); }}>
-              <div className="bg-emerald-100 p-1.5 rounded-md">
-                <CalendarPlus className="w-4 h-4 text-emerald-600" />
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-3 h-12 bg-emerald-50/50 hover:bg-emerald-100 border-emerald-100 text-emerald-900 shadow-none" 
+              onClick={() => { onAction(message, 'activity'); setOpen(false); }}
+            >
+              <div className="bg-emerald-100 p-1.5 rounded-md text-emerald-600">
+                <CalendarPlus className="w-4 h-4" />
               </div>
-              <span className="font-medium">Crea Attività da questo messaggio</span>
+              <span className="font-medium text-sm">Crea Attività da questo messaggio</span>
             </Button>
-            <Button variant="secondary" className="w-full justify-start gap-3 h-12" onClick={() => { onAction(message, 'expense'); setOpen(false); }}>
-              <div className="bg-amber-100 p-1.5 rounded-md">
-                <Wallet className="w-4 h-4 text-amber-600" />
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-3 h-12 bg-amber-50/50 hover:bg-amber-100 border-amber-100 text-amber-900 shadow-none" 
+              onClick={() => { onAction(message, 'expense'); setOpen(false); }}
+            >
+              <div className="bg-amber-100 p-1.5 rounded-md text-amber-600">
+                <Wallet className="w-4 h-4" />
               </div>
-              <span className="font-medium">Crea Spesa da questo messaggio</span>
+              <span className="font-medium text-sm">Crea Spesa da questo messaggio</span>
             </Button>
           </div>
         </DrawerContent>
