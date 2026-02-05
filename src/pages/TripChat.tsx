@@ -11,12 +11,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ReactionPicker } from "@/components/chat/reactions/ReactionPicker";
+import { MessageReactions } from "@/components/chat/reactions/MessageReactions";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CreatePollDialog } from "@/components/chat/CreatePollDialog";
 import { PollMessage } from "@/components/chat/PollMessage";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function TripChat() {
   const [searchParams] = useSearchParams();
@@ -28,7 +30,7 @@ export default function TripChat() {
   const [newMessage, setNewMessage] = useState("");
   const [isPollDialogOpen, setIsPollDialogOpen] = useState(false);
   
-  const { messages, loading, members, sendMessage, sendPoll, scrollRef } = useTripChat(tripId || "");
+  const { messages, loading, members, sendMessage, sendPoll, toggleReaction, scrollRef } = useTripChat(tripId || "");
   const { data: tripDetails } = useTripDetails(tripId);
 
   // Fetch trip title
@@ -144,21 +146,43 @@ export default function TripChat() {
                               <PollMessage pollId={msg.poll_id} isMe={isMe} />
                             </div>
                           ) : (
-                            <div className={`
-                              max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm
-                              ${isMe 
-                                ? "bg-primary text-primary-foreground rounded-br-none" 
-                                : "bg-white dark:bg-muted border rounded-bl-none text-foreground"
-                              }
-                            `}>
-                              {!isMe && showAvatar && sender && (
-                                <p className={`text-[10px] font-bold mb-1 ${isMe ? "opacity-70" : "text-primary"}`}>
-                                  {sender.full_name || sender.username}
-                                </p>
-                              )}
-                              <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                            <div className="group/msg relative">
+                              <div className={`
+                                max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm
+                                ${isMe 
+                                  ? "bg-primary text-primary-foreground rounded-br-none" 
+                                  : "bg-white dark:bg-muted border rounded-bl-none text-foreground"
+                                }
+                              `}>
+                                {!isMe && showAvatar && sender && (
+                                  <p className={`text-[10px] font-bold mb-1 ${isMe ? "opacity-70" : "text-primary"}`}>
+                                    {sender.full_name || sender.username}
+                                  </p>
+                                )}
+                                <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                              </div>
+                              
+                              {/* Reaction Picker Button */}
+                              <div className={`
+                                absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200
+                                ${isMe ? "-left-8" : "-right-8"}
+                              `}>
+                                <ReactionPicker 
+                                  onSelect={(emoji) => toggleReaction(msg.id, emoji, user.id)}
+                                />
+                              </div>
                             </div>
                           )}
+                          
+                          {/* Display Reactions */}
+                          {msg.reactions && msg.reactions.length > 0 && (
+                            <MessageReactions 
+                              reactions={msg.reactions} 
+                              onToggle={(emoji) => toggleReaction(msg.id, emoji, user.id)}
+                              isMe={isMe}
+                            />
+                          )}
+
                           <p className={`text-[10px] mt-1 ${isMe ? "text-right" : "text-left"} opacity-50`}>
                             {format(new Date(msg.created_at), "HH:mm", { locale: it })}
                           </p>

@@ -2,12 +2,19 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+export interface ChatReaction {
+  id: string;
+  user_id: string;
+  emoji: string;
+}
+
 export interface ChatMessage {
   id: string;
   sender_id: string;
   content: string | null;
   poll_id?: string | null;
   created_at: string;
+  reactions?: ChatReaction[];
 }
 
 export interface ChatMemberProfile {
@@ -73,7 +80,10 @@ export const useTripChat = (tripId: string) => {
 
       const { data, error } = await supabase
         .from('trip_messages')
-        .select('*')
+        .select(`
+          *,
+          reactions:trip_message_reactions(id, user_id, emoji)
+        `)
         .eq('trip_id', tripId)
         .order('created_at', { ascending: true });
 
@@ -125,8 +135,63 @@ export const useTripChat = (tripId: string) => {
       )
       .subscribe();
 
+    // Realtime Reactions Subscription
+    const reactionChannel = supabase
+      .channel(`trip-chat-reactions-${tripId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'trip_message_reactions' },
+        async (payload) => {
+          if (payload.eventType === 'INSERT') {
+            const newReaction = payload.new as ChatReaction & { message_id: string };
+            setMessages(prev => prev.map(msg => {
+              if (msg.id === newReaction.message_id) {
+                const reactions = msg.reactions || [];
+                
+                // 1. Check if ID already exists (avoid double processing)
+                if (reactions.some(r => r.id === newReaction.id)) return msg;
+
+                // 2. Check for matching optimistic reaction (same user and emoji)
+                const optimisticIndex = reactions.findIndex(r => 
+                  r.user_id === newReaction.user_id && 
+                  r.emoji === newReaction.emoji && 
+                  r.id.startsWith('temp-')
+                );
+
+                if (optimisticIndex !== -1) {
+                  // Replace optimistic with real
+                  const updatedReactions = [...reactions];
+                  updatedReactions[optimisticIndex] = newReaction;
+                  return { ...msg, reactions: updatedReactions };
+                }
+
+                // 3. Just append if no match found
+                return {
+                  ...msg,
+                  reactions: [...reactions, newReaction]
+                };
+              }
+              return msg;
+            }));
+          } else if (payload.eventType === 'DELETE') {
+            const deletedReaction = payload.old as { id: string };
+            setMessages(prev => prev.map(msg => {
+              if (msg.reactions?.some(r => r.id === deletedReaction.id)) {
+                return {
+                  ...msg,
+                  reactions: msg.reactions.filter(r => r.id !== deletedReaction.id)
+                };
+              }
+              return msg;
+            }));
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(reactionChannel);
     };
   }, [tripId, toast]);
 
@@ -228,12 +293,64 @@ export const useTripChat = (tripId: string) => {
     }
   };
 
+  const toggleReaction = async (messageId: string, emoji: string, userId: string) => {
+    // 1. Find message and check if user already reacted with this emoji
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    if (messageIndex === -1) return;
+
+    const message = messages[messageIndex];
+    const existingReaction = message.reactions?.find(r => r.user_id === userId && r.emoji === emoji);
+
+    // 2. Optimistic Update
+    setMessages(prev => {
+      const next = [...prev];
+      const msg = { ...next[messageIndex] };
+      
+      if (existingReaction) {
+        // Remove
+        msg.reactions = msg.reactions?.filter(r => r.id !== existingReaction.id);
+      } else {
+        // Add (temp id)
+        msg.reactions = [
+          ...(msg.reactions || []),
+          { id: `temp-${Date.now()}`, user_id: userId, emoji }
+        ];
+      }
+      
+      next[messageIndex] = msg;
+      return next;
+    });
+
+    try {
+      if (existingReaction) {
+        // Remove from DB
+        await supabase
+          .from('trip_message_reactions')
+          .delete()
+          .eq('id', existingReaction.id);
+      } else {
+        // Add to DB
+        await supabase
+          .from('trip_message_reactions')
+          .insert({
+            message_id: messageId,
+            user_id: userId,
+            emoji
+          });
+      }
+    } catch (error) {
+      console.error("Error toggling reaction:", error);
+      // Revert optimistic update (could be better, but simple re-fetch works for now or complex rollback logic)
+    }
+  };
+
   return {
     messages,
     loading,
     members,
     sendMessage,
     sendPoll,
+    toggleReaction,
     scrollRef
   };
 };
