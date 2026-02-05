@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from "@/components/ui/drawer";
+import { useState } from "react";
+import { Drawer, DrawerContent, DrawerTitle, DrawerHeader } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Reply, CalendarPlus, Wallet, Pin, PinOff, Copy, Trash2, SmilePlus, Pencil } from "lucide-react";
+import { Reply, CalendarPlus, Wallet, Pin, PinOff, Copy, Trash2, Pencil } from "lucide-react";
 import { ChatMessage } from "@/hooks/useTripChat";
 import { ReactionPicker } from "../reactions/ReactionPicker";
 
@@ -30,9 +30,13 @@ export function MobileMessageActions({
 }: MobileMessageActionsProps) {
   const [open, setOpen] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
 
-  // Handle Long Press
-  const handleTouchStart = () => {
+  // Handle Long Press with scroll detection
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+    
     const timer = setTimeout(() => {
       setOpen(true);
       // Vibrate if supported and allowed by user interaction
@@ -48,11 +52,28 @@ export function MobileMessageActions({
     setLongPressTimer(timer);
   };
 
+  // Cancel long press if user moves finger (scrolling)
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartPos || !longPressTimer) return;
+    
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - touchStartPos.x);
+    const deltaY = Math.abs(touch.clientY - touchStartPos.y);
+    
+    // If user moved more than 10px, they're scrolling - cancel long press
+    if (deltaX > 10 || deltaY > 10) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+      setTouchStartPos(null);
+    }
+  };
+
   const handleTouchEnd = () => {
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
+    setTouchStartPos(null);
   };
 
   const isDeletable = () => {
@@ -73,15 +94,24 @@ export function MobileMessageActions({
 
   const REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
+  // Desktop long press handlers (for testing)
+  const handleMouseDown = () => {
+    const timer = setTimeout(() => {
+      setOpen(true);
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
   return (
     <>
-      <div 
-        onTouchStart={handleTouchStart} 
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        onMouseDown={handleTouchStart} // For testing on desktop
+        onMouseDown={handleMouseDown} // For testing on desktop
         onMouseUp={handleTouchEnd}
         onMouseLeave={handleTouchEnd}
-        className="touch-none select-none active:scale-[0.98] transition-transform duration-200"
+        className="select-none active:scale-[0.98] transition-transform duration-200"
       >
         {children}
       </div>
