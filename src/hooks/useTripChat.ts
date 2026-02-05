@@ -14,6 +14,7 @@ export interface ChatMessage {
   content: string | null;
   poll_id?: string | null;
   is_pinned?: boolean;
+  is_edited?: boolean;
   reply_to_message_id?: string | null;
   reply_to?: {
     id: string;
@@ -174,7 +175,12 @@ export const useTripChat = (tripId: string) => {
             const updatedMessage = payload.new as ChatMessage;
             setMessages(prev => prev.map(msg => 
               msg.id === updatedMessage.id 
-                ? { ...msg, is_pinned: updatedMessage.is_pinned } 
+                ? { 
+                    ...msg, 
+                    is_pinned: updatedMessage.is_pinned,
+                    content: updatedMessage.content,
+                    is_edited: updatedMessage.is_edited
+                  } 
                 : msg
             ));
           } else if (payload.eventType === 'DELETE') {
@@ -444,6 +450,31 @@ export const useTripChat = (tripId: string) => {
     }
   };
 
+  const editMessage = async (messageId: string, newContent: string) => {
+    if (!newContent.trim()) return;
+
+    // 1. Optimistic Update
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId ? { ...msg, content: newContent.trim(), is_edited: true } : msg
+    ));
+
+    try {
+      const { error } = await supabase
+        .from('trip_messages')
+        .update({ 
+          content: newContent.trim(),
+          is_edited: true
+        })
+        .eq('id', messageId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error editing message:", error);
+      // Fallback: the next realtime update or refresh will fix the state
+      toast({ title: "Errore", description: "Impossibile modificare il messaggio.", variant: "destructive" });
+    }
+  };
+
   return {
     messages,
     loading,
@@ -453,6 +484,7 @@ export const useTripChat = (tripId: string) => {
     toggleReaction,
     togglePin,
     deleteMessage,
+    editMessage,
     scrollRef
   };
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Reply, CalendarPlus, Wallet, Pin, PinOff, Copy, Trash2, SmilePlus } from "lucide-react";
+import { Reply, CalendarPlus, Wallet, Pin, PinOff, Copy, Trash2, SmilePlus, Pencil } from "lucide-react";
 import { ChatMessage } from "@/hooks/useTripChat";
 import { ReactionPicker } from "../reactions/ReactionPicker";
 
@@ -12,6 +12,7 @@ interface MobileMessageActionsProps {
   onReaction: (emoji: string) => void;
   onPin: (msgId: string, currentStatus: boolean) => void;
   onDelete: (msgId: string) => void;
+  onEdit: (msg: ChatMessage) => void;
   onAction: (msg: ChatMessage, type: 'activity' | 'expense') => void;
   children: React.ReactNode;
 }
@@ -23,6 +24,7 @@ export function MobileMessageActions({
   onReaction, 
   onPin, 
   onDelete,
+  onEdit,
   onAction,
   children 
 }: MobileMessageActionsProps) {
@@ -54,7 +56,15 @@ export function MobileMessageActions({
   };
 
   const isDeletable = () => {
-    if (message.sender_id !== userId) return false;
+    if (message.sender_id !== userId || message.poll_id) return false;
+    const now = new Date();
+    const sentAt = new Date(message.created_at);
+    const diffInMinutes = (now.getTime() - sentAt.getTime()) / (1000 * 60);
+    return diffInMinutes <= 15;
+  };
+
+  const isEditable = () => {
+    if (message.sender_id !== userId || message.poll_id) return false;
     const now = new Date();
     const sentAt = new Date(message.created_at);
     const diffInMinutes = (now.getTime() - sentAt.getTime()) / (1000 * 60);
@@ -105,7 +115,7 @@ export function MobileMessageActions({
             />
           </div>
 
-          <div className="grid grid-cols-4 gap-2 mb-2">
+          <div className="grid grid-cols-5 gap-2 mb-2">
             <Button variant="outline" className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-muted/50 hover:text-primary" onClick={() => { onReply(message); setOpen(false); }}>
               <Reply className="w-6 h-6 mb-1" />
               <span className="text-[10px] font-medium">Rispondi</span>
@@ -114,6 +124,16 @@ export function MobileMessageActions({
             <Button variant="outline" className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-muted/50 hover:text-primary" onClick={() => { onPin(message.id, message.is_pinned || false); setOpen(false); }}>
               {message.is_pinned ? <PinOff className="w-6 h-6 mb-1" /> : <Pin className="w-6 h-6 mb-1" />}
               <span className="text-[10px] font-medium">{message.is_pinned ? "Rimuovi" : "Fissa"}</span>
+            </Button>
+
+            <Button 
+              variant="outline" 
+              className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-muted/50 hover:text-primary disabled:opacity-30" 
+              onClick={() => { onEdit(message); setOpen(false); }}
+              disabled={!isEditable()}
+            >
+              <Pencil className="w-6 h-6 mb-1" />
+              <span className="text-[10px] font-medium">Modifica</span>
             </Button>
 
             <Button variant="outline" className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-muted/50 hover:text-primary" onClick={() => { navigator.clipboard.writeText(message.content || ""); setOpen(false); }}>

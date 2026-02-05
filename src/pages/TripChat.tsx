@@ -4,12 +4,13 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Loader2, Send, MessageSquare, Plus, BarChart2 } from "lucide-react";
+import { ArrowLeft, Loader2, Send, MessageSquare, Plus, BarChart2, X, Pencil, Check, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTripChat } from "@/hooks/useTripChat";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 import { ReactionPicker } from "@/components/chat/reactions/ReactionPicker";
 import { MessageReactions } from "@/components/chat/reactions/MessageReactions";
@@ -40,9 +41,10 @@ export default function TripChat() {
   const [newMessage, setNewMessage] = useState("");
   const [isPollDialogOpen, setIsPollDialogOpen] = useState(false);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
+  const [editingMessage, setEditingMessage] = useState<ChatMessage | null>(null);
   const [chatToPlan, setChatToPlan] = useState<{ msg: ChatMessage, type: 'activity' | 'expense' } | null>(null);
   
-  const { messages, loading, members, sendMessage, sendPoll, toggleReaction, togglePin, deleteMessage, scrollRef } = useTripChat(tripId || "");
+  const { messages, loading, members, sendMessage, sendPoll, toggleReaction, togglePin, deleteMessage, editMessage, scrollRef } = useTripChat(tripId || "");
   const { data: tripDetails } = useTripDetails(tripId);
   const { createActivity } = useItinerary(tripId || undefined);
   const { createExpense } = useExpenses(tripId || "");
@@ -69,14 +71,28 @@ export default function TripChat() {
     fetchTitle();
   }, [tripId, navigate]);
 
+  useEffect(() => {
+    if (editingMessage) {
+      setNewMessage(editingMessage.content || "");
+    }
+  }, [editingMessage]);
+
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!newMessage.trim() || !user) return;
     
-    const msg = newMessage;
-    setNewMessage(""); 
-    setReplyTo(null);
-    await sendMessage(msg, user.id, replyTo);
+    if (editingMessage) {
+      const msgId = editingMessage.id;
+      const content = newMessage;
+      setEditingMessage(null);
+      setNewMessage("");
+      await editMessage(msgId, content);
+    } else {
+      const msg = newMessage;
+      setNewMessage(""); 
+      setReplyTo(null);
+      await sendMessage(msg, user.id, replyTo);
+    }
   };
 
   const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
@@ -240,6 +256,7 @@ export default function TripChat() {
                               onReaction={(emoji) => toggleReaction(msg.id, emoji, user.id)}
                               onPin={(id, status) => togglePin(id, status)}
                               onDelete={(id) => deleteMessage(id)}
+                              onEdit={(m) => setEditingMessage(m)}
                               onAction={(m, type) => setChatToPlan({ msg: m, type })}
                             >
                               {msg.poll_id ? (
@@ -356,18 +373,31 @@ export default function TripChat() {
                                           )}
                                         </DropdownMenuItem>
                                         {isMe && (
-                                      <DropdownMenuItem 
-                                        onClick={() => deleteMessage(msg.id)}
-                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                        disabled={(() => {
-                                          const sentAt = new Date(msg.created_at).getTime();
-                                          const now = new Date().getTime();
-                                          return (now - sentAt) / (1000 * 60) > 15;
-                                        })()}
-                                      >
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        Elimina
-                                      </DropdownMenuItem>
+                                      <>
+                                        <DropdownMenuItem 
+                                          onClick={() => setEditingMessage(msg)}
+                                          disabled={(() => {
+                                            const sentAt = new Date(msg.created_at).getTime();
+                                            const now = new Date().getTime();
+                                            return (now - sentAt) / (1000 * 60) > 15 || !!msg.poll_id;
+                                          })()}
+                                        >
+                                          <Pencil className="w-4 h-4 mr-2" />
+                                          Modifica
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem 
+                                          onClick={() => deleteMessage(msg.id)}
+                                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                          disabled={(() => {
+                                            const sentAt = new Date(msg.created_at).getTime();
+                                            const now = new Date().getTime();
+                                            return (now - sentAt) / (1000 * 60) > 15;
+                                          })()}
+                                        >
+                                          <Trash2 className="w-4 h-4 mr-2" />
+                                          Elimina
+                                        </DropdownMenuItem>
+                                      </>
                                     )}
                                   </DropdownMenuContent>
                                     </DropdownMenu>
@@ -398,7 +428,8 @@ export default function TripChat() {
                             />
                           )}
 
-                          <p className={`text-[10px] mt-1 ${isMe ? "text-right" : "text-left"} opacity-50`}>
+                          <p className={`text-[10px] mt-1 ${isMe ? "text-right" : "text-left"} opacity-50 flex items-center gap-1 ${isMe ? "justify-end" : "justify-start"}`}>
+                            {msg.is_edited && <span className="italic">(modificato)</span>}
                             {format(new Date(msg.created_at), "HH:mm", { locale: it })}
                           </p>
                         </div>
@@ -417,6 +448,25 @@ export default function TripChat() {
                   sender={members[replyTo.sender_id]}
                   onCancel={() => setReplyTo(null)}
                 />
+              )}
+              {editingMessage && (
+                <div className="flex items-center justify-between px-4 py-2 bg-primary/5 border-t animate-in slide-in-from-bottom-1">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Pencil className="w-3 h-3" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Modifica messaggio</span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-5 w-5 rounded-full" 
+                    onClick={() => {
+                      setEditingMessage(null);
+                      setNewMessage("");
+                    }}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
               )}
               <form onSubmit={handleSend} className="p-4 flex gap-2">
                 <Popover>
@@ -451,18 +501,19 @@ export default function TripChat() {
                 </Popover>
 
                 <Input 
-                  placeholder="Scrivi un messaggio..." 
+                  placeholder={editingMessage ? "Modifica il tuo messaggio..." : "Scrivi un messaggio..."} 
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  className="rounded-full"
+                  className={cn("rounded-full", editingMessage && "border-primary ring-1 ring-primary/20")}
+                  autoFocus={!!editingMessage}
                 />
                 <Button 
                   type="submit" 
                   size="icon" 
-                  className="rounded-full shrink-0" 
+                  className={cn("rounded-full shrink-0", editingMessage ? "bg-primary" : "")} 
                   disabled={!newMessage.trim()}
                 >
-                  <Send className="w-4 h-4" />
+                  {editingMessage ? <Check className="w-4 h-4" /> : <Send className="w-4 h-4" />}
                 </Button>
               </form>
             </div>
