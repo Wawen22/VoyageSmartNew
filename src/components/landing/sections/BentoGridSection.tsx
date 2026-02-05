@@ -71,19 +71,35 @@ const features = [
 
 export function BentoGridSection() {
   return (
-    <section className="py-24 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="mx-auto mb-14 max-w-3xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground">
+    <section className="py-32 bg-background relative overflow-hidden">
+      {/* Background Decorative Blur */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full overflow-hidden pointer-events-none opacity-20">
+        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-primary/20 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[20%] left-[10%] w-[30%] h-[30%] bg-secondary/20 rounded-full blur-[100px]" />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto mb-20 max-w-3xl text-center"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
             Feature Suite
-          </p>
-          <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
-            Tutto cio che ti serve per viaggiare bene
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
+            Tutto ciò che ti serve per <span className="text-gradient-sunset">viaggiare bene</span>
           </h2>
-          <p className="mt-4 text-base text-muted-foreground">
+          <p className="text-xl text-muted-foreground leading-relaxed">
             Un set completo di strumenti per organizzare, condividere e vivere ogni viaggio senza caos.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (
@@ -93,17 +109,17 @@ export function BentoGridSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: index * 0.05 }}
-              className={`relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br ${feature.gradient} p-6 shadow-card`}
+              className={`group relative overflow-hidden rounded-[2rem] border border-white/10 dark:border-white/5 bg-gradient-to-br ${feature.gradient} p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5`}
             >
-              <div className="absolute -right-8 -top-8 opacity-[0.08]">
-                <feature.icon className="h-28 w-28" />
+              <div className="absolute -right-8 -top-8 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 opacity-[0.06]">
+                <feature.icon className={`h-32 w-32 ${feature.iconColor}`} />
               </div>
               <div className="relative z-10">
-                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl bg-white/70 ${feature.iconColor}`}>
-                  <feature.icon className="h-5 w-5" />
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white dark:bg-black/20 shadow-sm border border-white/20 transition-transform duration-300 group-hover:scale-110 ${feature.iconColor}`}>
+                  <feature.icon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-foreground">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{feature.desc}</p>
+                <h3 className="mt-6 text-xl font-bold text-foreground tracking-tight">{feature.title}</h3>
+                <p className="mt-3 text-muted-foreground leading-relaxed">{feature.desc}</p>
               </div>
             </motion.div>
           ))}

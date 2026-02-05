@@ -158,21 +158,22 @@ export function Navbar() {
           <nav className="flex items-center h-16 lg:h-20 gap-4 lg:gap-0">
             
             {/* Mobile Hamburger (Left) */}
-            <div className="lg:hidden flex items-center gap-2">
-              <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                <SheetTrigger asChild>
-                  <button
-                    className={`p-2 rounded-xl transition-colors ${
-                      isDarkNav 
-                        ? "text-white hover:bg-white/10" 
-                        : "text-foreground hover:bg-muted/70"
-                    }`}
-                  >
-                    <Menu className="w-6 h-6" />
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[90%] sm:w-[350px] flex flex-col h-full p-0 border-r border-border/60">
-                  <div className="flex flex-col h-full bg-background/95 backdrop-blur-xl">
+            {user && (
+              <div className="lg:hidden flex items-center gap-2">
+                <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                  <SheetTrigger asChild>
+                    <button
+                      className={`p-2 rounded-xl transition-colors ${
+                        isDarkNav 
+                          ? "text-white hover:bg-white/10" 
+                          : "text-foreground hover:bg-muted/70"
+                      }`}
+                    >
+                      <Menu className="w-6 h-6" />
+                    </button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-[90%] sm:w-[350px] flex flex-col h-full p-0 border-r border-border/60">
+                    <div className="flex flex-col h-full bg-background/95 backdrop-blur-xl">
                     
                     {/* Drawer Header / Top Links */}
                     <div className="flex-1 overflow-y-auto py-6 px-4">
@@ -303,12 +304,12 @@ export function Navbar() {
                       </div>
                     )}
                      {!user && (
-                        <div className="p-4 border-t border-border/40 space-y-3">
+                        <div className="p-4 border-t border-border/40 space-y-3 bg-muted/20">
                             <Link to="/auth" onClick={() => setIsOpen(false)}>
-                              <Button variant="outline" className="w-full">Accedi</Button>
+                              <Button variant="authLoginDark" className="w-full h-12 rounded-xl">Accedi</Button>
                             </Link>
                             <Link to="/auth?signup=true" onClick={() => setIsOpen(false)}>
-                              <Button className="w-full">Inizia</Button>
+                              <Button variant="authCta" className="w-full h-12 rounded-xl">Inizia Ora</Button>
                             </Link>
                         </div>
                      )}
@@ -325,11 +326,11 @@ export function Navbar() {
                   <Sparkles className="w-3 h-3 fill-white/20" />
                   UPGRADE
                 </Button>
-              )}
-            </div>
-
-            {/* Logo (Center on Mobile? Or Left after Hamburger? I'll keep it left-aligned but flexible) */}
-            <Link 
+                              )}
+                            </div>
+                          )}
+              
+                          {/* Logo (Center on Mobile? Or Left after Hamburger? I'll keep it left-aligned but flexible) */}            <Link 
               to={user ? "/trips" : "/"} 
               className="flex items-center gap-3 group py-1 lg:py-0 mr-auto lg:mr-0"
             >
@@ -467,13 +468,21 @@ export function Navbar() {
               ) : (
                 <>
                   <Link to="/auth">
-                    <Button variant={isDarkNav ? "heroOutline" : "ghost"} size="sm">
+                    <Button
+                      variant="authLoginDark"
+                      size="sm"
+                      className="rounded-full px-5"
+                    >
                       Accedi
                     </Button>
                   </Link>
                   <Link to="/auth?signup=true">
-                    <Button variant={isDarkNav ? "hero" : "default"} size="sm">
-                      Inizia
+                    <Button
+                      variant="authCta"
+                      size="sm"
+                      className="rounded-full px-5"
+                    >
+                      Inizia Ora
                     </Button>
                   </Link>
                 </>
@@ -502,6 +511,29 @@ export function Navbar() {
                    {/* Notifications */}
                    <NotificationBell isLanding={isDarkNav} />
                 </>
+              )}
+              
+              {!user && (
+                <div className="flex items-center gap-2">
+                  <Link to="/auth">
+                    <Button
+                      variant="authLoginDark"
+                      size="sm"
+                      className="rounded-full px-4 h-9 text-xs"
+                    >
+                      Accedi
+                    </Button>
+                  </Link>
+                  <Link to="/auth?signup=true">
+                    <Button
+                      variant="authCta"
+                      size="sm"
+                      className="rounded-full px-4 h-9 text-xs"
+                    >
+                      Inizia Ora
+                    </Button>
+                  </Link>
+                </div>
               )}
             </div>
           </nav>

@@ -23,7 +23,14 @@ const buttonVariants = cva(
         hero: "bg-gradient-ocean text-white shadow-ocean hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
         heroOutline: "border-2 border-white/80 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 hover:border-white",
         sunset: "bg-gradient-sunset text-white shadow-sunset hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
-        glass: "bg-white/80 backdrop-blur-xl border border-white/20 text-foreground shadow-card hover:bg-white/90",
+        glass: "bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-white/10 text-foreground shadow-card hover:bg-white/90 dark:hover:bg-slate-900/90",
+        // Modern Auth Buttons
+        authLogin:
+          "relative overflow-hidden bg-sky-50 border-2 border-sky-400 text-sky-700 font-bold tracking-wide hover:bg-sky-100 hover:border-sky-500 hover:text-sky-800 hover:scale-[1.02] active:scale-[0.98] shadow-[0_4px_12px_-4px_rgba(14,165,233,0.3)] hover:shadow-[0_6px_16px_-4px_rgba(14,165,233,0.4)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-sky-400/0 before:via-sky-300/20 before:to-sky-400/0 before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
+        authLoginDark:
+          "relative overflow-hidden bg-emerald-400 border-2 border-emerald-300 text-emerald-950 font-bold tracking-wide hover:bg-emerald-300 hover:border-emerald-200 hover:scale-[1.02] active:scale-[0.98] shadow-[0_4px_20px_-4px_rgba(52,211,153,0.5)] hover:shadow-[0_8px_25px_-4px_rgba(52,211,153,0.6)] before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/40 before:to-white/0 before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-700",
+        authCta:
+          "relative overflow-hidden bg-gradient-to-r from-orange-500 via-rose-500 to-pink-500 text-white font-bold tracking-wide shadow-[0_8px_30px_-8px_rgba(251,146,60,0.5)] hover:shadow-[0_12px_40px_-8px_rgba(251,146,60,0.6)] hover:scale-[1.03] active:scale-[0.98] before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/30 before:to-white/0 before:translate-x-[-200%] hover:before:translate-x-[200%] before:transition-transform before:duration-500 after:absolute after:inset-0 after:rounded-xl after:bg-gradient-to-t after:from-black/10 after:to-transparent",
       },
       size: {
         default: "h-11 px-5 py-2",

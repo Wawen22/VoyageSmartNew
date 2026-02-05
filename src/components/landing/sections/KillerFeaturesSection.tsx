@@ -36,24 +36,31 @@ const features = [
 
 export function KillerFeaturesSection() {
   return (
-    <section className="py-20 bg-muted/20">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground">
-              Killer Features
-            </p>
-            <h2 className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
-              Le tre funzionalita che cambiano il viaggio
-            </h2>
+    <section className="py-32 bg-background relative overflow-hidden">
+      <div className="container mx-auto px-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="max-w-3xl mb-16"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            Premium Experience
           </div>
-          <p className="max-w-xl text-sm text-muted-foreground">
-            Abbiamo scelto le esperienze piu impattanti per i gruppi: dalla chat all'itinerario,
-            dai documenti cifrati ai consigli AI.
+          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
+            Killer Features: <span className="text-gradient-sunset">Tre Pilastri</span> del Tuo Viaggio
+          </h2>
+          <p className="text-lg text-muted-foreground leading-relaxed">
+            Abbiamo progettato le funzionalità più impattanti per i gruppi: dalla trasformazione della chat in piani concreti alla sicurezza totale dei tuoi dati.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-8 lg:grid-cols-3">
           {features.map((feature, index) => (
             <motion.div
               key={feature.title}
