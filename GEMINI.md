@@ -15,6 +15,7 @@ This file serves as a memory and instruction set for the Gemini CLI agent workin
 - **Polls:** Managed via `trip_polls`, `trip_poll_options`, and `trip_poll_votes`. Support for single/multiple answers.
 - **Reactions:** Stored in `trip_message_reactions`.
 - **Replies:** Self-referencing column `reply_to_message_id` in `trip_messages`.
+- **Pinned Messages:** Boolean `is_pinned` in `trip_messages`.
 - **Chat-to-Plan:** Context menu logic in `src/pages/TripChat.tsx` connecting chat to `AddActivityDialog` and `AddExpenseDialog`.
 
 ### UI Conventions

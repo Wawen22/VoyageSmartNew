@@ -14,7 +14,7 @@ import { it } from "date-fns/locale";
 import { ReactionPicker } from "@/components/chat/reactions/ReactionPicker";
 import { MessageReactions } from "@/components/chat/reactions/MessageReactions";
 import { ReplyPreview } from "@/components/chat/reply/ReplyPreview";
-import { Reply, CalendarPlus, Wallet, MoreHorizontal } from "lucide-react";
+import { Reply, CalendarPlus, Wallet, MoreHorizontal, Pin, PinOff } from "lucide-react";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -40,10 +40,12 @@ export default function TripChat() {
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [chatToPlan, setChatToPlan] = useState<{ msg: ChatMessage, type: 'activity' | 'expense' } | null>(null);
   
-  const { messages, loading, members, sendMessage, sendPoll, toggleReaction, scrollRef } = useTripChat(tripId || "");
+  const { messages, loading, members, sendMessage, sendPoll, toggleReaction, togglePin, scrollRef } = useTripChat(tripId || "");
   const { data: tripDetails } = useTripDetails(tripId);
   const { createActivity } = useItinerary(tripId || undefined);
   const { createExpense } = useExpenses(tripId || "");
+
+  const pinnedMessages = messages.filter(m => m.is_pinned);
 
   // Convert members map to array for expense dialog
   const memberList = Object.entries(members).map(([id, profile]) => ({
@@ -100,10 +102,58 @@ export default function TripChat() {
 
           <div className="bg-card rounded-xl border shadow-sm flex flex-col flex-1 overflow-hidden">
             {/* Chat Header */}
-            <div className="p-4 border-b bg-muted/30 flex items-center gap-2">
-              <MessageSquare className="w-5 h-5 text-primary" />
-              <h2 className="font-semibold">Chat di Gruppo</h2>
+            <div className="p-4 border-b bg-muted/30 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                <h2 className="font-semibold">Chat di Gruppo</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">
+                  {Object.keys(members).length} Membri
+                </span>
+              </div>
             </div>
+
+            {/* Pinned Messages Bar */}
+            {pinnedMessages.length > 0 && (
+              <div className="bg-primary/5 border-b px-4 py-2 flex items-center gap-3 animate-in slide-in-from-top duration-300 relative z-20">
+                <Pin className="w-3 h-3 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[10px] font-bold text-primary uppercase">Messaggi in evidenza</p>
+                    <span className="text-[10px] text-muted-foreground opacity-50">•</span>
+                    <span className="text-[10px] text-muted-foreground">{pinnedMessages.length} totali</span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      const lastPinned = pinnedMessages[pinnedMessages.length - 1];
+                      const el = document.getElementById(`msg-${lastPinned.id}`);
+                      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      el?.classList.add('ring-2', 'ring-primary/20');
+                      setTimeout(() => el?.classList.remove('ring-2', 'ring-primary/20'), 2000);
+                    }}
+                    className="text-xs text-foreground truncate block w-full text-left hover:underline underline-offset-2"
+                  >
+                    {pinnedMessages[pinnedMessages.length - 1].poll_id 
+                      ? "📊 Sondaggio: " + pinnedMessages[pinnedMessages.length - 1].content 
+                      : pinnedMessages[pinnedMessages.length - 1].content}
+                  </button>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary"
+                    onClick={() => {
+                      const lastPinned = pinnedMessages[pinnedMessages.length - 1];
+                      togglePin(lastPinned.id, true);
+                    }}
+                  >
+                    <PinOff className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Messages Area */}
             <div 
@@ -180,7 +230,12 @@ export default function TripChat() {
                           )}
 
                           {msg.poll_id ? (
-                            <div id={`msg-${msg.id}`} className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm transition-colors duration-500">
+                            <div id={`msg-${msg.id}`} className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm transition-colors duration-500 relative group/pinned">
+                              {msg.is_pinned && (
+                                <div className="absolute -top-2 -left-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in">
+                                  <Pin className="w-2.5 h-2.5 fill-current" />
+                                </div>
+                              )}
                               {!isMe && showAvatar && sender && (
                                 <p className="text-[10px] font-bold text-emerald-700 mb-2 uppercase tracking-wider">
                                   {sender.full_name || sender.username} ha creato un sondaggio
@@ -190,6 +245,11 @@ export default function TripChat() {
                             </div>
                           ) : (
                             <div className="group/msg relative" id={`msg-${msg.id}`}>
+                              {msg.is_pinned && (
+                                <div className={`absolute -top-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in ${isMe ? "-right-2" : "-left-2"}`}>
+                                  <Pin className="w-2.5 h-2.5 fill-current" />
+                                </div>
+                              )}
                               <div className={`
                                 max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm transition-colors duration-500
                                 ${isMe 
@@ -228,6 +288,19 @@ export default function TripChat() {
                                     <DropdownMenuItem onClick={() => setChatToPlan({ msg, type: 'expense' })}>
                                       <Wallet className="w-4 h-4 mr-2" />
                                       Crea Spesa
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => togglePin(msg.id, msg.is_pinned || false)}>
+                                      {msg.is_pinned ? (
+                                        <>
+                                          <PinOff className="w-4 h-4 mr-2" />
+                                          Rimuovi in evidenza
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Pin className="w-4 h-4 mr-2" />
+                                          Metti in evidenza
+                                        </>
+                                      )}
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>

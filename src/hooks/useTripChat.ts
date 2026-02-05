@@ -13,6 +13,7 @@ export interface ChatMessage {
   sender_id: string;
   content: string | null;
   poll_id?: string | null;
+  is_pinned?: boolean;
   reply_to_message_id?: string | null;
   reply_to?: {
     id: string;
@@ -123,7 +124,8 @@ export const useTripChat = (tripId: string) => {
             // Construct the full message object with reply_to if needed
             const newMessage: ChatMessage = {
               ...rawMessage,
-              reactions: []
+              reactions: [],
+              is_pinned: rawMessage.is_pinned || false
             };
 
             if (rawMessage.reply_to_message_id) {
@@ -157,6 +159,23 @@ export const useTripChat = (tripId: string) => {
           scrollToBottom();
           // Mark as read when receiving a new message while in chat
           await supabase.rpc('mark_trip_chat_read', { p_trip_id: tripId });
+        }
+      )
+      .subscribe();
+
+    // Realtime Message Updates Subscription (for Pinning)
+    const updateChannel = supabase
+      .channel(`trip-chat-updates-${tripId}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'trip_messages', filter: `trip_id=eq.${tripId}` },
+        (payload) => {
+          const updatedMessage = payload.new as ChatMessage;
+          setMessages(prev => prev.map(msg => 
+            msg.id === updatedMessage.id 
+              ? { ...msg, is_pinned: updatedMessage.is_pinned } 
+              : msg
+          ));
         }
       )
       .subscribe();
@@ -217,6 +236,7 @@ export const useTripChat = (tripId: string) => {
 
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(updateChannel);
       supabase.removeChannel(reactionChannel);
     };
   }, [tripId, toast]);
@@ -378,6 +398,29 @@ export const useTripChat = (tripId: string) => {
     }
   };
 
+  const togglePin = async (messageId: string, currentStatus: boolean) => {
+    // 1. Optimistic Update
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId ? { ...msg, is_pinned: !currentStatus } : msg
+    ));
+
+    try {
+      const { error } = await supabase
+        .from('trip_messages')
+        .update({ is_pinned: !currentStatus })
+        .eq('id', messageId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error toggling pin:", error);
+      // Revert on error
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, is_pinned: currentStatus } : msg
+      ));
+      toast({ title: "Errore", description: "Impossibile aggiornare lo stato in evidenza.", variant: "destructive" });
+    }
+  };
+
   return {
     messages,
     loading,
@@ -385,6 +428,7 @@ export const useTripChat = (tripId: string) => {
     sendMessage,
     sendPoll,
     toggleReaction,
+    togglePin,
     scrollRef
   };
 };

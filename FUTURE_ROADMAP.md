@@ -14,6 +14,7 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
     *   **Reazioni Emoji:** Feedback rapido sui messaggi.
     *   **Risposte Dirette:** Sistema di quote con auto-scroll al messaggio originale.
     *   **Sondaggi Interattivi:** Creazione di sondaggi (scelta singola/multipla) con visualizzazione dettagliata dei voti.
+    *   **Messaggi in Evidenza (Pinned):** Fissa i messaggi importanti in alto per un accesso rapido.
     *   **Chat-to-Plan:** Integrazione diretta con Itinerario e Spese dai messaggi della chat.
 
 ### 2. Gestione Spese Multi-Valuta (Smart Finance) 💱 (✅ Completato)

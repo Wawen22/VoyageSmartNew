@@ -19,6 +19,7 @@
     *   **Chat Real-time:** Comunica istantaneamente con i tuoi compagni di viaggio.
     *   **Reazioni Emoji:** Reagisci ai messaggi con ❤️, 👍, 😂 e altro per un feedback rapido.
     *   **Risposte Dirette (Quote):** Rispondi a messaggi specifici per mantenere l'ordine nelle discussioni.
+    *   **Messaggi in Evidenza:** Fissa informazioni cruciali (WiFi, indirizzi) in alto nella chat.
     *   **Sistemi di Sondaggi Avanzati:** Crea sondaggi a scelta singola o multipla per decidere insieme destinazioni o ristoranti.
     *   **Chat-to-Plan ✨:** Trasforma qualsiasi messaggio della chat in un'attività dell'itinerario o in una spesa con un semplice click.
 *   **Strumenti di Viaggio & Utility:**
