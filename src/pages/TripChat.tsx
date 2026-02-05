@@ -175,20 +175,30 @@ export default function TripChat() {
               <form onSubmit={handleSend} className="flex gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button type="button" variant="ghost" size="icon" className="rounded-full shrink-0">
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      className="rounded-full shrink-0 bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-emerald-500/20 transition-all active:scale-95"
+                    >
                       <Plus className="w-5 h-5" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent align="start" side="top" className="w-48 p-2">
+                  <PopoverContent align="start" side="top" className="w-48 p-2 mb-2 shadow-xl border-emerald-100">
                     <div className="grid gap-1">
+                      <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Strumenti Chat
+                      </div>
                       <Button 
                         variant="ghost" 
                         type="button"
-                        className="w-full justify-start gap-2 h-9 text-sm"
+                        className="w-full justify-start gap-3 h-10 text-sm hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
                         onClick={() => setIsPollDialogOpen(true)}
                       >
-                        <BarChart2 className="w-4 h-4 text-primary" />
-                        Sondaggio
+                        <div className="bg-emerald-100 p-1.5 rounded-lg">
+                          <BarChart2 className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <span className="font-medium">Sondaggio</span>
                       </Button>
                     </div>
                   </PopoverContent>
