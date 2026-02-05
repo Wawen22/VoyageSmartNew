@@ -7,11 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-interface ChecklistButtonProps {
-  isLanding?: boolean;
-}
+interface ChecklistButtonProps {}
 
-export function ChecklistButton({ isLanding = false }: ChecklistButtonProps) {
+export function ChecklistButton({}: ChecklistButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -115,11 +113,7 @@ export function ChecklistButton({ isLanding = false }: ChecklistButtonProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={handleButtonClick}
-        className={`relative p-2 rounded-lg transition-colors ${
-          isLanding
-            ? "text-white hover:bg-white/10"
-            : "text-foreground hover:bg-muted"
-        }`}
+        className="relative p-2 rounded-lg transition-colors text-foreground hover:bg-muted"
         title="Checklist"
       >
         <ClipboardList className="w-5 h-5" />

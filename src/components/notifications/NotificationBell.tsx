@@ -36,11 +36,9 @@ const getNotificationIcon = (type: string) => {
   }
 };
 
-interface NotificationBellProps {
-  isLanding?: boolean;
-}
+interface NotificationBellProps {}
 
-export function NotificationBell({ isLanding = false }: NotificationBellProps) {
+export function NotificationBell({}: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -81,11 +79,7 @@ export function NotificationBell({ isLanding = false }: NotificationBellProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-2 rounded-lg transition-colors ${
-          isLanding
-            ? "text-white hover:bg-white/10"
-            : "text-foreground hover:bg-muted"
-        }`}
+        className="relative p-2 rounded-lg transition-colors text-foreground hover:bg-muted"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (

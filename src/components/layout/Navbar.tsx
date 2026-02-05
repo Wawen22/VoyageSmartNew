@@ -59,7 +59,6 @@ export function Navbar() {
   const { user, signOut } = useAuth();
   const { profile } = useProfile();
   const { isAdmin } = useAdmin();
-  const isLanding = location.pathname === "/";
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   
   useEffect(() => {
@@ -121,7 +120,6 @@ export function Navbar() {
   };
 
   const subscriptionLabel = "Il mio Abbonamento";
-  const isDarkNav = isLanding && !scrolled;
 
   const handleSubscriptionNav = (closeMobileMenu = false) => {
     if (closeMobileMenu) setIsOpen(false);
@@ -150,9 +148,9 @@ export function Navbar() {
   return (
     <>
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isDarkNav
-          ? "bg-transparent py-2"
-          : "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm py-0"
+        scrolled
+          ? "bg-background/80 backdrop-blur-xl border-b border-border/60 shadow-sm py-0"
+          : "bg-transparent py-2"
       }`}>
         <div className="w-full px-4 lg:px-12 xl:px-16">
           <nav className="flex items-center h-16 lg:h-20 gap-4 lg:gap-0">
@@ -163,11 +161,7 @@ export function Navbar() {
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
                   <SheetTrigger asChild>
                     <button
-                      className={`p-2 rounded-xl transition-colors ${
-                        isDarkNav 
-                          ? "text-white hover:bg-white/10" 
-                          : "text-foreground hover:bg-muted/70"
-                      }`}
+                      className="p-2 rounded-xl transition-colors text-foreground hover:bg-muted/70"
                     >
                       <Menu className="w-6 h-6" />
                     </button>
@@ -339,9 +333,7 @@ export function Navbar() {
                 alt="VoyageSmart Logo" 
                 className="w-10 h-10 sm:w-16 sm:h-16 lg:w-20 lg:h-20 object-contain transition-transform duration-300 group-hover:scale-105" 
               />
-              <span className={`hidden md:inline text-xl md:text-2xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors ${
-                isDarkNav ? "text-white" : "text-[#735324]"
-              }`}>
+              <span className="hidden md:inline text-xl md:text-2xl font-sans font-bold italic tracking-tight text-3d-modern transition-colors text-[#735324]">
                 VoyageSmart
               </span>
             </Link>
@@ -358,9 +350,7 @@ export function Navbar() {
                     key={link.id}
                     to={link.href}
                     className={`px-4 py-2 rounded-full font-medium transition-all duration-200 flex items-center gap-2 ${
-                      isDarkNav
-                        ? "text-white/80 hover:text-white hover:bg-white/10"
-                        : isActive
+                      isActive
                         ? "text-primary bg-primary/10"
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                     }`}
@@ -374,11 +364,9 @@ export function Navbar() {
                     {link.label}
                     {count !== null && count > 0 && (
                       <span className={`ml-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-bold leading-none shadow-sm transition-all ${
-                        isDarkNav
-                          ? "bg-white/20 text-white border border-white/10"
-                          : isActive 
-                            ? "bg-primary text-primary-foreground border border-primary/20" 
-                            : "bg-muted text-muted-foreground border border-border/50"
+                        isActive 
+                          ? "bg-primary text-primary-foreground border border-primary/20" 
+                          : "bg-muted text-muted-foreground border border-border/50"
                       }`}>
                         {count}
                       </span>
@@ -392,32 +380,28 @@ export function Navbar() {
             <div className="hidden lg:flex items-center gap-3 shrink-0">
               {user ? (
                 <>
-                  {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
+                  <ChecklistButton />
                   
                   <button
                     onClick={() => setIsToolsOpen(true)}
-                    className={`p-2 rounded-full transition-colors relative group ${
-                      isDarkNav ? "text-white hover:bg-white/10" : "text-foreground hover:bg-muted/70"
-                    }`}
+                    className="p-2 rounded-full transition-colors relative group text-foreground hover:bg-muted/70"
                     title="Strumenti & Utility"
                   >
                     <PocketKnife className="w-5 h-5" />
                   </button>
 
-                  <NotificationBell isLanding={isDarkNav} />
+                  <NotificationBell />
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors outline-none cursor-pointer ${
-                        isDarkNav ? "bg-white/10 hover:bg-white/20" : "bg-muted/70 hover:bg-muted"
-                      }`}>
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors outline-none cursor-pointer bg-muted/70 hover:bg-muted">
                         <Avatar className="w-6 h-6 border-none">
                           <AvatarImage src={profile?.avatar_url || ""} />
                           <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
                             {(profile?.full_name || user?.email)?.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className={`text-sm font-medium ${isDarkNav ? "text-white" : "text-foreground"}`}>
+                        <span className="text-sm font-medium text-foreground">
                           {profile?.full_name || user?.email?.split("@")[0]}
                         </span>
                         {profile?.is_pro ? (
@@ -494,14 +478,10 @@ export function Navbar() {
               {user && (
                 <>
                    {/* Checklist */}
-                   {activeTripId && <ChecklistButton isLanding={isDarkNav} />}
+                   {activeTripId && <ChecklistButton />}
                    
                    {/* Chat */}
-                   <Link to={chatHref} className={`p-2 rounded-xl transition-colors relative ${
-                      isDarkNav 
-                        ? "text-white hover:bg-white/10" 
-                        : "text-foreground hover:bg-muted/70"
-                   }`}>
+                   <Link to={chatHref} className="p-2 rounded-xl transition-colors relative text-foreground hover:bg-muted/70">
                       <MessageCircle className="w-5 h-5" />
                       {unreadCount > 0 && (
                         <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-background" />
@@ -509,7 +489,7 @@ export function Navbar() {
                    </Link>
 
                    {/* Notifications */}
-                   <NotificationBell isLanding={isDarkNav} />
+                   <NotificationBell />
                 </>
               )}
               
