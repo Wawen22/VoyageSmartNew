@@ -42,7 +42,7 @@ export default function TripChat() {
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [chatToPlan, setChatToPlan] = useState<{ msg: ChatMessage, type: 'activity' | 'expense' } | null>(null);
   
-  const { messages, loading, members, sendMessage, sendPoll, toggleReaction, togglePin, scrollRef } = useTripChat(tripId || "");
+  const { messages, loading, members, sendMessage, sendPoll, toggleReaction, togglePin, deleteMessage, scrollRef } = useTripChat(tripId || "");
   const { data: tripDetails } = useTripDetails(tripId);
   const { createActivity } = useItinerary(tripId || undefined);
   const { createExpense } = useExpenses(tripId || "");
@@ -239,6 +239,7 @@ export default function TripChat() {
                               onReply={(m) => setReplyTo(m)}
                               onReaction={(emoji) => toggleReaction(msg.id, emoji, user.id)}
                               onPin={(id, status) => togglePin(id, status)}
+                              onDelete={(id) => deleteMessage(id)}
                               onAction={(m, type) => setChatToPlan({ msg: m, type })}
                             >
                               {msg.poll_id ? (
@@ -354,7 +355,21 @@ export default function TripChat() {
                                             </>
                                           )}
                                         </DropdownMenuItem>
-                                      </DropdownMenuContent>
+                                        {isMe && (
+                                      <DropdownMenuItem 
+                                        onClick={() => deleteMessage(msg.id)}
+                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                        disabled={(() => {
+                                          const sentAt = new Date(msg.created_at).getTime();
+                                          const now = new Date().getTime();
+                                          return (now - sentAt) / (1000 * 60) > 15;
+                                        })()}
+                                      >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Elimina
+                                      </DropdownMenuItem>
+                                    )}
+                                  </DropdownMenuContent>
                                     </DropdownMenu>
 
                                     <Button

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger, DrawerTitle, DrawerHeader } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Reply, CalendarPlus, Wallet, Pin, PinOff, Copy, Trash2, SmilePlus } from "lucide-react";
 import { ChatMessage } from "@/hooks/useTripChat";
@@ -11,6 +11,7 @@ interface MobileMessageActionsProps {
   onReply: (msg: ChatMessage) => void;
   onReaction: (emoji: string) => void;
   onPin: (msgId: string, currentStatus: boolean) => void;
+  onDelete: (msgId: string) => void;
   onAction: (msg: ChatMessage, type: 'activity' | 'expense') => void;
   children: React.ReactNode;
 }
@@ -21,6 +22,7 @@ export function MobileMessageActions({
   onReply, 
   onReaction, 
   onPin, 
+  onDelete,
   onAction,
   children 
 }: MobileMessageActionsProps) {
@@ -31,8 +33,15 @@ export function MobileMessageActions({
   const handleTouchStart = () => {
     const timer = setTimeout(() => {
       setOpen(true);
-      // Vibrate if supported
-      if (navigator.vibrate) navigator.vibrate(50);
+      // Vibrate if supported and allowed by user interaction
+      try {
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+      } catch (e) {
+        // Ignore vibration errors (often blocked by browser policies)
+        console.debug("Vibration blocked or not supported");
+      }
     }, 500); // 500ms long press
     setLongPressTimer(timer);
   };
@@ -42,6 +51,14 @@ export function MobileMessageActions({
       clearTimeout(longPressTimer);
       setLongPressTimer(null);
     }
+  };
+
+  const isDeletable = () => {
+    if (message.sender_id !== userId) return false;
+    const now = new Date();
+    const sentAt = new Date(message.created_at);
+    const diffInMinutes = (now.getTime() - sentAt.getTime()) / (1000 * 60);
+    return diffInMinutes <= 15;
   };
 
   const REACTION_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
@@ -61,6 +78,10 @@ export function MobileMessageActions({
 
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerContent className="pb-8 px-4">
+          <DrawerHeader className="sr-only">
+            <DrawerTitle>Azioni Messaggio</DrawerTitle>
+          </DrawerHeader>
+          
           {/* Reaction Bar */}
           <div className="flex justify-between items-center bg-muted/30 p-2 rounded-full mb-6 mx-2 overflow-x-auto gap-2 no-scrollbar">
             {REACTION_EMOJIS.map((emoji) => (
@@ -101,7 +122,12 @@ export function MobileMessageActions({
             </Button>
 
             {message.sender_id === userId && (
-               <Button variant="outline" className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-destructive/10 text-destructive hover:text-destructive" disabled>
+               <Button 
+                variant="outline" 
+                className="flex flex-col gap-1 h-20 border-muted-foreground/20 hover:bg-destructive/10 text-destructive hover:text-destructive disabled:opacity-30 disabled:grayscale" 
+                onClick={() => { onDelete(message.id); setOpen(false); }}
+                disabled={!isDeletable()}
+              >
                 <Trash2 className="w-6 h-6 mb-1" />
                 <span className="text-[10px] font-medium">Elimina</span>
               </Button>

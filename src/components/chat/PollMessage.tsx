@@ -240,9 +240,9 @@ export function PollMessage({ pollId, isMe }: PollMessageProps) {
 
   if (!poll) return <p className="text-destructive italic">Sondaggio non disponibile.</p>;
 
-  const totalVotes = poll.options.reduce((sum, opt) => sum + opt.votes_count, 0);
   const sortedOptionsByVotes = [...poll.options].sort((a, b) => b.votes_count - a.votes_count);
   const winner = sortedOptionsByVotes[0].votes_count > 0 ? sortedOptionsByVotes[0] : null;
+  const totalVotesSum = poll.options.reduce((sum, opt) => sum + opt.votes_count, 0);
 
   return (
     <>
@@ -258,7 +258,7 @@ export function PollMessage({ pollId, isMe }: PollMessageProps) {
         
         <div className="space-y-2">
           {poll.options.map((option) => {
-            const percentage = totalVotes > 0 ? (option.votes_count / totalVotes) * 100 : 0;
+            const percentage = totalVotesSum > 0 ? (option.votes_count / totalVotesSum) * 100 : 0;
             const isSelected = poll.user_votes.includes(option.id);
             
             return (
@@ -314,7 +314,7 @@ export function PollMessage({ pollId, isMe }: PollMessageProps) {
           
           <div className="flex items-center gap-2">
             <p className="text-[10px] font-medium text-emerald-800/50 uppercase tracking-tighter">
-              {totalVotes} {totalVotes === 1 ? 'voto' : 'voti'} • {poll.allow_multiple_answers ? "Multi" : "Singola"}
+              {totalVotesSum} {totalVotesSum === 1 ? 'voto' : 'voti'} • {poll.allow_multiple_answers ? "Multi" : "Singola"}
             </p>
             {poll.user_votes.length > 0 && (
               <span className="text-[9px] bg-emerald-500/10 text-emerald-700 px-2 py-0.5 rounded-full font-bold">

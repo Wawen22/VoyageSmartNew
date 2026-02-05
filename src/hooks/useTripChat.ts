@@ -163,19 +163,24 @@ export const useTripChat = (tripId: string) => {
       )
       .subscribe();
 
-    // Realtime Message Updates Subscription (for Pinning)
+    // Realtime Message Updates Subscription (for Pinning and Deletion)
     const updateChannel = supabase
       .channel(`trip-chat-updates-${tripId}`)
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'trip_messages', filter: `trip_id=eq.${tripId}` },
+        { event: '*', schema: 'public', table: 'trip_messages', filter: `trip_id=eq.${tripId}` },
         (payload) => {
-          const updatedMessage = payload.new as ChatMessage;
-          setMessages(prev => prev.map(msg => 
-            msg.id === updatedMessage.id 
-              ? { ...msg, is_pinned: updatedMessage.is_pinned } 
-              : msg
-          ));
+          if (payload.eventType === 'UPDATE') {
+            const updatedMessage = payload.new as ChatMessage;
+            setMessages(prev => prev.map(msg => 
+              msg.id === updatedMessage.id 
+                ? { ...msg, is_pinned: updatedMessage.is_pinned } 
+                : msg
+            ));
+          } else if (payload.eventType === 'DELETE') {
+            const deletedId = payload.old.id;
+            setMessages(prev => prev.filter(msg => msg.id !== deletedId));
+          }
         }
       )
       .subscribe();
@@ -421,6 +426,24 @@ export const useTripChat = (tripId: string) => {
     }
   };
 
+  const deleteMessage = async (messageId: string) => {
+    // 1. Optimistic Update
+    setMessages(prev => prev.filter(m => m.id !== messageId));
+
+    try {
+      const { error } = await supabase
+        .from('trip_messages')
+        .delete()
+        .eq('id', messageId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      // Revert could be done here if needed, or rely on next refresh/realtime sync error handling
+      toast({ title: "Errore", description: "Impossibile eliminare il messaggio. Forse è scaduto il tempo limite (15 min).", variant: "destructive" });
+    }
+  };
+
   return {
     messages,
     loading,
@@ -429,6 +452,7 @@ export const useTripChat = (tripId: string) => {
     sendPoll,
     toggleReaction,
     togglePin,
+    deleteMessage,
     scrollRef
   };
 };
