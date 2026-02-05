@@ -13,6 +13,13 @@ export interface ChatMessage {
   sender_id: string;
   content: string | null;
   poll_id?: string | null;
+  reply_to_message_id?: string | null;
+  reply_to?: {
+    id: string;
+    content: string | null;
+    sender_id: string;
+    poll_id?: string | null;
+  };
   created_at: string;
   reactions?: ChatReaction[];
 }
@@ -82,7 +89,8 @@ export const useTripChat = (tripId: string) => {
         .from('trip_messages')
         .select(`
           *,
-          reactions:trip_message_reactions(id, user_id, emoji)
+          reactions:trip_message_reactions(id, user_id, emoji),
+          reply_to:reply_to_message_id(id, content, sender_id, poll_id)
         `)
         .eq('trip_id', tripId)
         .order('created_at', { ascending: true });
@@ -106,13 +114,31 @@ export const useTripChat = (tripId: string) => {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'trip_messages', filter: `trip_id=eq.${tripId}` },
         async (payload) => {
-          const newMessage = payload.new as ChatMessage;
+          const rawMessage = payload.new as any;
           
           setMessages((prev) => {
-            // Avoid duplicates if already added optimistically or by another event
-            if (prev.some(m => m.id === newMessage.id)) return prev;
+            // Avoid duplicates
+            if (prev.some(m => m.id === rawMessage.id)) return prev;
 
-            // Try to find a matching optimistic message (same sender and content, and has temp ID)
+            // Construct the full message object with reply_to if needed
+            const newMessage: ChatMessage = {
+              ...rawMessage,
+              reactions: []
+            };
+
+            if (rawMessage.reply_to_message_id) {
+              const referencedMsg = prev.find(m => m.id === rawMessage.reply_to_message_id);
+              if (referencedMsg) {
+                newMessage.reply_to = {
+                  id: referencedMsg.id,
+                  content: referencedMsg.content,
+                  sender_id: referencedMsg.sender_id,
+                  poll_id: referencedMsg.poll_id
+                };
+              }
+            }
+
+            // Try to find a matching optimistic message
             const matchingIndex = prev.findIndex(m => 
               m.sender_id === newMessage.sender_id && 
               m.content === newMessage.content && 
@@ -203,7 +229,7 @@ export const useTripChat = (tripId: string) => {
     }, 100);
   };
 
-  const sendMessage = async (content: string, userId: string) => {
+  const sendMessage = async (content: string, userId: string, replyToMessage?: any) => {
     if (!content.trim()) return;
 
     const tempId = `temp-${Math.random().toString(36).substr(2, 9)}`;
@@ -211,7 +237,14 @@ export const useTripChat = (tripId: string) => {
       id: tempId,
       sender_id: userId,
       content: content.trim(),
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      reply_to_message_id: replyToMessage?.id,
+      reply_to: replyToMessage ? {
+        id: replyToMessage.id,
+        content: replyToMessage.content,
+        sender_id: replyToMessage.sender_id,
+        poll_id: replyToMessage.poll_id
+      } : undefined
     };
 
     setMessages(prev => [...prev, optimisticMsg]);
@@ -222,7 +255,8 @@ export const useTripChat = (tripId: string) => {
       .insert({
         trip_id: tripId,
         sender_id: userId,
-        content: content.trim()
+        content: content.trim(),
+        reply_to_message_id: replyToMessage?.id
       });
 
     if (error) {

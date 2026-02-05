@@ -13,6 +13,8 @@ import { it } from "date-fns/locale";
 
 import { ReactionPicker } from "@/components/chat/reactions/ReactionPicker";
 import { MessageReactions } from "@/components/chat/reactions/MessageReactions";
+import { ReplyPreview } from "@/components/chat/reply/ReplyPreview";
+import { Reply } from "lucide-react";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -29,6 +31,7 @@ export default function TripChat() {
   const [tripTitle, setTripTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
   const [isPollDialogOpen, setIsPollDialogOpen] = useState(false);
+  const [replyTo, setReplyTo] = useState<any | null>(null);
   
   const { messages, loading, members, sendMessage, sendPoll, toggleReaction, scrollRef } = useTripChat(tripId || "");
   const { data: tripDetails } = useTripDetails(tripId);
@@ -51,8 +54,9 @@ export default function TripChat() {
     if (!newMessage.trim() || !user) return;
     
     const msg = newMessage;
-    setNewMessage(""); // Clear input immediately
-    await sendMessage(msg, user.id);
+    setNewMessage(""); 
+    setReplyTo(null);
+    await sendMessage(msg, user.id, replyTo);
   };
 
   const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
@@ -106,6 +110,8 @@ export default function TripChat() {
                   const isMe = msg.sender_id === user.id;
                   const sender = members[msg.sender_id];
                   const showAvatar = !isMe && (index === 0 || messages[index - 1].sender_id !== msg.sender_id);
+                  const replyToMessage = msg.reply_to;
+                  const replySender = replyToMessage ? members[replyToMessage.sender_id] : null;
                   
                   return (
                     <div 
@@ -136,8 +142,30 @@ export default function TripChat() {
                         )}
 
                         <div className="flex flex-col">
+                          {replyToMessage && (
+                            <div 
+                              className={`
+                                text-xs mb-1 p-2 rounded-lg border-l-2 bg-muted/30 opacity-80 cursor-pointer hover:opacity-100 transition-opacity
+                                ${isMe ? "border-primary/50 text-right self-end" : "border-primary/50 text-left self-start"}
+                              `}
+                              onClick={() => {
+                                const el = document.getElementById(`msg-${replyToMessage.id}`);
+                                el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                el?.classList.add('bg-primary/5');
+                                setTimeout(() => el?.classList.remove('bg-primary/5'), 1000);
+                              }}
+                            >
+                              <p className="font-bold text-[10px] text-primary">
+                                {replySender?.full_name || replySender?.username || "Utente"}
+                              </p>
+                              <p className="line-clamp-1 text-muted-foreground">
+                                {replyToMessage.poll_id ? "📊 Sondaggio" : replyToMessage.content}
+                              </p>
+                            </div>
+                          )}
+
                           {msg.poll_id ? (
-                            <div className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm">
+                            <div id={`msg-${msg.id}`} className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm transition-colors duration-500">
                               {!isMe && showAvatar && sender && (
                                 <p className="text-[10px] font-bold text-emerald-700 mb-2 uppercase tracking-wider">
                                   {sender.full_name || sender.username} ha creato un sondaggio
@@ -146,9 +174,9 @@ export default function TripChat() {
                               <PollMessage pollId={msg.poll_id} isMe={isMe} />
                             </div>
                           ) : (
-                            <div className="group/msg relative">
+                            <div className="group/msg relative" id={`msg-${msg.id}`}>
                               <div className={`
-                                max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm
+                                max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm transition-colors duration-500
                                 ${isMe 
                                   ? "bg-primary text-primary-foreground rounded-br-none" 
                                   : "bg-white dark:bg-muted border rounded-bl-none text-foreground"
@@ -162,11 +190,19 @@ export default function TripChat() {
                                 <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                               </div>
                               
-                              {/* Reaction Picker Button */}
+                              {/* Reaction Picker Button & Reply Button */}
                               <div className={`
-                                absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200
-                                ${isMe ? "-left-8" : "-right-8"}
+                                absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200 flex items-center gap-1
+                                ${isMe ? "-left-16" : "-right-16"}
                               `}>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary hover:bg-muted/50"
+                                  onClick={() => setReplyTo(msg)}
+                                >
+                                  <Reply className="w-4 h-4" />
+                                </Button>
                                 <ReactionPicker 
                                   onSelect={(emoji) => toggleReaction(msg.id, emoji, user.id)}
                                 />
@@ -195,8 +231,15 @@ export default function TripChat() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-background border-t">
-              <form onSubmit={handleSend} className="flex gap-2">
+            <div className="bg-background border-t">
+              {replyTo && (
+                <ReplyPreview 
+                  replyTo={replyTo}
+                  sender={members[replyTo.sender_id]}
+                  onCancel={() => setReplyTo(null)}
+                />
+              )}
+              <form onSubmit={handleSend} className="p-4 flex gap-2">
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button 
