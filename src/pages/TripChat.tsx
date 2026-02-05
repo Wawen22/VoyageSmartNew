@@ -31,6 +31,8 @@ import { ChatMessage } from "@/hooks/useTripChat";
 import { MobileMessageActions } from "@/components/chat/mobile/MobileMessageActions";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+import { TripNavBar } from "@/components/trip-details/navigation/TripNavBar";
+
 export default function TripChat() {
   const [searchParams] = useSearchParams();
   const tripId = searchParams.get("trip");
@@ -104,86 +106,105 @@ export default function TripChat() {
 
   return (
     <AppLayout>
-      <main className="fixed inset-0 pt-16 bg-background flex flex-col">
-        {/* Navigation Header - Fixed at top */}
-        <div className="shrink-0 bg-background border-b z-30">
-          <div className="container mx-auto px-4 max-w-4xl">
-            <div className="flex items-center gap-2 py-3">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to={`/trips/${tripId}`} className="flex items-center gap-2">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Torna al viaggio
-                </Link>
-              </Button>
-              <span className="text-muted-foreground">/</span>
-              <span className="font-medium truncate">{tripTitle || "Chat"}</span>
-            </div>
+      {tripId && <TripNavBar tripId={tripId} />}
+      <main className="h-[100dvh] pt-20 pb-20 md:pb-8 bg-background flex flex-col">
+        <div className="container mx-auto px-3 sm:px-4 max-w-7xl flex flex-col flex-1 min-h-0">
+          {/* Breadcrumb Navigation - Shrinkable but visible */}
+          <div className="shrink-0 flex items-center gap-2 mb-4 pt-2">
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                to={`/trips/${tripId}`}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Torna al viaggio
+              </Link>
+            </Button>
+            <span className="text-muted-foreground">/</span>
+            <span className="font-medium truncate">{tripTitle || "Chat"}</span>
           </div>
-        </div>
 
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="container mx-auto px-4 max-w-4xl flex flex-col flex-1 min-h-0">
-
-            <div className="bg-card rounded-t-xl md:rounded-xl border shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden">
-              {/* Chat Header - Fixed at top of chat area */}
-              <div className="shrink-0 p-4 border-b bg-muted/30 flex items-center justify-between sticky top-0 z-20">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-primary" />
-                  <h2 className="font-semibold">Chat di Gruppo</h2>
+          <div className="bg-card rounded-xl border shadow-sm flex flex-col flex-1 min-h-0 overflow-hidden mb-safe">
+            {/* Page Header inside Card - Fixed at top of card */}
+            <div className="shrink-0 p-4 border-b bg-muted/5">
+              <div className="flex flex-row items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <h2 className="text-lg md:text-2xl font-bold tracking-tight flex items-center gap-2 truncate">
+                    <MessageSquare className="h-5 w-5 md:h-6 md:w-6 text-primary shrink-0" />
+                    Chat di Gruppo
+                  </h2>
+                  <p className="text-xs md:text-sm text-muted-foreground truncate hidden sm:block">
+                    Comunica con i partecipanti e organizza il tuo viaggio
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">
+                
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex -space-x-2 mr-2">
+                    {Object.values(members).slice(0, 3).map((member, i) => (
+                      <Avatar key={i} className="w-8 h-8 border-2 border-background">
+                        <AvatarImage src={member.avatar_url || ""} />
+                        <AvatarFallback className="text-[10px]">{member.full_name?.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    ))}
+                    {Object.keys(members).length > 3 && (
+                      <div className="w-8 h-8 rounded-full bg-muted border-2 border-background flex items-center justify-center text-[10px] font-medium">
+                        +{Object.keys(members).length - 3}
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full font-bold uppercase tracking-wider hidden sm:inline-block">
                     {Object.keys(members).length} Membri
                   </span>
                 </div>
               </div>
+            </div>
 
-              {/* Pinned Messages Bar */}
-              {pinnedMessages.length > 0 && (
-                <div className="shrink-0 bg-primary/5 border-b px-4 py-2 flex items-center gap-3 animate-in slide-in-from-top duration-300 relative z-10">
-                  <Pin className="w-3 h-3 text-primary shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-[10px] font-bold text-primary uppercase">Messaggi in evidenza</p>
-                      <span className="text-[10px] text-muted-foreground opacity-50">•</span>
-                      <span className="text-[10px] text-muted-foreground">{pinnedMessages.length} totali</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        const lastPinned = pinnedMessages[pinnedMessages.length - 1];
-                        const el = document.getElementById(`msg-${lastPinned.id}`);
-                        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        el?.classList.add('ring-2', 'ring-primary/20');
-                        setTimeout(() => el?.classList.remove('ring-2', 'ring-primary/20'), 2000);
-                      }}
-                      className="text-xs text-foreground truncate block w-full text-left hover:underline underline-offset-2"
-                    >
-                      {pinnedMessages[pinnedMessages.length - 1].poll_id
-                        ? "📊 Sondaggio: " + pinnedMessages[pinnedMessages.length - 1].content
-                        : pinnedMessages[pinnedMessages.length - 1].content}
-                    </button>
+            {/* Pinned Messages Bar */}
+            {pinnedMessages.length > 0 && (
+              <div className="shrink-0 bg-primary/5 border-b px-4 py-2 flex items-center gap-3 animate-in slide-in-from-top duration-300 relative z-10">
+                <Pin className="w-3 h-3 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[10px] font-bold text-primary uppercase">Messaggi in evidenza</p>
+                    <span className="text-[10px] text-muted-foreground opacity-50">•</span>
+                    <span className="text-[10px] text-muted-foreground">{pinnedMessages.length} totali</span>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary"
-                      onClick={() => {
-                        const lastPinned = pinnedMessages[pinnedMessages.length - 1];
-                        togglePin(lastPinned.id, true);
-                      }}
-                    >
-                      <PinOff className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      const lastPinned = pinnedMessages[pinnedMessages.length - 1];
+                      const el = document.getElementById(`msg-${lastPinned.id}`);
+                      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      el?.classList.add('ring-2', 'ring-primary/20');
+                      setTimeout(() => el?.classList.remove('ring-2', 'ring-primary/20'), 2000);
+                    }}
+                    className="text-xs text-foreground truncate block w-full text-left hover:underline underline-offset-2"
+                  >
+                    {pinnedMessages[pinnedMessages.length - 1].poll_id
+                      ? "📊 Sondaggio: " + pinnedMessages[pinnedMessages.length - 1].content
+                      : pinnedMessages[pinnedMessages.length - 1].content}
+                  </button>
                 </div>
-              )}
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary"
+                    onClick={() => {
+                      const lastPinned = pinnedMessages[pinnedMessages.length - 1];
+                      togglePin(lastPinned.id, true);
+                    }}
+                  >
+                    <PinOff className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
 
-              {/* Messages Area - Scrollable */}
-              <div
-                ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/10 scroll-smooth min-h-0"
-              >
+            {/* Messages Area - Scrollable */}
+            <div
+              ref={scrollRef}
+              className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/10 scroll-smooth min-h-0"
+            >
               {loading ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -443,85 +464,84 @@ export default function TripChat() {
                   );
                 })
               )}
-              </div>
+            </div>
 
-              {/* Input Area - Fixed at bottom */}
-              <div className="shrink-0 bg-background border-t">
-                {replyTo && (
-                  <ReplyPreview
-                    replyTo={replyTo}
-                    sender={members[replyTo.sender_id]}
-                    onCancel={() => setReplyTo(null)}
-                  />
-                )}
-                {editingMessage && (
-                  <div className="flex items-center justify-between px-4 py-2 bg-primary/5 border-t animate-in slide-in-from-bottom-1">
-                    <div className="flex items-center gap-2 text-primary">
-                      <Pencil className="w-3 h-3" />
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Modifica messaggio</span>
-                    </div>
+            {/* Input Area - Fixed at bottom */}
+            <div className="shrink-0 bg-background border-t">
+              {replyTo && (
+                <ReplyPreview
+                  replyTo={replyTo}
+                  sender={members[replyTo.sender_id]}
+                  onCancel={() => setReplyTo(null)}
+                />
+              )}
+              {editingMessage && (
+                <div className="flex items-center justify-between px-4 py-2 bg-primary/5 border-t animate-in slide-in-from-bottom-1">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Pencil className="w-3 h-3" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Modifica messaggio</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-5 rounded-full"
+                    onClick={() => {
+                      setEditingMessage(null);
+                      setNewMessage("");
+                    }}
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+              <form onSubmit={handleSend} className="p-4 flex gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-5 w-5 rounded-full"
-                      onClick={() => {
-                        setEditingMessage(null);
-                        setNewMessage("");
-                      }}
+                      className="rounded-full shrink-0 bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-emerald-500/20 transition-all active:scale-95"
                     >
-                      <X className="w-3 h-3" />
+                      <Plus className="w-5 h-5" />
                     </Button>
-                  </div>
-                )}
-                <form onSubmit={handleSend} className="p-4 flex gap-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="rounded-full shrink-0 bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:shadow-emerald-500/20 transition-all active:scale-95"
-                      >
-                        <Plus className="w-5 h-5" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent align="start" side="top" className="w-48 p-2 mb-2 shadow-xl border-emerald-100">
-                      <div className="grid gap-1">
-                        <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                          Strumenti Chat
-                        </div>
-                        <Button
-                          variant="ghost"
-                          type="button"
-                          className="w-full justify-start gap-3 h-10 text-sm hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
-                          onClick={() => setIsPollDialogOpen(true)}
-                        >
-                          <div className="bg-emerald-100 p-1.5 rounded-lg">
-                            <BarChart2 className="w-4 h-4 text-emerald-600" />
-                          </div>
-                          <span className="font-medium">Sondaggio</span>
-                        </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" side="top" className="w-48 p-2 mb-2 shadow-xl border-emerald-100">
+                    <div className="grid gap-1">
+                      <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Strumenti Chat
                       </div>
-                    </PopoverContent>
-                  </Popover>
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        className="w-full justify-start gap-3 h-10 text-sm hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                        onClick={() => setIsPollDialogOpen(true)}
+                      >
+                        <div className="bg-emerald-100 p-1.5 rounded-lg">
+                          <BarChart2 className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <span className="font-medium">Sondaggio</span>
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
 
-                  <Input
-                    placeholder={editingMessage ? "Modifica il tuo messaggio..." : "Scrivi un messaggio..."}
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    className={cn("rounded-full", editingMessage && "border-primary ring-1 ring-primary/20")}
-                    autoFocus={!!editingMessage}
-                  />
-                  <Button
-                    type="submit"
-                    size="icon"
-                    className={cn("rounded-full shrink-0", editingMessage ? "bg-primary" : "")}
-                    disabled={!newMessage.trim()}
-                  >
-                    {editingMessage ? <Check className="w-4 h-4" /> : <Send className="w-4 h-4" />}
-                  </Button>
-                </form>
-              </div>
+                <Input
+                  placeholder={editingMessage ? "Modifica il tuo messaggio..." : "Scrivi un messaggio..."}
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  className={cn("rounded-full", editingMessage && "border-primary ring-1 ring-primary/20")}
+                  autoFocus={!!editingMessage}
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  className={cn("rounded-full shrink-0", editingMessage ? "bg-primary" : "")}
+                  disabled={!newMessage.trim()}
+                >
+                  {editingMessage ? <Check className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                </Button>
+              </form>
             </div>
           </div>
         </div>
@@ -563,7 +583,6 @@ export default function TripChat() {
         </>
       )}
 
-      {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
 }

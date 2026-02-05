@@ -18,9 +18,10 @@ import { Badge } from "@/components/ui/badge";
 interface TripAIAssistantProps {
   tripId: string;
   tripDetails: any; // Using any for simplicity here, but should match Trip type
+  className?: string;
 }
 
-export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
+export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
@@ -91,7 +92,7 @@ export function TripAIAssistant({ tripId, tripDetails }: TripAIAssistantProps) {
       }
     }}>
       <SheetTrigger asChild>
-        <div className="fixed bottom-24 lg:bottom-6 right-6 z-50 group">
+        <div className={cn("fixed bottom-24 lg:bottom-6 right-6 z-50 group", className)}>
           <div className="relative">
              {/* Pulsing background glow */}
              <div className="absolute inset-0 rounded-2xl bg-violet-500 blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-500 animate-pulse" />
