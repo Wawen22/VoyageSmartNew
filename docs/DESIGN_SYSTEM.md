@@ -1,7 +1,7 @@
-# Design System "Ultrathink"
+# Design System "Nebula"
 
 ## Core Philosophy
-The "Ultrathink" design system focuses on creating a **modern, professional, and immersive** user experience. It blends glassmorphism, soft gradients, and high-quality typography to deliver an interface that feels both premium and accessible.
+The "Nebula" design system focuses on creating a **modern, professional, and immersive** user experience. It blends glassmorphism, soft gradients, and high-quality typography to deliver an interface that feels both premium and accessible.
 
 ### Key Principles
 1.  **Glassmorphism & Depth:** Heavy usage of `backdrop-blur-xl`, semi-transparent backgrounds (`bg-white/10` or `bg-black/5`), and subtle borders to create depth without clutter.
