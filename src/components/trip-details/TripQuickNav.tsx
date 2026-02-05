@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { ChatButton } from "./chat/ChatButton";
 import { 
   Calendar as CalendarIcon, 
   Wallet, 
@@ -80,10 +80,10 @@ export function TripQuickNav({ tripId, stats }: TripQuickNavProps) {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-8 animate-in slide-in-from-bottom-6 duration-700 delay-100">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-8 animate-in slide-in-from-bottom-6 duration-700 delay-100 overflow-visible">
       {navItems.map((item) => (
-        <Link key={item.to} to={item.to}>
-          <div className="relative overflow-hidden bg-card/50 backdrop-blur-sm transition-all border border-border/50 shadow-sm rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 h-28 group hover:-translate-y-1 hover:shadow-lg hover:bg-card">
+        <Link key={item.to} to={item.to} className="block h-full">
+          <div className="relative overflow-visible bg-card/50 backdrop-blur-sm transition-all border border-border/50 shadow-sm rounded-2xl p-4 flex flex-col items-center justify-center text-center gap-3 h-28 group hover:-translate-y-1 hover:shadow-lg hover:bg-card">
             <div
               className={cn(
                 "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
@@ -113,6 +113,7 @@ export function TripQuickNav({ tripId, stats }: TripQuickNavProps) {
           </div>
         </Link>
       ))}
+      <ChatButton tripId={tripId} />
     </div>
   );
 }

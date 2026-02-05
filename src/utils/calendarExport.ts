@@ -20,7 +20,7 @@ const formatAllDayICS = (date: Date): string => {
 };
 
 export const generateICS = (tripTitle: string, events: CalendarEvent[]): string => {
-  let icsContent = [
+  const icsContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
     "PRODID:-//VoyageSmart//VoyageSmart Calendar//EN",

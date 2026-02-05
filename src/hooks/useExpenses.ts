@@ -125,7 +125,7 @@ export function useExpenses(tripId?: string) {
       ])];
       
       const profileIds = [...new Set([...payerIds, ...splitUserIds, ...settlementUserIds])];
-      let profilesMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+      const profilesMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
 
       if (profileIds.length > 0) {
         const { data: profiles } = await supabase

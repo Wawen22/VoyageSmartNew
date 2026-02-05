@@ -171,7 +171,7 @@ export function PDFPreviewDialog({
       const expensePaidByIds = expensesResult.data?.map((e) => e.paid_by) || [];
       const allUserIds = [...new Set([...memberUserIds, ...expensePaidByIds])];
 
-      let profilesMap: Record<string, string> = {};
+      const profilesMap: Record<string, string> = {};
       if (allUserIds.length > 0) {
         const { data: profiles } = await supabase
           .from("profiles")

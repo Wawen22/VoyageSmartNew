@@ -5,7 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 export interface ChatMessage {
   id: string;
   sender_id: string;
-  content: string;
+  content: string | null;
+  poll_id?: string | null;
   created_at: string;
 }
 
@@ -96,7 +97,27 @@ export const useTripChat = (tripId: string) => {
         { event: 'INSERT', schema: 'public', table: 'trip_messages', filter: `trip_id=eq.${tripId}` },
         async (payload) => {
           const newMessage = payload.new as ChatMessage;
-          setMessages((prev) => [...prev, newMessage]);
+          
+          setMessages((prev) => {
+            // Avoid duplicates if already added optimistically or by another event
+            if (prev.some(m => m.id === newMessage.id)) return prev;
+
+            // Try to find a matching optimistic message (same sender and content, and has temp ID)
+            const matchingIndex = prev.findIndex(m => 
+              m.sender_id === newMessage.sender_id && 
+              m.content === newMessage.content && 
+              (m.id.startsWith('temp-') || m.id.length < 20)
+            );
+
+            if (matchingIndex !== -1) {
+              const next = [...prev];
+              next[matchingIndex] = newMessage;
+              return next;
+            }
+
+            return [...prev, newMessage];
+          });
+
           scrollToBottom();
           // Mark as read when receiving a new message while in chat
           await supabase.rpc('mark_trip_chat_read', { p_trip_id: tripId });
@@ -107,7 +128,7 @@ export const useTripChat = (tripId: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tripId]);
+  }, [tripId, toast]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -120,8 +141,17 @@ export const useTripChat = (tripId: string) => {
   const sendMessage = async (content: string, userId: string) => {
     if (!content.trim()) return;
 
-    // We don't optimistically update here to avoid duplicates with Realtime,
-    // unless we implement a robust temp-id system. Realtime is usually fast enough (<100ms).
+    const tempId = `temp-${Math.random().toString(36).substr(2, 9)}`;
+    const optimisticMsg: ChatMessage = {
+      id: tempId,
+      sender_id: userId,
+      content: content.trim(),
+      created_at: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, optimisticMsg]);
+    scrollToBottom();
+
     const { error } = await supabase
       .from('trip_messages')
       .insert({
@@ -131,6 +161,7 @@ export const useTripChat = (tripId: string) => {
       });
 
     if (error) {
+      setMessages(prev => prev.filter(m => m.id !== tempId));
       toast({ title: "Errore invio", description: "Riprova più tardi.", variant: "destructive" });
       throw error;
     }
@@ -138,11 +169,71 @@ export const useTripChat = (tripId: string) => {
     scrollToBottom();
   };
 
+  const sendPoll = async (question: string, options: string[], userId: string, allowMultiple: boolean = false) => {
+    if (!question.trim() || options.filter(o => o.trim()).length < 2) return;
+
+    try {
+      // 1. Create poll
+      const { data: poll, error: pollError } = await supabase
+        .from('trip_polls')
+        .insert({
+          trip_id: tripId,
+          creator_id: userId,
+          question: question.trim(),
+          allow_multiple_answers: allowMultiple
+        })
+        .select()
+        .single();
+
+      if (pollError) throw pollError;
+
+      // 2. Create options
+      const { error: optionsError } = await supabase
+        .from('trip_poll_options')
+        .insert(
+          options
+            .filter(o => o.trim())
+            .map(text => ({ poll_id: poll.id, text: text.trim() }))
+        );
+
+      if (optionsError) throw optionsError;
+
+      // 3. Create message
+      const { error: messageError } = await supabase
+        .from('trip_messages')
+        .insert({
+          trip_id: tripId,
+          sender_id: userId,
+          poll_id: poll.id,
+          content: question.trim()
+        });
+
+      if (messageError) throw messageError;
+      
+      // Optimistic update
+      const tempId = `temp-${Math.random().toString(36).substr(2, 9)}`;
+      const newMessage: ChatMessage = {
+        id: tempId,
+        sender_id: userId,
+        content: question.trim(),
+        poll_id: poll.id,
+        created_at: new Date().toISOString()
+      };
+      
+      setMessages((prev) => [...prev, newMessage]);
+      scrollToBottom();
+    } catch (error) {
+      console.error("Error creating poll:", error);
+      toast({ title: "Errore", description: "Impossibile creare il sondaggio.", variant: "destructive" });
+    }
+  };
+
   return {
     messages,
     loading,
     members,
     sendMessage,
+    sendPoll,
     scrollRef
   };
 };

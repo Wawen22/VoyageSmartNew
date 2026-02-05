@@ -4,7 +4,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Loader2, Send, MessageSquare } from "lucide-react";
+import { ArrowLeft, Loader2, Send, MessageSquare, Plus, BarChart2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTripChat } from "@/hooks/useTripChat";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,9 @@ import { it } from "date-fns/locale";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CreatePollDialog } from "@/components/chat/CreatePollDialog";
+import { PollMessage } from "@/components/chat/PollMessage";
 
 export default function TripChat() {
   const [searchParams] = useSearchParams();
@@ -23,8 +26,9 @@ export default function TripChat() {
   
   const [tripTitle, setTripTitle] = useState("");
   const [newMessage, setNewMessage] = useState("");
+  const [isPollDialogOpen, setIsPollDialogOpen] = useState(false);
   
-  const { messages, loading, members, sendMessage, scrollRef } = useTripChat(tripId || "");
+  const { messages, loading, members, sendMessage, sendPoll, scrollRef } = useTripChat(tripId || "");
   const { data: tripDetails } = useTripDetails(tripId);
 
   // Fetch trip title
@@ -47,6 +51,11 @@ export default function TripChat() {
     const msg = newMessage;
     setNewMessage(""); // Clear input immediately
     await sendMessage(msg, user.id);
+  };
+
+  const handleCreatePoll = async (question: string, options: string[], allowMultiple: boolean) => {
+    if (!user) return;
+    await sendPoll(question, options, user.id, allowMultiple);
   };
 
   if (!tripId || !user) return null;
@@ -99,46 +108,61 @@ export default function TripChat() {
                   return (
                     <div 
                       key={msg.id} 
-                      className={`flex gap-3 ${isMe ? "justify-end" : "justify-start"}`}
+                      className={`flex flex-col ${isMe ? "items-end" : "items-start"} gap-1`}
                     >
-                      {!isMe && (
-                        <div className="w-8 shrink-0 flex flex-col justify-end">
-                          {showAvatar ? (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Avatar className="w-8 h-8 border cursor-pointer hover:opacity-80 transition-opacity">
-                                    <AvatarImage src={sender?.avatar_url || ""} />
-                                    <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                                      {sender?.full_name?.charAt(0) || "U"}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>{sender?.full_name || sender?.username || "Utente"}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : <div className="w-8" />}
-                        </div>
-                      )}
-                      
-                      <div className={`
-                        max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow-sm
-                        ${isMe 
-                          ? "bg-primary text-primary-foreground rounded-br-none" 
-                          : "bg-white dark:bg-muted border rounded-bl-none"
-                        }
-                      `}>
-                        {!isMe && showAvatar && sender && (
-                          <p className="text-[10px] font-bold opacity-70 mb-1 text-primary">
-                            {sender.full_name || sender.username}
-                          </p>
+                      <div className={`flex gap-3 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
+                        {!isMe && (
+                          <div className="w-8 shrink-0 flex flex-col justify-end">
+                            {showAvatar ? (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Avatar className="w-8 h-8 border cursor-pointer hover:opacity-80 transition-opacity">
+                                      <AvatarImage src={sender?.avatar_url || ""} />
+                                      <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                                        {sender?.full_name?.charAt(0) || "U"}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>{sender?.full_name || sender?.username || "Utente"}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            ) : <div className="w-8" />}
+                          </div>
                         )}
-                        <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                        <p className={`text-[10px] mt-1 text-right ${isMe ? "opacity-70" : "text-muted-foreground"}`}>
-                          {format(new Date(msg.created_at), "HH:mm", { locale: it })}
-                        </p>
+
+                        <div className="flex flex-col">
+                          {msg.poll_id ? (
+                            <div className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm">
+                              {!isMe && showAvatar && sender && (
+                                <p className="text-[10px] font-bold text-emerald-700 mb-2 uppercase tracking-wider">
+                                  {sender.full_name || sender.username} ha creato un sondaggio
+                                </p>
+                              )}
+                              <PollMessage pollId={msg.poll_id} isMe={isMe} />
+                            </div>
+                          ) : (
+                            <div className={`
+                              max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm
+                              ${isMe 
+                                ? "bg-primary text-primary-foreground rounded-br-none" 
+                                : "bg-white dark:bg-muted border rounded-bl-none text-foreground"
+                              }
+                            `}>
+                              {!isMe && showAvatar && sender && (
+                                <p className={`text-[10px] font-bold mb-1 ${isMe ? "opacity-70" : "text-primary"}`}>
+                                  {sender.full_name || sender.username}
+                                </p>
+                              )}
+                              <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                            </div>
+                          )}
+                          <p className={`text-[10px] mt-1 ${isMe ? "text-right" : "text-left"} opacity-50`}>
+                            {format(new Date(msg.created_at), "HH:mm", { locale: it })}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   );
@@ -149,6 +173,27 @@ export default function TripChat() {
             {/* Input Area */}
             <div className="p-4 bg-background border-t">
               <form onSubmit={handleSend} className="flex gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button type="button" variant="ghost" size="icon" className="rounded-full shrink-0">
+                      <Plus className="w-5 h-5" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent align="start" side="top" className="w-48 p-2">
+                    <div className="grid gap-1">
+                      <Button 
+                        variant="ghost" 
+                        type="button"
+                        className="w-full justify-start gap-2 h-9 text-sm"
+                        onClick={() => setIsPollDialogOpen(true)}
+                      >
+                        <BarChart2 className="w-4 h-4 text-primary" />
+                        Sondaggio
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
                 <Input 
                   placeholder="Scrivi un messaggio..." 
                   value={newMessage}
@@ -168,6 +213,13 @@ export default function TripChat() {
           </div>
         </div>
       </main>
+
+      <CreatePollDialog 
+        open={isPollDialogOpen}
+        onOpenChange={setIsPollDialogOpen}
+        onSubmit={handleCreatePoll}
+      />
+
       {tripId && <TripAIAssistant tripId={tripId} tripDetails={tripDetails || null} />}
     </AppLayout>
   );
