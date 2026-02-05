@@ -4,7 +4,7 @@ import { Bot, Mic, Zap, Check, MessageSquare } from "lucide-react";
 
 export function AIShowcase() {
   return (
-    <section className="py-24 bg-background relative overflow-hidden">
+    <section id="voyage-ai" className="py-24 bg-background relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none" />
 
