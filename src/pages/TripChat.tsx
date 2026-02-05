@@ -27,6 +27,8 @@ import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { useItinerary } from "@/hooks/useItinerary";
 import { useExpenses } from "@/hooks/useExpenses";
 import { ChatMessage } from "@/hooks/useTripChat";
+import { MobileMessageActions } from "@/components/chat/mobile/MobileMessageActions";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function TripChat() {
   const [searchParams] = useSearchParams();
@@ -44,6 +46,7 @@ export default function TripChat() {
   const { data: tripDetails } = useTripDetails(tripId);
   const { createActivity } = useItinerary(tripId || undefined);
   const { createExpense } = useExpenses(tripId || "");
+  const isMobile = useIsMobile();
 
   const pinnedMessages = messages.filter(m => m.is_pinned);
 
@@ -229,95 +232,146 @@ export default function TripChat() {
                             </div>
                           )}
 
-                          {msg.poll_id ? (
-                            <div id={`msg-${msg.id}`} className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm transition-colors duration-500 relative group/pinned">
-                              {msg.is_pinned && (
-                                <div className="absolute -top-2 -left-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in">
-                                  <Pin className="w-2.5 h-2.5 fill-current" />
+                          {isMobile ? (
+                            <MobileMessageActions
+                              message={msg}
+                              userId={user.id}
+                              onReply={(m) => setReplyTo(m)}
+                              onReaction={(emoji) => toggleReaction(msg.id, emoji, user.id)}
+                              onPin={(id, status) => togglePin(id, status)}
+                              onAction={(m, type) => setChatToPlan({ msg: m, type })}
+                            >
+                              {msg.poll_id ? (
+                                <div id={`msg-${msg.id}`} className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm transition-colors duration-500 relative group/pinned">
+                                  {msg.is_pinned && (
+                                    <div className="absolute -top-2 -left-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in">
+                                      <Pin className="w-2.5 h-2.5 fill-current" />
+                                    </div>
+                                  )}
+                                  {!isMe && showAvatar && sender && (
+                                    <p className="text-[10px] font-bold text-emerald-700 mb-2 uppercase tracking-wider">
+                                      {sender.full_name || sender.username} ha creato un sondaggio
+                                    </p>
+                                  )}
+                                  <PollMessage pollId={msg.poll_id} isMe={isMe} />
+                                </div>
+                              ) : (
+                                <div className="group/msg relative" id={`msg-${msg.id}`}>
+                                  {msg.is_pinned && (
+                                    <div className={`absolute -top-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in ${isMe ? "-right-2" : "-left-2"}`}>
+                                      <Pin className="w-2.5 h-2.5 fill-current" />
+                                    </div>
+                                  )}
+                                  <div className={`
+                                    max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm transition-colors duration-500
+                                    ${isMe 
+                                      ? "bg-primary text-primary-foreground rounded-br-none" 
+                                      : "bg-white dark:bg-muted border rounded-bl-none text-foreground"
+                                    }
+                                  `}>
+                                    {!isMe && showAvatar && sender && (
+                                      <p className={`text-[10px] font-bold mb-1 ${isMe ? "opacity-70" : "text-primary"}`}>
+                                        {sender.full_name || sender.username}
+                                      </p>
+                                    )}
+                                    <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                                  </div>
                                 </div>
                               )}
-                              {!isMe && showAvatar && sender && (
-                                <p className="text-[10px] font-bold text-emerald-700 mb-2 uppercase tracking-wider">
-                                  {sender.full_name || sender.username} ha creato un sondaggio
-                                </p>
-                              )}
-                              <PollMessage pollId={msg.poll_id} isMe={isMe} />
-                            </div>
+                            </MobileMessageActions>
                           ) : (
-                            <div className="group/msg relative" id={`msg-${msg.id}`}>
-                              {msg.is_pinned && (
-                                <div className={`absolute -top-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in ${isMe ? "-right-2" : "-left-2"}`}>
-                                  <Pin className="w-2.5 h-2.5 fill-current" />
+                            <>
+                              {msg.poll_id ? (
+                                <div id={`msg-${msg.id}`} className="bg-emerald-50/95 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 shadow-md backdrop-blur-sm transition-colors duration-500 relative group/pinned">
+                                  {msg.is_pinned && (
+                                    <div className="absolute -top-2 -left-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in">
+                                      <Pin className="w-2.5 h-2.5 fill-current" />
+                                    </div>
+                                  )}
+                                  {!isMe && showAvatar && sender && (
+                                    <p className="text-[10px] font-bold text-emerald-700 mb-2 uppercase tracking-wider">
+                                      {sender.full_name || sender.username} ha creato un sondaggio
+                                    </p>
+                                  )}
+                                  <PollMessage pollId={msg.poll_id} isMe={isMe} />
                                 </div>
-                              )}
-                              <div className={`
-                                max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm transition-colors duration-500
-                                ${isMe 
-                                  ? "bg-primary text-primary-foreground rounded-br-none" 
-                                  : "bg-white dark:bg-muted border rounded-bl-none text-foreground"
-                                }
-                              `}>
-                                {!isMe && showAvatar && sender && (
-                                  <p className={`text-[10px] font-bold mb-1 ${isMe ? "opacity-70" : "text-primary"}`}>
-                                    {sender.full_name || sender.username}
-                                  </p>
-                                )}
-                                <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                              </div>
-                              
-                              {/* Reaction Picker Button & Reply Button & Context Menu */}
-                              <div className={`
-                                absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200 flex items-center gap-1
-                                ${isMe ? "-left-24" : "-right-24"}
-                              `}>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
+                              ) : (
+                                <div className="group/msg relative" id={`msg-${msg.id}`}>
+                                  {msg.is_pinned && (
+                                    <div className={`absolute -top-2 bg-amber-500 text-white p-1 rounded-full shadow-md z-10 border border-white dark:border-slate-800 animate-in zoom-in ${isMe ? "-right-2" : "-left-2"}`}>
+                                      <Pin className="w-2.5 h-2.5 fill-current" />
+                                    </div>
+                                  )}
+                                  <div className={`
+                                    max-w-[280px] sm:max-w-md rounded-2xl px-4 py-2 text-sm shadow-sm transition-colors duration-500
+                                    ${isMe 
+                                      ? "bg-primary text-primary-foreground rounded-br-none" 
+                                      : "bg-white dark:bg-muted border rounded-bl-none text-foreground"
+                                    }
+                                  `}>
+                                    {!isMe && showAvatar && sender && (
+                                      <p className={`text-[10px] font-bold mb-1 ${isMe ? "opacity-70" : "text-primary"}`}>
+                                        {sender.full_name || sender.username}
+                                      </p>
+                                    )}
+                                    <p className="leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                                  </div>
+                                  
+                                  {/* Reaction Picker Button & Reply Button & Context Menu */}
+                                  <div className={`
+                                    absolute top-1/2 -translate-y-1/2 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200 flex items-center gap-1
+                                    ${isMe ? "-left-24" : "-right-24"}
+                                  `}>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary hover:bg-muted/50"
+                                        >
+                                          <MoreHorizontal className="w-4 h-4" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align={isMe ? "end" : "start"}>
+                                        <DropdownMenuItem onClick={() => setChatToPlan({ msg, type: 'activity' })}>
+                                          <CalendarPlus className="w-4 h-4 mr-2" />
+                                          Crea Attività
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => setChatToPlan({ msg, type: 'expense' })}>
+                                          <Wallet className="w-4 h-4 mr-2" />
+                                          Crea Spesa
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => togglePin(msg.id, msg.is_pinned || false)}>
+                                          {msg.is_pinned ? (
+                                            <>
+                                              <PinOff className="w-4 h-4 mr-2" />
+                                              Rimuovi in evidenza
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Pin className="w-4 h-4 mr-2" />
+                                              Metti in evidenza
+                                            </>
+                                          )}
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary hover:bg-muted/50"
+                                      onClick={() => setReplyTo(msg)}
                                     >
-                                      <MoreHorizontal className="w-4 h-4" />
+                                      <Reply className="w-4 h-4" />
                                     </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align={isMe ? "end" : "start"}>
-                                    <DropdownMenuItem onClick={() => setChatToPlan({ msg, type: 'activity' })}>
-                                      <CalendarPlus className="w-4 h-4 mr-2" />
-                                      Crea Attività
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setChatToPlan({ msg, type: 'expense' })}>
-                                      <Wallet className="w-4 h-4 mr-2" />
-                                      Crea Spesa
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => togglePin(msg.id, msg.is_pinned || false)}>
-                                      {msg.is_pinned ? (
-                                        <>
-                                          <PinOff className="w-4 h-4 mr-2" />
-                                          Rimuovi in evidenza
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Pin className="w-4 h-4 mr-2" />
-                                          Metti in evidenza
-                                        </>
-                                      )}
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6 rounded-full text-muted-foreground hover:text-primary hover:bg-muted/50"
-                                  onClick={() => setReplyTo(msg)}
-                                >
-                                  <Reply className="w-4 h-4" />
-                                </Button>
-                                <ReactionPicker 
-                                  onSelect={(emoji) => toggleReaction(msg.id, emoji, user.id)}
-                                />
-                              </div>
-                            </div>
+                                    <ReactionPicker 
+                                      onSelect={(emoji) => toggleReaction(msg.id, emoji, user.id)}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                            </>
                           )}
                           
                           {/* Display Reactions */}
