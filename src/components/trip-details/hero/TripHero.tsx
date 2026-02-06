@@ -37,7 +37,7 @@ export function TripHero({ trip, onEdit, onUpdate }: TripHeroProps) {
   const isUpcoming = trip.status === "planning" || trip.status === "upcoming";
 
   return (
-    <div className="relative w-full h-[400px] lg:h-[480px] overflow-hidden group">
+    <div className="relative w-full h-[260px] sm:h-[400px] lg:h-[480px] overflow-hidden group">
       {/* Background Image */}
       <div className="absolute inset-0 transition-transform duration-1000 group-hover:scale-105">
         {trip.cover_image ? (
@@ -54,14 +54,14 @@ export function TripHero({ trip, onEdit, onUpdate }: TripHeroProps) {
       </div>
 
       {/* Content Container */}
-      <div className="absolute inset-0 flex flex-col justify-between p-6 lg:p-10 container mx-auto max-w-7xl z-10">
+      <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6 lg:p-10 container mx-auto max-w-7xl z-10">
         
         {/* Top Bar */}
         <div className="flex justify-between items-start">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-white hover:bg-white/20 hover:text-white backdrop-blur-md rounded-full px-4 border border-white/10 transition-all duration-300" 
+            className="text-white hover:bg-white/20 hover:text-white backdrop-blur-md rounded-full px-4 border border-white/10 transition-all duration-300 h-8 sm:h-9" 
             asChild
           >
             <Link to="/trips" className="flex items-center gap-2">
@@ -81,53 +81,53 @@ export function TripHero({ trip, onEdit, onUpdate }: TripHeroProps) {
               onClick={onEdit}
               variant="secondary"
               size="icon"
-              className="rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/10 shadow-lg"
+              className="rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-md border border-white/10 shadow-lg w-8 h-8 sm:w-10 sm:h-10"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
         </div>
 
         {/* Bottom Info Area */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-2">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-2 sm:gap-6 pb-0 sm:pb-2">
           
           {/* Title & Meta */}
-          <div className="space-y-4 max-w-3xl">
+          <div className="space-y-2 sm:space-y-4 max-w-3xl">
             {/* Badges Row */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {isOngoing && (
-                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/90 text-white shadow-lg shadow-emerald-500/20 backdrop-blur-md border border-emerald-400/50 flex items-center gap-1.5">
-                   <span className="relative flex h-2 w-2">
+                 <span className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-xs font-bold bg-emerald-500/90 text-white shadow-lg shadow-emerald-500/20 backdrop-blur-md border border-emerald-400/50 flex items-center gap-1.5">
+                   <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-white"></span>
                     </span>
                    IN CORSO
                  </span>
               )}
               {isCompleted && (
-                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur-md border border-white/10">
+                 <span className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-xs font-bold bg-white/20 text-white backdrop-blur-md border border-white/10">
                    COMPLETATO
                  </span>
               )}
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-black/40 text-white/90 backdrop-blur-md border border-white/10 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
+              <span className="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium bg-black/40 text-white/90 backdrop-blur-md border border-white/10 flex items-center gap-1.5">
+                <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 {tripDuration} {tripDuration === 1 ? 'giorno' : 'giorni'}
               </span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight drop-shadow-sm">
+            <h1 className="text-2xl sm:text-5xl lg:text-7xl font-bold text-white tracking-tight leading-tight drop-shadow-sm">
               {trip.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-white/80 text-sm sm:text-base font-medium">
-              <div className="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
-                <CalendarIcon className="w-4 h-4 text-white/70" />
+            <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-6 gap-y-1 text-white/80 text-[10px] sm:text-base font-medium">
+              <div className="flex items-center gap-1.5 bg-black/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
+                <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 text-white/70" />
                 <span>
                   {format(parseISO(trip.start_date), "d MMM", { locale: it })} - {format(parseISO(trip.end_date), "d MMM yyyy", { locale: it })}
                 </span>
               </div>
-              <div className="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
-                <MapPin className="w-4 h-4 text-white/70" />
+              <div className="flex items-center gap-1.5 bg-black/20 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
+                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-white/70" />
                 <span>{trip.destination}</span>
               </div>
             </div>
