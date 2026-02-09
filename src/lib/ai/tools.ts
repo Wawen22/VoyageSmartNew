@@ -64,7 +64,8 @@ export const TRIP_TOOLS = [
         arrival_location: { type: "STRING", description: "Luogo di arrivo" },
         departure_date: { type: "STRING", description: "Data/Ora partenza (ISO 8601 o YYYY-MM-DD HH:mm)" },
         arrival_date: { type: "STRING", description: "Data/Ora arrivo (ISO 8601 o YYYY-MM-DD HH:mm)" },
-        price: { type: "NUMBER", description: "Costo del biglietto (opzionale)" }
+        price: { type: "NUMBER", description: "Costo del biglietto (opzionale)" },
+        stops: { type: "STRING", description: "Elenco scali o dettagli intermedi (es. 'Scalo a Dubai 2h', 'Via Londra')" }
       },
       required: ["type", "departure_location", "arrival_location", "departure_date"]
     }

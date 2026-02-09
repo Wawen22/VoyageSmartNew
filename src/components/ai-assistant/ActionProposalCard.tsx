@@ -148,27 +148,39 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
   if (functionName === 'add_transport') {
     return (
       <CompactActionCard title={args.type || "Trasporto"} icon={Plane} themeColor="indigo">
-        <div className="relative pl-3 border-l-2 border-indigo-100 dark:border-indigo-900/50 space-y-4 my-1">
-          <div className="relative">
-            <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full border-2 border-indigo-500 bg-background z-10" />
-            <div className="flex flex-col">
-              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Partenza</span>
-              <span className="font-bold text-xs leading-tight truncate">{args.departure_location}</span>
+        <div className="flex gap-3 py-1">
+          {/* Column 1: Visual Timeline (Perfectly centered dots) */}
+          <div className="flex flex-col items-center pt-1.5">
+            <div className="w-2.5 h-2.5 rounded-full border-[2.5px] border-indigo-500 bg-background shrink-0" />
+            <div className="w-0.5 flex-1 bg-indigo-200 dark:bg-indigo-800/50 my-0.5 min-h-[20px]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0" />
+          </div>
+
+          {/* Column 2: Content */}
+          <div className="flex flex-col gap-4 flex-1 min-w-0">
+            {/* Departure */}
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter leading-none">Partenza</span>
+              <span className="font-bold text-sm leading-tight truncate">{args.departure_location}</span>
               {args.departure_date && <span className="text-[10px] font-medium opacity-70">{args.departure_date}</span>}
             </div>
-          </div>
-          <div className="relative">
-            <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500 z-10" />
-            <div className="flex flex-col">
-              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Arrivo</span>
-              <span className="font-bold text-xs leading-tight truncate">{args.arrival_location}</span>
+
+            {/* Arrival */}
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter leading-none">Arrivo</span>
+              <span className="font-bold text-sm leading-tight truncate">{args.arrival_location}</span>
               {args.arrival_date && <span className="text-[10px] font-medium opacity-70">{args.arrival_date}</span>}
             </div>
           </div>
         </div>
-        {args.price && (
-          <div className="mt-3 pt-2 border-t flex justify-end">
-            <span className="font-black text-indigo-600 text-sm">{formatCurrency(args.price, 'EUR')}</span>
+
+        {/* Extra Info: Stops & Price */}
+        {(args.stops || args.price) && (
+          <div className="mt-3 pt-2 border-t border-indigo-100 dark:border-indigo-900/30 flex justify-between items-center">
+            <div className="text-[10px] text-muted-foreground italic truncate max-w-[60%]">
+              {args.stops && <span>Via: {args.stops}</span>}
+            </div>
+            {args.price && <span className="font-black text-indigo-600 text-sm">{formatCurrency(args.price, 'EUR')}</span>}
           </div>
         )}
       </CompactActionCard>

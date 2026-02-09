@@ -266,7 +266,8 @@ Istruzioni:
           departure_datetime: toolCall.args.departure_date,
           arrival_datetime: toolCall.args.arrival_date,
           price: toolCall.args.price,
-          currency: "EUR"
+          currency: "EUR",
+          notes: toolCall.args.stops // Save stops info to notes
         });
       } else if (toolCall.name === 'add_accommodation') {
         await createAccommodation({
