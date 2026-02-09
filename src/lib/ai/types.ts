@@ -1,7 +1,14 @@
+export interface AIAttachment {
+  url: string;
+  name: string;
+  type: string;
+}
+
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
-  images?: string[]; // Base64 strings
+  images?: string[]; // Base64 strings (legacy/simple)
+  attachments?: AIAttachment[];
 }
 
 export interface ToolCall {

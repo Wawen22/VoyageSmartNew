@@ -92,7 +92,8 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
       reader.onloadend = () => {
         setAttachedFiles(prev => [...prev, { 
           url: reader.result as string, 
-          type: file.type 
+          type: file.type,
+          name: file.name
         }]);
       };
       reader.readAsDataURL(file);
@@ -111,7 +112,7 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
       setShowSubscriptionDialog(true);
       return;
     }
-    sendMessage(input, attachedFiles.length > 0 ? attachedFiles.map(f => f.url) : undefined);
+    sendMessage(input, attachedFiles.length > 0 ? attachedFiles : undefined);
     setInput("");
     setAttachedFiles([]);
     if (isListening) stopListening();
@@ -289,30 +290,52 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
                         : "bg-white dark:bg-slate-800 border rounded-bl-none max-w-full w-auto"
                     )}
                   >
-                    {msg.images && msg.images.length > 0 && (
-                      <div className="mb-2 flex gap-2 flex-wrap">
-                        {msg.images.map((img, i) => (
-                          img.startsWith("data:application/pdf") ? (
-                            <div key={i} className="flex items-center gap-2 p-2 bg-slate-900/50 rounded-lg border border-white/10 w-full max-w-[200px]">
-                              <FileText className="h-8 w-8 text-indigo-400" />
-                              <span className="text-[10px] truncate">Documento PDF</span>
+                    {msg.attachments && msg.attachments.length > 0 && (
+                      <div className="mb-3 flex flex-col gap-2">
+                        {msg.attachments.map((att, i) => (
+                          att.type === "application/pdf" ? (
+                            <div key={i} className="flex items-center gap-2 p-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 w-full max-w-[300px] shadow-sm">
+                              <div className="bg-red-500/20 p-2 rounded-lg">
+                                <FileText className="h-5 w-5 text-red-200" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-bold truncate leading-tight">{att.name}</p>
+                                <p className="text-[9px] opacity-60 uppercase tracking-tighter">Documento PDF</p>
+                              </div>
                             </div>
                           ) : (
-                            <img key={i} src={img} className="w-full max-w-[200px] h-auto rounded-lg border border-white/20" alt="Attached" />
+                            <div key={i} className="relative group/att w-fit">
+                              <img src={att.url} className="max-w-full sm:max-w-[300px] h-auto rounded-xl border border-white/20 shadow-md" alt={att.name} />
+                              <div className="absolute bottom-2 left-2 right-2 bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-[9px] truncate opacity-0 group-hover/att:opacity-100 transition-opacity">
+                                {att.name}
+                              </div>
+                            </div>
                           )
                         ))}
                       </div>
                     )}
 
-                    {msg.toolCalls && msg.toolCalls.length > 0 ? (
-                      <ActionProposalCard 
-                        functionName={msg.toolCalls[0].name}
-                        args={msg.toolCalls[0].args}
-                        onConfirm={(newArgs) => executeTool(msg.id!, newArgs || msg.toolCalls![0])}
-                        onCancel={() => rejectTool(msg.id!)} 
-                        isExecuted={msg.isExecuted}
-                      />
-                    ) : msg.role === "assistant" ? (
+                    {msg.toolCalls && msg.toolCalls.length > 0 && (
+                      <div className="flex flex-col gap-2 mt-2">
+                        {msg.toolCalls.map((toolCall, index) => {
+                          // Skip if rejected (unless we want to show a "rejected" state, but usually hiding is cleaner)
+                          if (toolCall.status === 'rejected') return null;
+                          
+                          return (
+                            <ActionProposalCard 
+                              key={index}
+                              functionName={toolCall.name}
+                              args={toolCall.args}
+                              onConfirm={(newArgs) => executeTool(msg.id!, { ...toolCall, args: newArgs || toolCall.args }, index)}
+                              onCancel={() => rejectTool(msg.id!, index)} 
+                              isExecuted={toolCall.status === 'executed'}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                    
+                    {msg.role === "assistant" && !msg.toolCalls?.length ? (
                       <>
                         <RichMessageRenderer 
                           content={msg.content}
@@ -322,7 +345,7 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
                         />
                       </>
                     ) : (
-                      <div className="whitespace-pre-wrap">{msg.content}</div>
+                      msg.content && <div className="whitespace-pre-wrap mb-2">{msg.content}</div>
                     )}
                   </div>
 

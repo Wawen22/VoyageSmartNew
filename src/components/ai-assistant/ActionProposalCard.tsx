@@ -127,7 +127,7 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
           <Button 
             size="sm" 
             className={cn("h-8 text-[10px] font-black uppercase tracking-widest text-white shadow-sm border-0 transition-all active:scale-95", style.button)} 
-            onClick={customConfirm || onConfirm} 
+            onClick={() => customConfirm ? customConfirm() : onConfirm()} 
             disabled={isExecuting}
           >
             Conferma
