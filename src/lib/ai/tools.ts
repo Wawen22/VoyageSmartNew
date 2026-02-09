@@ -71,6 +71,33 @@ export const TRIP_TOOLS = [
     }
   },
   {
+    name: "add_transport_segments",
+    description: "Usa questo strumento quando rilevi PIÙ voli o tratte distinte (es. scali, andata/ritorno). Restituisce una lista di trasporti.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        segments: {
+          type: "ARRAY",
+          description: "Lista delle tratte/voli",
+          items: {
+            type: "OBJECT",
+            properties: {
+              type: { type: "STRING", enum: ["flight", "train", "bus", "car", "ship", "public", "taxi", "other"] },
+              departure_location: { type: "STRING" },
+              arrival_location: { type: "STRING" },
+              departure_date: { type: "STRING" },
+              arrival_date: { type: "STRING" },
+              carrier: { type: "STRING", description: "Compagnia aerea o operatore" },
+              price: { type: "NUMBER" }
+            },
+            required: ["type", "departure_location", "arrival_location", "departure_date"]
+          }
+        }
+      },
+      required: ["segments"]
+    }
+  },
+  {
     name: "add_accommodation",
     description: "Aggiungi un alloggio (hotel, airbnb, ecc.) al viaggio.",
     parameters: {

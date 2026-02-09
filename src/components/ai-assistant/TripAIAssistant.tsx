@@ -32,7 +32,7 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { messages, sendMessage, executeTool, isLoading, error, clearChat, contextData } = useTripAI({ 
+  const { messages, sendMessage, executeTool, rejectTool, isLoading, error, clearChat, contextData } = useTripAI({ 
     tripId, 
     tripDetails 
   });
@@ -308,8 +308,8 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
                       <ActionProposalCard 
                         functionName={msg.toolCalls[0].name}
                         args={msg.toolCalls[0].args}
-                        onConfirm={() => executeTool(msg.id!, msg.toolCalls![0])}
-                        onCancel={() => {}} 
+                        onConfirm={(newArgs) => executeTool(msg.id!, newArgs || msg.toolCalls![0])}
+                        onCancel={() => rejectTool(msg.id!)} 
                         isExecuted={msg.isExecuted}
                       />
                     ) : msg.role === "assistant" ? (

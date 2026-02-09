@@ -269,6 +269,23 @@ Istruzioni:
           currency: "EUR",
           notes: toolCall.args.stops // Save stops info to notes
         });
+      } else if (toolCall.name === 'add_transport_segments') {
+        const segments = toolCall.args.segments;
+        if (Array.isArray(segments)) {
+          for (const seg of segments) {
+            await createTransport({
+              trip_id: tripId,
+              transport_type: seg.type || 'flight',
+              departure_location: seg.departure_location,
+              arrival_location: seg.arrival_location,
+              departure_datetime: seg.departure_date,
+              arrival_datetime: seg.arrival_date,
+              price: seg.price,
+              carrier: seg.carrier,
+              currency: "EUR"
+            });
+          }
+        }
       } else if (toolCall.name === 'add_accommodation') {
         await createAccommodation({
           trip_id: tripId,
@@ -316,6 +333,19 @@ Istruzioni:
     }
   };
 
+  const rejectTool = async (messageId: string) => {
+    if (!user) return;
+    try {
+      await supabase.from('ai_chat_messages').update({
+        metadata: { rejected: true }
+      }).eq('id', messageId);
+
+      setMessages(prev => prev.map(m => m.id === messageId ? { ...m, toolCalls: [] } : m));
+    } catch (err) {
+      console.error("Error rejecting tool:", err);
+    }
+  };
+
   const clearChat = async () => {
     if (!user) return;
     
@@ -338,6 +368,7 @@ Istruzioni:
     messages,
     sendMessage,
     executeTool,
+    rejectTool,
     isLoading,
     error,
     clearChat,

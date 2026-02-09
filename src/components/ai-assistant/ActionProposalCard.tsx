@@ -1,13 +1,15 @@
-import { Check, X, Wallet, Calendar, Plus, Building2, Plane, Lightbulb, ListChecks, MapPin, Clock } from "lucide-react";
+import { Check, X, Wallet, Calendar, Plus, Building2, Plane, Lightbulb, ListChecks, ArrowRight, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/currency";
 import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ActionProposalCardProps {
   functionName: string;
   args: any;
-  onConfirm: () => void;
+  onConfirm: (args?: any) => void; // Allow passing modified args back
   onCancel: () => void;
   isExecuting?: boolean;
   isExecuted?: boolean;
@@ -15,6 +17,11 @@ interface ActionProposalCardProps {
 
 export function ActionProposalCard({ functionName, args, onConfirm, onCancel, isExecuting, isExecuted }: ActionProposalCardProps) {
   
+  // Local state for multi-select (only used for add_transport_segments for now)
+  const [selectedIndices, setSelectedIndices] = useState<number[]>(
+    args.segments ? args.segments.map((_: any, i: number) => i) : []
+  );
+
   // 1. STATE: COMPLETED
   if (isExecuted) {
     const getSuccessMessage = () => {
@@ -23,6 +30,7 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
         case 'add_activity': return `Attività aggiunta.`;
         case 'add_accommodation': return `Alloggio salvato.`;
         case 'add_transport': return `Trasporto aggiunto.`;
+        case 'add_transport_segments': return `Voli aggiunti all'itinerario.`;
         case 'add_idea': return `Idea salvata.`;
         case 'create_checklist_items': return `Checklist aggiornata.`;
         default: return "Fatto!";
@@ -30,7 +38,7 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
     };
 
     return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg max-w-[280px]">
+      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg max-w-[340px]">
         <div className="bg-emerald-500 rounded-full p-0.5 shrink-0">
           <Check className="w-3 h-3 text-white" />
         </div>
@@ -46,12 +54,14 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
     title, 
     icon: Icon, 
     themeColor, // "emerald", "indigo", "purple", "amber", "violet", "primary"
-    children 
+    children,
+    customConfirm
   }: { 
     title: string, 
     icon: any, 
     themeColor: "emerald" | "indigo" | "purple" | "amber" | "violet" | "primary", 
-    children: React.ReactNode 
+    children: React.ReactNode,
+    customConfirm?: () => void
   }) => {
     
     const themeStyles = {
@@ -73,7 +83,7 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
       amber: {
         header: "bg-amber-500/10 border-amber-500/20",
         text: "text-amber-600 dark:text-amber-400",
-        button: "bg-amber-500 hover:bg-amber-600"
+        button: "bg-amber-50 hover:bg-amber-600"
       },
       violet: {
         header: "bg-violet-500/10 border-violet-500/20",
@@ -90,21 +100,20 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
     const style = themeStyles[themeColor];
 
     return (
-      <Card className="w-full max-w-[280px] overflow-hidden border shadow-md bg-card">
-        {/* Compact Header */}
-        <div className={cn("px-3 py-2 flex items-center gap-2 border-b", style.header)}>
-          <Icon className={cn("w-3.5 h-3.5", style.text)} />
-          <span className={cn("text-[10px] font-black uppercase tracking-wider", style.text)}>
-            {title}
-          </span>
+      <Card className="w-full max-w-[340px] overflow-hidden border shadow-md bg-card">
+        <div className={cn("px-3 py-2 flex items-center justify-between border-b", style.header)}>
+          <div className="flex items-center gap-2">
+            <Icon className={cn("w-3.5 h-3.5", style.text)} />
+            <span className={cn("text-[10px] font-black uppercase tracking-wider", style.text)}>
+              {title}
+            </span>
+          </div>
         </div>
 
-        {/* Content */}
         <div className="p-3 text-sm">
           {children}
         </div>
 
-        {/* Footer Actions */}
         <div className="p-2 bg-muted/30 grid grid-cols-2 gap-2 border-t">
           <Button 
             variant="ghost" 
@@ -118,7 +127,7 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
           <Button 
             size="sm" 
             className={cn("h-8 text-[10px] font-black uppercase tracking-widest text-white shadow-sm border-0 transition-all active:scale-95", style.button)} 
-            onClick={onConfirm} 
+            onClick={customConfirm || onConfirm} 
             disabled={isExecuting}
           >
             Conferma
@@ -126,6 +135,23 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
         </div>
       </Card>
     );
+  };
+
+  // --- HANDLERS FOR MULTI-SELECT ---
+  const toggleSelection = (index: number) => {
+    setSelectedIndices(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index) 
+        : [...prev, index]
+    );
+  };
+
+  const handleMultiConfirm = () => {
+    const newArgs = {
+      ...args,
+      segments: args.segments.filter((_: any, i: number) => selectedIndices.includes(i))
+    };
+    onConfirm(newArgs);
   };
 
   // --- SPECIFIC CARDS ---
@@ -148,33 +174,24 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
   if (functionName === 'add_transport') {
     return (
       <CompactActionCard title={args.type || "Trasporto"} icon={Plane} themeColor="indigo">
-        <div className="flex gap-3 py-1">
-          {/* Column 1: Visual Timeline (Perfectly centered dots) */}
-          <div className="flex flex-col items-center pt-1.5">
-            <div className="w-2.5 h-2.5 rounded-full border-[2.5px] border-indigo-500 bg-background shrink-0" />
-            <div className="w-0.5 flex-1 bg-indigo-200 dark:bg-indigo-800/50 my-0.5 min-h-[20px]" />
-            <div className="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0" />
-          </div>
-
-          {/* Column 2: Content */}
-          <div className="flex flex-col gap-4 flex-1 min-w-0">
-            {/* Departure */}
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter leading-none">Partenza</span>
-              <span className="font-bold text-sm leading-tight truncate">{args.departure_location}</span>
+        <div className="relative pl-3 border-l-2 border-indigo-100 dark:border-indigo-900/50 space-y-4 my-1">
+          <div className="relative">
+            <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full border-2 border-indigo-500 bg-background z-10" />
+            <div className="flex flex-col">
+              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Partenza</span>
+              <span className="font-bold text-xs leading-tight truncate">{args.departure_location}</span>
               {args.departure_date && <span className="text-[10px] font-medium opacity-70">{args.departure_date}</span>}
             </div>
-
-            {/* Arrival */}
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter leading-none">Arrivo</span>
-              <span className="font-bold text-sm leading-tight truncate">{args.arrival_location}</span>
+          </div>
+          <div className="relative">
+            <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500 z-10" />
+            <div className="flex flex-col">
+              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Arrivo</span>
+              <span className="font-bold text-xs leading-tight truncate">{args.arrival_location}</span>
               {args.arrival_date && <span className="text-[10px] font-medium opacity-70">{args.arrival_date}</span>}
             </div>
           </div>
         </div>
-
-        {/* Extra Info: Stops & Price */}
         {(args.stops || args.price) && (
           <div className="mt-3 pt-2 border-t border-indigo-100 dark:border-indigo-900/30 flex justify-between items-center">
             <div className="text-[10px] text-muted-foreground italic truncate max-w-[60%]">
@@ -183,6 +200,60 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
             {args.price && <span className="font-black text-indigo-600 text-sm">{formatCurrency(args.price, 'EUR')}</span>}
           </div>
         )}
+      </CompactActionCard>
+    );
+  }
+
+  if (functionName === 'add_transport_segments') {
+    return (
+      <CompactActionCard 
+        title="Itinerario Rilevato" 
+        icon={Plane} 
+        themeColor="indigo"
+        customConfirm={handleMultiConfirm}
+      >
+        <div className="flex flex-col gap-2">
+          <div className="text-[10px] text-muted-foreground mb-1 font-bold uppercase tracking-tight">
+            Seleziona le tratte ({selectedIndices.length}/{args.segments.length}):
+          </div>
+          
+          <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1 scrollbar-hide">
+            {args.segments.map((seg: any, i: number) => (
+              <div 
+                key={i} 
+                className={cn(
+                  "flex items-start gap-3 p-2.5 rounded-xl border transition-all cursor-pointer",
+                  selectedIndices.includes(i) 
+                    ? "bg-indigo-500/5 border-indigo-500/30 dark:bg-indigo-500/10 dark:border-indigo-500/40 shadow-sm" 
+                    : "bg-muted/20 border-transparent opacity-60 grayscale hover:opacity-100 hover:grayscale-0"
+                )}
+                onClick={() => toggleSelection(i)}
+              >
+                <div className="pt-0.5">
+                  <Checkbox 
+                    checked={selectedIndices.includes(i)} 
+                    className="w-4 h-4 border-indigo-400 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600 rounded-md"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[9px] font-black uppercase text-indigo-600 dark:text-indigo-400">{seg.carrier || seg.type || "Tratta"}</span>
+                    {seg.price && <span className="text-[10px] font-black text-foreground">{formatCurrency(seg.price, 'EUR')}</span>}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold leading-tight text-foreground">
+                    <span className="truncate">{seg.departure_location}</span>
+                    <ArrowRight className="w-3 h-3 text-muted-foreground shrink-0" />
+                    <span className="truncate">{seg.arrival_location}</span>
+                  </div>
+                  <div className="text-[9px] font-medium text-muted-foreground mt-1 flex items-center gap-1.5">
+                    <Calendar className="w-2.5 h-2.5" />
+                    {seg.departure_date?.split('T')[0] || seg.departure_date || "Data N/A"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </CompactActionCard>
     );
   }
@@ -218,7 +289,7 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
     return (
       <CompactActionCard title="Attività" icon={Calendar} themeColor="purple">
         <div className="flex flex-col gap-2">
-          <div className="font-bold text-sm">{args.title}</div>
+          <div className="font-bold text-sm leading-tight">{args.title}</div>
           <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium">
             {args.date && <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {args.date}</div>}
             {args.time && <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {args.time}</div>}
@@ -259,7 +330,6 @@ export function ActionProposalCard({ functionName, args, onConfirm, onCancel, is
     );
   }
 
-  // Fallback
   return (
     <CompactActionCard title="Azione" icon={Plus} themeColor="primary">
       <pre className="text-[9px] bg-muted p-2 rounded overflow-x-hidden whitespace-pre-wrap font-mono">
