@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ComponentType } from "react";
+import { useMemo, useRef, useState, useEffect, type ComponentType } from "react";
 import {
   Wallet,
   Plus,
@@ -28,6 +28,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { SubscriptionDialog } from "@/components/subscription/SubscriptionDialog";
+import { useDocumentAnalysis } from "@/hooks/useDocumentAnalysis";
+import { SmartDocumentDialog } from "@/components/documents/SmartDocumentDialog";
 
 const CATEGORY_META: Record<
   WalletDocumentCategory,
@@ -283,12 +285,21 @@ interface TripWalletDialogProps {
 function TripWalletUploadDialog({ tripId, open, onOpenChange }: TripWalletDialogProps) {
   const { toast } = useToast();
   const { createDocument } = useTripDocuments(tripId, true);
+  const { analyze, isAnalyzing, result, clearResult } = useDocumentAnalysis();
+  
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<WalletDocumentCategory>("flight");
   const [isPinned, setIsPinned] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [showSmartDialog, setShowSmartDialog] = useState(false);
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const scanRef = useRef<HTMLInputElement>(null);
+
+  // Effect to open smart dialog when analysis result is ready
+  useEffect(() => {
+    if (result) setShowSmartDialog(true);
+  }, [result]);
 
   const handleFileSelected = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) {
@@ -331,9 +342,19 @@ function TripWalletUploadDialog({ tripId, open, onOpenChange }: TripWalletDialog
         is_pinned: isPinned,
       });
 
+      // Start AI Analysis
+      toast({ title: "Documento salvato", description: "Analisi intelligente in corso..." });
+      await analyze(file);
+      
+      // We don't close the dialog immediately if analyzing, 
+      // but we reset fields for next upload
       setTitle("");
       setCategory("flight");
       setIsPinned(true);
+      
+      // Close the upload dialog so the smart dialog can take focus if result is found
+      onOpenChange(false);
+
     } catch (error: any) {
       console.error(error);
       toast({
@@ -355,90 +376,105 @@ function TripWalletUploadDialog({ tripId, open, onOpenChange }: TripWalletDialog
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 overflow-hidden">
-        <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
-          <div className="absolute -right-6 -top-6 opacity-[0.08]">
-            <Wallet className="h-28 w-28" />
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-900 px-6 pt-8 pb-10 text-white">
+            <div className="absolute -right-6 -top-6 opacity-[0.08]">
+              <Wallet className="h-28 w-28" />
+            </div>
+            <DialogHeader className="relative z-10 text-left">
+              <DialogTitle className="text-2xl">Nuovo documento</DialogTitle>
+              <DialogDescription className="text-white/70">
+                Carica biglietti, voucher e documenti essenziali nel Wallet rapido.
+              </DialogDescription>
+            </DialogHeader>
           </div>
-          <DialogHeader className="relative z-10 text-left">
-            <DialogTitle className="text-2xl">Nuovo documento</DialogTitle>
-            <DialogDescription className="text-white/70">
-              Carica biglietti, voucher e documenti essenziali nel Wallet rapido.
-            </DialogDescription>
-          </DialogHeader>
-        </div>
 
-        <div className="space-y-4 bg-background px-6 py-6">
-          <Input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Titolo documento"
-          />
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value as WalletDocumentCategory)}
-            className="h-11 w-full rounded-xl border border-input/70 bg-card/80 px-3 text-sm text-foreground"
-          >
-            {CATEGORY_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={isPinned}
-              onChange={(event) => setIsPinned(event.target.checked)}
-              className="h-4 w-4 rounded border border-input"
+          <div className="space-y-4 bg-background px-6 py-6">
+            <Input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Titolo documento"
             />
-            Pinnalo nel Wallet rapido
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*,.pdf,.doc,.docx"
-              className="hidden"
-              onChange={handleFileInput}
-            />
-            <input
-              ref={scanRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              className="hidden"
-              onChange={handleFileInput}
-            />
-            <Button
-              type="button"
-              variant="default"
-              className="flex-1"
-              onClick={() => inputRef.current?.click()}
-              disabled={uploading}
+            <select
+              value={category}
+              onChange={(event) => setCategory(event.target.value as WalletDocumentCategory)}
+              className="h-11 w-full rounded-xl border border-input/70 bg-card/80 px-3 text-sm text-foreground"
             >
-              {uploading ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Plus className="mr-2 h-4 w-4" />
-              )}
-              Carica file
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={() => scanRef.current?.click()}
-              disabled={uploading}
-            >
-              <Scan className="mr-2 h-4 w-4" />
-              Scansiona
-            </Button>
+              {CATEGORY_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={isPinned}
+                onChange={(event) => setIsPinned(event.target.checked)}
+                className="h-4 w-4 rounded border border-input"
+              />
+              Pinnalo nel Wallet rapido
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/*,.pdf,.doc,.docx"
+                className="hidden"
+                onChange={handleFileInput}
+              />
+              <input
+                ref={scanRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFileInput}
+              />
+              <Button
+                type="button"
+                variant="default"
+                className="flex-1"
+                onClick={() => inputRef.current?.click()}
+                disabled={uploading || isAnalyzing}
+              >
+                {uploading || isAnalyzing ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Plus className="mr-2 h-4 w-4" />
+                )}
+                {isAnalyzing ? "Analisi..." : "Carica file"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => scanRef.current?.click()}
+                disabled={uploading || isAnalyzing}
+              >
+                <Scan className="mr-2 h-4 w-4" />
+                Scansiona
+              </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <SmartDocumentDialog 
+        open={showSmartDialog}
+        onOpenChange={(val) => {
+          setShowSmartDialog(val);
+          if (!val) clearResult();
+        }}
+        data={result}
+        tripId={tripId}
+        onConfirm={() => {
+          toast({ title: "Elemento aggiunto con successo!" });
+        }}
+      />
+    </>
   );
 }
 

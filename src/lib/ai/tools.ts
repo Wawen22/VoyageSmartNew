@@ -100,5 +100,53 @@ export const TRIP_TOOLS = [
       },
       required: ["title", "content"]
     }
+  },
+  {
+    name: "create_checklist_items",
+    description: "Crea una lista di oggetti da portare (packing list) nella checklist.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        items: {
+          type: "ARRAY",
+          description: "Lista degli oggetti da aggiungere",
+          items: { type: "STRING" }
+        },
+        is_personal: {
+          type: "BOOLEAN",
+          description: "Se true, aggiunge alla checklist personale. Se false, a quella di gruppo. Default: true"
+        }
+      },
+      required: ["items"]
+    }
+  },
+  {
+    name: "extract_trip_data",
+    description: "Estrae dati strutturati da un documento di viaggio (PDF, immagine, email).",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        entity_type: {
+          type: "STRING",
+          description: "Tipo di entità trovata",
+          enum: ["transport", "accommodation", "activity", "expense"]
+        },
+        data: {
+          type: "OBJECT",
+          description: "Dati estratti specifici per il tipo",
+          properties: {
+            title: { type: "STRING", description: "Titolo o nome (es. Volo Ryanair FR123, Hotel Roma)" },
+            date: { type: "STRING", description: "Data principale (YYYY-MM-DD)" },
+            time: { type: "STRING", description: "Orario principale (HH:MM)" },
+            end_date: { type: "STRING", description: "Data fine per hotel (YYYY-MM-DD)" },
+            location: { type: "STRING", description: "Luogo (partenza/arrivo o indirizzo)" },
+            price: { type: "NUMBER", description: "Costo totale" },
+            currency: { type: "STRING", description: "Valuta (EUR, USD...)" },
+            details: { type: "STRING", description: "Altri dettagli utili (PNR, posti, note)" }
+          }
+        }
+      },
+      required: ["entity_type", "data"]
+    }
   }
 ];

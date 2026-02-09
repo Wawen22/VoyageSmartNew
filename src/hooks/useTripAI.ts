@@ -4,6 +4,7 @@ import { AIMessage } from "@/lib/ai/types";
 import { useItinerary } from "@/hooks/useItinerary";
 import { useExpenses } from "@/hooks/useExpenses";
 import { useTripIdeas } from "@/hooks/useTripIdeas";
+import { useChecklist } from "@/hooks/useChecklist";
 import { useAccommodations } from "@/hooks/useAccommodations";
 import { useTransports } from "@/hooks/useTransports";
 import { format } from "date-fns";
@@ -43,6 +44,7 @@ export function useTripAI({ tripId, tripDetails }: UseTripAIProps) {
   const { ideas, createIdea } = useTripIdeas(tripId);
   const { accommodations, createAccommodation } = useAccommodations(tripId);
   const { transports, createTransport } = useTransports(tripId);
+  const { addItem: addChecklistItem } = useChecklist(tripId);
 
   // Load Chat History
   useEffect(() => {
@@ -283,6 +285,20 @@ Istruzioni:
           location: "",
           dayNumber: null
         });
+      } else if (toolCall.name === 'create_checklist_items') {
+        const items = toolCall.args.items;
+        const isPersonal = toolCall.args.is_personal !== false; // Default true if not specified
+        
+        if (Array.isArray(items)) {
+          // Add items sequentially
+          for (const item of items) {
+             addChecklistItem({
+               text: item,
+               isPersonal: isPersonal,
+               category: "packing"
+             });
+          }
+        }
       }
 
       // Mark as executed in DB

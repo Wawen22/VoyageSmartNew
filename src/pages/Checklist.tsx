@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Navigate, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ClipboardList, Loader2, ArrowLeft } from "lucide-react";
+import { ClipboardList, Loader2, ArrowLeft, Sparkles } from "lucide-react";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { useAuth } from "@/hooks/useAuth";
 import { useChecklist } from "@/hooks/useChecklist";
@@ -87,16 +87,27 @@ export default function Checklist() {
           </div>
 
           <div className="bg-card rounded-xl border shadow-sm p-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                <ClipboardList className="h-6 w-6 text-primary" />
-                Checklist Viaggio
-              </h2>
-              <p className="text-muted-foreground">
-                {totalItems > 0
-                  ? `${totalCompleted}/${totalItems} elementi completati (${overallProgress}%)`
-                  : "Organizza cosa portare e cosa fare"}
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                  <ClipboardList className="h-6 w-6 text-primary" />
+                  Checklist Viaggio
+                </h2>
+                <p className="text-muted-foreground">
+                  {totalItems > 0
+                    ? `${totalCompleted}/${totalItems} elementi completati (${overallProgress}%)`
+                    : "Organizza cosa portare e cosa fare"}
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="gap-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-trip-ai', { detail: { message: "Genera una lista di cose da mettere in valigia per questo viaggio, considerando la destinazione, il periodo e le attività. Dividi per categorie essenziali." } }))}
+              >
+                <Sparkles className="w-4 h-4" />
+                Genera Lista Valigia
+              </Button>
             </div>
 
             {isLoading ? (
