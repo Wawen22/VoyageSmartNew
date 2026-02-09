@@ -48,5 +48,57 @@ export const TRIP_TOOLS = [
       },
       required: ["title"]
     }
+  },
+  {
+    name: "add_transport",
+    description: "Aggiungi un nuovo trasporto (volo, treno, bus, ecc.) all'itinerario.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        type: { 
+          type: "STRING", 
+          description: "Tipo di trasporto (flight, train, bus, car, ship, public, taxi, other)",
+          enum: ["flight", "train", "bus", "car", "ship", "public", "taxi", "other"]
+        },
+        departure_location: { type: "STRING", description: "Luogo di partenza" },
+        arrival_location: { type: "STRING", description: "Luogo di arrivo" },
+        departure_date: { type: "STRING", description: "Data/Ora partenza (ISO 8601 o YYYY-MM-DD HH:mm)" },
+        arrival_date: { type: "STRING", description: "Data/Ora arrivo (ISO 8601 o YYYY-MM-DD HH:mm)" },
+        price: { type: "NUMBER", description: "Costo del biglietto (opzionale)" }
+      },
+      required: ["type", "departure_location", "arrival_location", "departure_date"]
+    }
+  },
+  {
+    name: "add_accommodation",
+    description: "Aggiungi un alloggio (hotel, airbnb, ecc.) al viaggio.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        name: { type: "STRING", description: "Nome dell'hotel o alloggio" },
+        address: { type: "STRING", description: "Indirizzo (opzionale)" },
+        check_in: { type: "STRING", description: "Data Check-in (YYYY-MM-DD)" },
+        check_out: { type: "STRING", description: "Data Check-out (YYYY-MM-DD)" },
+        price: { type: "NUMBER", description: "Costo totale (opzionale)" }
+      },
+      required: ["name", "check_in", "check_out"]
+    }
+  },
+  {
+    name: "add_idea",
+    description: "Salva un'idea, appunto o suggerimento generale per il viaggio.",
+    parameters: {
+      type: "OBJECT",
+      properties: {
+        title: { type: "STRING", description: "Titolo dell'idea" },
+        content: { type: "STRING", description: "Dettagli o descrizione dell'idea" },
+        category: { 
+          type: "STRING", 
+          description: "Categoria (food, activity, accommodation, transport, other)",
+          enum: ["food", "activity", "accommodation", "transport", "other"]
+        }
+      },
+      required: ["title", "content"]
+    }
   }
 ];

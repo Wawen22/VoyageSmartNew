@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription, SheetClose } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bot, Send, Loader2, Sparkles, User, Trash2, X, Mic, MicOff, Volume2, StopCircle, Zap } from "lucide-react";
+import { Bot, Send, Loader2, Sparkles, User, Trash2, X, Mic, MicOff, Volume2, StopCircle, Zap, Paperclip, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RichMessageRenderer } from "./RichMessageRenderer";
 import { ActionProposalCard } from "./ActionProposalCard";
@@ -24,8 +24,10 @@ interface TripAIAssistantProps {
 export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { messages, sendMessage, executeTool, isLoading, error, clearChat, contextData } = useTripAI({ 
     tripId, 
@@ -55,16 +57,47 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isLoading, isListening]);
+  }, [messages, isLoading, isListening, attachedImages]);
+
+  // Listen for external open events
+  useEffect(() => {
+    const handleOpenAI = (e: CustomEvent) => {
+      setIsOpen(true);
+      if (e.detail?.message) {
+        setInput(e.detail.message);
+      }
+    };
+
+    window.addEventListener('open-trip-ai' as any, handleOpenAI);
+    return () => window.removeEventListener('open-trip-ai' as any, handleOpenAI);
+  }, []);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAttachedImages(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset input
+    e.target.value = '';
+  };
+
+  const removeImage = (index: number) => {
+    setAttachedImages(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleSend = () => {
-    if (!input.trim()) return;
+    if (!input.trim() && attachedImages.length === 0) return;
     if (isLimitReached) {
       setShowSubscriptionDialog(true);
       return;
     }
-    sendMessage(input);
+    sendMessage(input, attachedImages.length > 0 ? attachedImages : undefined);
     setInput("");
+    setAttachedImages([]);
     if (isListening) stopListening();
   };
 
@@ -182,6 +215,7 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
                     <h3 className="font-semibold text-lg mb-2">Come posso aiutarti?</h3>
                     <p className="text-muted-foreground text-sm max-w-xs mx-auto">
                       Chiedimi informazioni sull'itinerario, consigli su ristoranti, meteo o dettagli sulle spese.
+                      Puoi anche allegare foto di prenotazioni!
                     </p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto">
@@ -194,8 +228,8 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
                     <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Quanto abbiamo speso finora?")}>
                       💰 Spese totali?
                     </Button>
-                    <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Cosa non devo dimenticare?")}>
-                      📋 Oggetti da portare?
+                    <Button variant="outline" className="text-xs h-auto py-2 justify-start" onClick={() => sendMessage("Suggeriscimi qualcosa da fare")}>
+                      💡 Suggerimenti?
                     </Button>
                   </div>
                 </div>
@@ -234,6 +268,14 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
                         : "bg-white dark:bg-slate-800 border rounded-bl-none max-w-full w-auto"
                     )}
                   >
+                    {msg.images && msg.images.length > 0 && (
+                      <div className="mb-2 flex gap-2 flex-wrap">
+                        {msg.images.map((img, i) => (
+                          <img key={i} src={img} className="w-full max-w-[200px] h-auto rounded-lg border border-white/20" alt="Attached" />
+                        ))}
+                      </div>
+                    )}
+
                     {msg.toolCalls && msg.toolCalls.length > 0 ? (
                       <ActionProposalCard 
                         functionName={msg.toolCalls[0].name}
@@ -296,6 +338,23 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
           </ScrollArea>
         </div>
 
+        {/* Image Preview Area */}
+        {attachedImages.length > 0 && (
+          <div className="px-4 py-2 bg-slate-50 dark:bg-slate-900 border-t flex gap-2 overflow-x-auto">
+            {attachedImages.map((img, i) => (
+              <div key={i} className="relative group/img flex-shrink-0">
+                <img src={img} className="h-16 w-16 object-cover rounded-lg border" alt="Preview" />
+                <button 
+                  onClick={() => removeImage(i)}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover/img:opacity-100 transition-opacity"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="p-4 border-t bg-white dark:bg-slate-900 relative">
           {isSpeaking && (
             <div className="absolute -top-10 left-0 w-full flex justify-center pb-2 bg-gradient-to-t from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900">
@@ -312,6 +371,30 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
             }}
             className="flex items-center gap-2"
           >
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept="image/*" 
+              multiple
+              onChange={handleFileSelect} 
+            />
+            
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "rounded-full shrink-0 transition-colors", 
+                attachedImages.length > 0 ? "text-indigo-600 bg-indigo-50" : "text-muted-foreground hover:bg-slate-100"
+              )}
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLimitReached}
+              title="Allega immagine"
+            >
+              <Paperclip className="h-5 w-5" />
+            </Button>
+
             {isSpeechSupported && (
               <Button
                 type="button"
@@ -332,7 +415,7 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isLimitReached ? "Limite raggiunto. Passa a Pro!" : (isListening ? "Parla ora..." : "Scrivi un messaggio...")}
+              placeholder={isLimitReached ? "Limite raggiunto. Passa a Pro!" : (isListening ? "Parla ora..." : "Scrivi o allega una foto...")}
               className={cn(
                 "flex-1 rounded-full border-0 focus-visible:ring-indigo-500 transition-colors",
                 isListening ? "bg-red-50 placeholder:text-red-400" : "bg-slate-100 dark:bg-slate-800",
@@ -354,8 +437,8 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
                 type="button"
                 onClick={handleSend}
                 size="icon" 
-                className={cn("rounded-full h-10 w-10 shrink-0", input.trim() ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-200 text-slate-400 hover:bg-slate-200 dark:bg-slate-800")}
-                disabled={!input.trim() || isLoading}
+                className={cn("rounded-full h-10 w-10 shrink-0", input.trim() || attachedImages.length > 0 ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-200 text-slate-400 hover:bg-slate-200 dark:bg-slate-800")}
+                disabled={(!input.trim() && attachedImages.length === 0) || isLoading}
               >
                 <Send className="h-4 w-4" />
               </Button>

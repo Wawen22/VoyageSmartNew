@@ -28,11 +28,37 @@ export class GeminiProvider implements AIProvider {
       // Re-initialize model with config
       this.model = this.client.getGenerativeModel(modelConfig);
 
+      const formatMessageParts = (m: AIMessage) => {
+        const parts: any[] = [{ text: m.content }];
+        if (m.images && m.images.length > 0) {
+          m.images.forEach(img => {
+            let mimeType = "image/jpeg";
+            let data = img;
+            
+            if (img.startsWith("data:")) {
+              const matches = img.match(/^data:(.*?);base64,(.*)$/);
+              if (matches) {
+                mimeType = matches[1];
+                data = matches[2];
+              }
+            }
+
+            parts.push({
+              inlineData: {
+                data: data,
+                mimeType: mimeType
+              }
+            });
+          });
+        }
+        return parts;
+      };
+
       const chatHistory = messages
         .filter(m => m.role !== 'system')
         .map(m => ({
           role: m.role === 'user' ? 'user' : 'model',
-          parts: [{ text: m.content }],
+          parts: formatMessageParts(m),
         }));
 
       const chat = this.model.startChat({
@@ -44,7 +70,7 @@ export class GeminiProvider implements AIProvider {
       });
 
       const lastMessage = messages[messages.length - 1];
-      const result = await chat.sendMessage(lastMessage.content);
+      const result = await chat.sendMessage(formatMessageParts(lastMessage));
       const response = await result.response;
       
       // Extract function calls

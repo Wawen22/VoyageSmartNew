@@ -40,9 +40,9 @@ export function useTripAI({ tripId, tripDetails }: UseTripAIProps) {
   // Context Data Hooks
   const { activities, createActivity } = useItinerary(tripId);
   const { expenses, totalSpent, createExpense } = useExpenses(tripId);
-  const { ideas } = useTripIdeas(tripId);
-  const { accommodations } = useAccommodations(tripId);
-  const { transports } = useTransports(tripId);
+  const { ideas, createIdea } = useTripIdeas(tripId);
+  const { accommodations, createAccommodation } = useAccommodations(tripId);
+  const { transports, createTransport } = useTransports(tripId);
 
   // Load Chat History
   useEffect(() => {
@@ -64,6 +64,7 @@ export function useTripAI({ tripId, tripDetails }: UseTripAIProps) {
             id: m.id,
             role: m.role as 'user' | 'assistant',
             content: m.content,
+            images: m.metadata?.images,
             toolCalls: m.metadata?.tool_calls,
             isExecuted: m.metadata?.executed
           })));
@@ -112,7 +113,7 @@ ${activities.map(a => `- [ID: ${a.id}] [${safeFormatDate(a.activity_date, "d MMM
     if (accommodations && accommodations.length > 0) {
       context += `
 Alloggi:
-${accommodations.map(a => `- [ID: ${a.id}] ${a.name} (${a.check_in_date || "N/A"} - ${a.check_out_date || "N/A"})`).join("\n")}
+${accommodations.map(a => `- [ID: ${a.id}] ${a.name} (${a.check_in || "N/A"} - ${a.check_out || "N/A"})`).join("\n")}
 `;
     }
 
@@ -120,7 +121,7 @@ ${accommodations.map(a => `- [ID: ${a.id}] ${a.name} (${a.check_in_date || "N/A"
     if (transports && transports.length > 0) {
        context += `
 Trasporti:
-${transports.map(t => `- [ID: ${t.id}] ${t.type}: ${t.departure_location} -> ${t.arrival_location} (${safeFormatDate(t.departure_date, "d MMM HH:mm")})`).join("\n")}
+${transports.map(t => `- [ID: ${t.id}] ${t.transport_type}: ${t.departure_location} -> ${t.arrival_location} (${safeFormatDate(t.departure_datetime, "d MMM HH:mm")})`).join("\n")}
 `;
     }
 
@@ -146,15 +147,16 @@ Istruzioni:
 - Rispondi alle domande dell'utente relative a questo viaggio.
 - Usa le informazioni fornite per dare risposte contestuali.
 - Per mostrare un elemento specifico usa: [[TYPE:ID]].
-- Se l'utente chiede di eseguire un'azione (es. "aggiungi spesa", "crea attività"), USA GLI STRUMENTI (TOOLS) forniti. Non limitarti a dire "lo faccio", usa la function call.
+- Se l'utente chiede di eseguire un'azione (es. "aggiungi spesa", "crea attività", "salva idea"), USA GLI STRUMENTI (TOOLS) forniti. Non limitarti a dire "lo faccio", usa la function call.
+- Supporta anche l'analisi di immagini se fornite (es. biglietti, prenotazioni).
 - Parla in Italiano.
 `;
 
     return context;
   }, [tripDetails, activities, expenses, ideas, accommodations, transports, totalSpent]);
 
-  const sendMessage = async (content: string) => {
-    if (!content.trim() || !user) return;
+  const sendMessage = async (content: string, images?: string[]) => {
+    if ((!content.trim() && (!images || images.length === 0)) || !user) return;
 
     if (isLimitReached) {
       setError("Hai raggiunto il limite di messaggi gratuiti. Passa a Pro per continuare!");
@@ -164,7 +166,7 @@ Istruzioni:
     setIsLoading(true);
     setError(null);
 
-    const userMessage: ChatMessage = { role: 'user', content };
+    const userMessage: ChatMessage = { role: 'user', content, images };
     
     // Optimistic update
     setMessages(prev => [...prev, userMessage]);
@@ -175,7 +177,8 @@ Istruzioni:
         trip_id: tripId,
         user_id: user.id,
         role: 'user',
-        content: content
+        content: content,
+        metadata: images ? { images } : null
       });
       
       if (saveError) console.error("Error saving user message:", saveError);
@@ -251,6 +254,34 @@ Istruzioni:
           activity_date: date,
           start_time: toolCall.args.time,
           category: toolCall.args.category || 'activity'
+        });
+      } else if (toolCall.name === 'add_transport') {
+        await createTransport({
+          trip_id: tripId,
+          transport_type: toolCall.args.type,
+          departure_location: toolCall.args.departure_location,
+          arrival_location: toolCall.args.arrival_location,
+          departure_datetime: toolCall.args.departure_date,
+          arrival_datetime: toolCall.args.arrival_date,
+          price: toolCall.args.price,
+          currency: "EUR"
+        });
+      } else if (toolCall.name === 'add_accommodation') {
+        await createAccommodation({
+          trip_id: tripId,
+          name: toolCall.args.name,
+          address: toolCall.args.address,
+          check_in: toolCall.args.check_in,
+          check_out: toolCall.args.check_out,
+          price: toolCall.args.price,
+          currency: "EUR"
+        });
+      } else if (toolCall.name === 'add_idea') {
+        await createIdea.mutateAsync({
+          title: toolCall.args.title,
+          content: toolCall.args.content,
+          location: "",
+          dayNumber: null
         });
       }
 

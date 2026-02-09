@@ -262,6 +262,16 @@ export default function Expenses() {
                   <Plus className="w-4 h-4" />
                   Aggiungi Spesa
                 </Button>
+
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-trip-ai', { detail: { message: "Analizza le spese attuali: stiamo spendendo troppo per qualcosa in particolare?" } }))}
+                  title="Analisi AI"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                </Button>
               </div>
             </div>
 

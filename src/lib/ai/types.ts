@@ -1,6 +1,7 @@
 export interface AIMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
+  images?: string[]; // Base64 strings
 }
 
 export interface ToolCall {

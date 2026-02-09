@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { isToday as isDateToday } from "date-fns";
-import { ArrowLeft, Loader2, Clock, CalendarDays, Map, List } from "lucide-react";
+import { ArrowLeft, Loader2, Clock, CalendarDays, Map, List, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useTimelineEvents } from "@/hooks/useTimelineEvents";
@@ -203,6 +203,15 @@ export default function Itinerary() {
                           Mappa
                         </TabsTrigger>
                       </TabsList>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="gap-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50 hidden sm:flex"
+                        onClick={() => window.dispatchEvent(new CustomEvent('open-trip-ai', { detail: { message: "Analizza il mio itinerario e suggeriscimi attività interessanti da aggiungere per i giorni liberi." } }))}
+                      >
+                        <Sparkles className="w-4 h-4" />
+                        Suggerimenti AI
+                      </Button>
                     </div>
                   </div>
 
