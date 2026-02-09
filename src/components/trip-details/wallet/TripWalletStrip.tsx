@@ -302,10 +302,10 @@ function TripWalletUploadDialog({ tripId, open, onOpenChange }: TripWalletDialog
   }, [result]);
 
   const handleFileSelected = async (file: File) => {
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 8 * 1024 * 1024) {
       toast({
         title: "File troppo grande",
-        description: "Il file deve essere inferiore a 10MB",
+        description: "Il file deve essere inferiore a 8MB",
         variant: "destructive",
       });
       return;

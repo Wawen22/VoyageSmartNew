@@ -84,6 +84,9 @@ export const useTripIdeas = (tripId: string) => {
 
       // Handle Image Upload
       if (file) {
+        if (file.size > 8 * 1024 * 1024) {
+          throw new Error("Il file è troppo grande. Limite: 8MB");
+        }
         const fileExt = file.name.split('.').pop();
         const fileName = `${tripId}/${crypto.randomUUID()}.${fileExt}`;
 
@@ -184,6 +187,9 @@ export const useTripIdeas = (tripId: string) => {
 
       // Handle Image Upload if new file provided
       if (file) {
+        if (file.size > 8 * 1024 * 1024) {
+          throw new Error("Il file è troppo grande. Limite: 8MB");
+        }
         const fileExt = file.name.split('.').pop();
         const fileName = `${tripId}/${crypto.randomUUID()}.${fileExt}`;
 

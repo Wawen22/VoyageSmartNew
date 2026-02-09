@@ -29,11 +29,11 @@ export function DocumentUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
+    // Validate file size (max 8MB)
+    if (file.size > 8 * 1024 * 1024) {
       toast({
         title: "File troppo grande",
-        description: "Il file deve essere inferiore a 10MB",
+        description: "Il file deve essere inferiore a 8MB",
         variant: "destructive"
       });
       return;
