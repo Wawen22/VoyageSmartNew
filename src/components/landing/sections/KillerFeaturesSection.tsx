@@ -26,11 +26,11 @@ const features = [
     id: "voyage-ai",
     title: "Voyage AI",
     description:
-      "Un agente contestuale che conosce il tuo viaggio e agisce: spese, suggerimenti, conversioni.",
+      "Un agente proattivo che analizza documenti, crea packing list e ti consiglia in base al contesto reale.",
     icon: Bot,
     accent: "text-amber-600",
     gradient: "from-amber-500/10 via-slate-900/5 to-rose-500/5",
-    placeholder: "Assistente AI",
+    placeholder: "Scan & Plan Attivo ✨",
   },
 ];
 

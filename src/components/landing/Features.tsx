@@ -90,7 +90,11 @@ export function Features() {
                 </div>
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
                   <Zap className="w-3.5 h-3.5 text-amber-500" />
-                  Modalità Azione
+                  Scan & Plan
+                </div>
+                <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-violet-500" />
+                  Packing List AI
                 </div>
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
                   <Wallet className="w-3.5 h-3.5 text-emerald-500" />
@@ -113,11 +117,12 @@ export function Features() {
             </div>
             <h3 className="text-xl font-bold mb-3">Strumenti & Utility</h3>
             <p className="text-muted-foreground mb-4">
-              Toolkit completo con Traduttore AI bidirezionale, Convertitore Valuta live e Unità di misura.
+              Toolkit completo con Traduttore AI, Convertitore Valuta live e Generatore Liste Valigia intelligente.
             </p>
             <div className="flex gap-2">
                <div className="p-1.5 rounded-md bg-muted/50 text-muted-foreground"><Languages className="w-4 h-4"/></div>
                <div className="p-1.5 rounded-md bg-muted/50 text-muted-foreground"><Coins className="w-4 h-4"/></div>
+               <div className="p-1.5 rounded-md bg-muted/50 text-muted-foreground"><Sparkles className="w-4 h-4"/></div>
             </div>
           </motion.div>
 
@@ -134,8 +139,7 @@ export function Features() {
             </div>
             <h3 className="text-xl font-bold mb-3">Divisione Spese</h3>
             <p className="text-muted-foreground">
-              Traccia chi ha pagato cosa e lascia che calcoliamo chi deve a chi. 
-              Supporta valute multiple con conversione automatica.
+              Traccia chi ha pagato cosa e lascia che l'AI analizzi i tuoi scontrini per aggiungere spese in un lampo.
             </p>
           </motion.div>
 
@@ -153,9 +157,7 @@ export function Features() {
               </div>
               <h3 className="text-2xl font-bold mb-3">Bacheca Idee & Ispirazioni</h3>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Uno spazio creativo dove salvare link, note, foto e luoghi da visitare. 
-                Organizza le idee per "Giorno" o "Luogo" e quando sei pronto, 
-                promuovile nel tuo itinerario ufficiale con un click.
+                Salva link, note e foto. Voyage AI può analizzare i tuoi appunti per trasformarli in tappe concrete dell'itinerario.
               </p>
             </div>
           </motion.div>
@@ -172,19 +174,19 @@ export function Features() {
               <div className="w-12 h-12 rounded-xl bg-slate-900/10 flex items-center justify-center mb-6 text-slate-700">
                 <FileScan className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-bold mb-3">Travel Wallet & Cassaforte</h3>
+              <h3 className="text-2xl font-bold mb-3">Magic Vault & Cassaforte</h3>
               <div className="absolute right-0 top-0">
                 <div className="px-2.5 py-1 rounded-full border border-amber-400/30 bg-amber-400/10 text-[10px] font-semibold uppercase tracking-widest text-amber-600">
                   PRO
                 </div>
               </div>
               <p className="text-muted-foreground mb-6 max-w-md">
-                Conserva biglietti e voucher nel Wallet rapido, e proteggi passaporti e assicurazioni nella Cassaforte cifrata.
+                L'AI estrae automaticamente i dati dai tuoi PDF (voli, hotel) e li aggiunge al tuo viaggio. Massima sicurezza con crittografia end-to-end.
               </p>
               <div className="flex gap-2">
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
-                  <Wallet className="w-3.5 h-3.5 text-emerald-500" />
-                  Wallet
+                  <Sparkles className="w-3.5 h-3.5 text-violet-500" />
+                  Analisi AI
                 </div>
                 <div className="px-3 py-1 rounded-full bg-background border text-xs font-medium flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5 text-indigo-500" />

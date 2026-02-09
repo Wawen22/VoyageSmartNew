@@ -3,6 +3,12 @@ import { motion } from "framer-motion";
 
 const items = [
   {
+    title: "Magic Vault AI",
+    desc: "L'AI analizza i tuoi documenti e crea automaticamente trasporti, alloggi o spese in un click.",
+    icon: ShieldCheck,
+    color: "bg-indigo-100 text-indigo-600",
+  },
+  {
     title: "Travel Wallet",
     desc: "Biglietti aerei, voucher hotel e prenotazioni sempre a portata di mano, anche offline.",
     icon: FileCheck,
@@ -10,15 +16,9 @@ const items = [
   },
   {
     title: "Cassaforte Cifrata",
-    desc: "Passaporti e documenti sensibili protetti da passphrase. Nemmeno noi possiamo leggerli.",
+    desc: "Passaporti e documenti sensibili protetti da crittografia. Nemmeno noi possiamo leggerli.",
     icon: Lock,
     color: "bg-rose-100 text-rose-600",
-  },
-  {
-    title: "Accesso Condiviso",
-    desc: "Decidi cosa condividere con il gruppo e cosa mantenere privato in un tap.",
-    icon: Key,
-    color: "bg-sky-100 text-sky-600",
   },
 ];
 
@@ -44,11 +44,10 @@ export function WalletSection() {
               Security First
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
-              I tuoi documenti, <span className="text-gradient-sunset">al sicuro</span>.
+              I tuoi documenti, <span className="text-gradient-sunset">intelligenti</span>.
             </h2>
             <p className="text-xl text-muted-foreground leading-relaxed mb-10 max-w-xl">
-              Non rischiare di perdere passaporti o prenotazioni. Il Travel Wallet di VoyageSmart
-              usa crittografia avanzata per proteggere ciò che conta di più.
+              Non solo archiviazione. VoyageSmart usa l'AI per trasformare i tuoi PDF in piani concreti, proteggendo tutto con crittografia militare.
             </p>
 
             <div className="grid gap-4 sm:grid-cols-3">
