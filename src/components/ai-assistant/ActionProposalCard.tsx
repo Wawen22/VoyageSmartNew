@@ -1,8 +1,8 @@
-
-import { Check, X, Wallet, Calendar, Plus, Building2, TicketsPlane, Lightbulb, ListChecks } from "lucide-react";
+import { Check, X, Wallet, Calendar, Plus, Building2, Plane, Lightbulb, ListChecks, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/currency";
+import { cn } from "@/lib/utils";
 
 interface ActionProposalCardProps {
   functionName: string;
@@ -15,206 +15,244 @@ interface ActionProposalCardProps {
 
 export function ActionProposalCard({ functionName, args, onConfirm, onCancel, isExecuting, isExecuted }: ActionProposalCardProps) {
   
+  // 1. STATE: COMPLETED
   if (isExecuted) {
     const getSuccessMessage = () => {
       switch (functionName) {
-        case 'add_expense': return `Spesa di ${formatCurrency(args.amount, args.currency || 'EUR')} aggiunta.`;
-        case 'add_activity': return `Attività "${args.title}" aggiunta all'itinerario.`;
-        case 'add_accommodation': return `Alloggio "${args.name}" aggiunto.`;
-        case 'add_transport': return `Trasporto ${args.type} per ${args.arrival_location} aggiunto.`;
-        case 'add_idea': return `Idea "${args.title}" salvata nella bacheca.`;
-        case 'create_checklist_items': return `${args.items?.length || 0} elementi aggiunti alla checklist.`;
-        default: return "Azione completata con successo.";
+        case 'add_expense': return `Spesa di ${formatCurrency(args.amount, args.currency || 'EUR')} salvata.`;
+        case 'add_activity': return `Attività aggiunta.`;
+        case 'add_accommodation': return `Alloggio salvato.`;
+        case 'add_transport': return `Trasporto aggiunto.`;
+        case 'add_idea': return `Idea salvata.`;
+        case 'create_checklist_items': return `Checklist aggiornata.`;
+        default: return "Fatto!";
       }
     };
 
     return (
-      <Card className="w-full border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20 overflow-hidden opacity-80">
-        <CardContent className="p-3 flex items-center gap-3">
-          <div className="p-1.5 rounded-full bg-emerald-100 text-emerald-600">
-            <Check className="w-4 h-4" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-emerald-800 dark:text-emerald-400">Azione Completata</p>
-            <p className="text-xs text-muted-foreground">{getSuccessMessage()}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg max-w-[280px]">
+        <div className="bg-emerald-500 rounded-full p-0.5 shrink-0">
+          <Check className="w-3 h-3 text-white" />
+        </div>
+        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 truncate">
+          {getSuccessMessage()}
+        </span>
+      </div>
     );
   }
 
-  // --- RENDERING CARDS FOR DIFFERENT TOOLS ---
+  // 2. COMPONENT: COMPACT WRAPPER
+  const CompactActionCard = ({ 
+    title, 
+    icon: Icon, 
+    themeColor, // "emerald", "indigo", "purple", "amber", "violet", "primary"
+    children 
+  }: { 
+    title: string, 
+    icon: any, 
+    themeColor: "emerald" | "indigo" | "purple" | "amber" | "violet" | "primary", 
+    children: React.ReactNode 
+  }) => {
+    
+    const themeStyles = {
+      emerald: {
+        header: "bg-emerald-500/10 border-emerald-500/20",
+        text: "text-emerald-600 dark:text-emerald-400",
+        button: "bg-emerald-600 hover:bg-emerald-700"
+      },
+      indigo: {
+        header: "bg-indigo-500/10 border-indigo-500/20",
+        text: "text-indigo-600 dark:text-indigo-400",
+        button: "bg-indigo-600 hover:bg-indigo-700"
+      },
+      purple: {
+        header: "bg-purple-500/10 border-purple-500/20",
+        text: "text-purple-600 dark:text-purple-400",
+        button: "bg-purple-600 hover:bg-purple-700"
+      },
+      amber: {
+        header: "bg-amber-500/10 border-amber-500/20",
+        text: "text-amber-600 dark:text-amber-400",
+        button: "bg-amber-500 hover:bg-amber-600"
+      },
+      violet: {
+        header: "bg-violet-500/10 border-violet-500/20",
+        text: "text-violet-600 dark:text-violet-400",
+        button: "bg-violet-600 hover:bg-violet-700"
+      },
+      primary: {
+        header: "bg-slate-500/10 border-slate-500/20",
+        text: "text-slate-600 dark:text-slate-400",
+        button: "bg-primary hover:bg-primary/90"
+      }
+    };
+
+    const style = themeStyles[themeColor];
+
+    return (
+      <Card className="w-full max-w-[280px] overflow-hidden border shadow-md bg-card">
+        {/* Compact Header */}
+        <div className={cn("px-3 py-2 flex items-center gap-2 border-b", style.header)}>
+          <Icon className={cn("w-3.5 h-3.5", style.text)} />
+          <span className={cn("text-[10px] font-black uppercase tracking-wider", style.text)}>
+            {title}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="p-3 text-sm">
+          {children}
+        </div>
+
+        {/* Footer Actions */}
+        <div className="p-2 bg-muted/30 grid grid-cols-2 gap-2 border-t">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 text-[10px] font-black uppercase tracking-widest text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors" 
+            onClick={onCancel} 
+            disabled={isExecuting}
+          >
+            Annulla
+          </Button>
+          <Button 
+            size="sm" 
+            className={cn("h-8 text-[10px] font-black uppercase tracking-widest text-white shadow-sm border-0 transition-all active:scale-95", style.button)} 
+            onClick={onConfirm} 
+            disabled={isExecuting}
+          >
+            Conferma
+          </Button>
+        </div>
+      </Card>
+    );
+  };
+
+  // --- SPECIFIC CARDS ---
 
   if (functionName === 'add_expense') {
     return (
-      <Card className="w-full border-2 border-primary/20 bg-primary/5 overflow-hidden">
-        <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
-          <div className="p-2 rounded-full bg-emerald-100 text-emerald-600">
-            <Wallet className="w-5 h-5" />
-          </div>
-          <CardTitle className="text-sm font-medium text-emerald-700">Nuova Spesa</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          <div className="text-lg font-bold">{formatCurrency(args.amount, args.currency || 'EUR')}</div>
-          <p className="text-sm text-muted-foreground">{args.description}</p>
-        </CardContent>
-        <CardFooter className="p-2 bg-background/50 flex gap-2">
-          <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={onCancel} disabled={isExecuting}><X className="w-3 h-3 mr-1" /> Annulla</Button>
-          <Button size="sm" className="flex-1 h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white" onClick={onConfirm} disabled={isExecuting}><Check className="w-3 h-3 mr-1" /> Conferma</Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  if (functionName === 'add_activity') {
-    return (
-      <Card className="w-full border-2 border-primary/20 bg-primary/5 overflow-hidden">
-        <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
-          <div className="p-2 rounded-full bg-purple-100 text-purple-600">
-            <Calendar className="w-5 h-5" />
-          </div>
-          <CardTitle className="text-sm font-medium text-purple-700">Nuova Attività</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          <div className="text-lg font-bold">{args.title}</div>
-          <div className="flex gap-2 text-xs text-muted-foreground mt-1">
-            {args.date && <span>📅 {args.date}</span>}
-            {args.time && <span>⏰ {args.time}</span>}
-          </div>
-        </CardContent>
-        <CardFooter className="p-2 bg-background/50 flex gap-2">
-          <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={onCancel} disabled={isExecuting}><X className="w-3 h-3 mr-1" /> Annulla</Button>
-          <Button size="sm" className="flex-1 h-8 text-xs bg-purple-600 hover:bg-purple-700 text-white" onClick={onConfirm} disabled={isExecuting}><Check className="w-3 h-3 mr-1" /> Conferma</Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-
-  if (functionName === 'add_accommodation') {
-    return (
-      <Card className="w-full border-2 border-indigo-200 bg-indigo-50/10 dark:bg-indigo-950/10 overflow-hidden">
-        <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
-          <div className="p-2 rounded-full bg-indigo-100 text-indigo-600">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <CardTitle className="text-sm font-medium text-indigo-700">Nuovo Alloggio</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          <div className="text-lg font-bold">{args.name}</div>
-          <p className="text-xs text-muted-foreground mb-2">{args.address}</p>
-          <div className="flex gap-3 text-xs font-medium">
-            <span className="bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded">IN: {args.check_in}</span>
-            <span className="bg-rose-100 dark:bg-rose-950/50 px-2 py-1 rounded">OUT: {args.check_out}</span>
-          </div>
-          {args.price && <p className="mt-2 text-sm font-bold text-indigo-600">{formatCurrency(args.price, 'EUR')}</p>}
-        </CardContent>
-        <CardFooter className="p-2 bg-background/50 flex gap-2">
-          <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={onCancel} disabled={isExecuting}><X className="w-3 h-3 mr-1" /> Annulla</Button>
-          <Button size="sm" className="flex-1 h-8 text-xs bg-indigo-600 hover:bg-indigo-700 text-white" onClick={onConfirm} disabled={isExecuting}><Check className="w-3 h-3 mr-1" /> Conferma</Button>
-        </CardFooter>
-      </Card>
+      <CompactActionCard title="Nuova Spesa" icon={Wallet} themeColor="emerald">
+        <div className="flex flex-col gap-1">
+          <span className="text-xl font-black text-foreground">
+            {formatCurrency(args.amount, args.currency || 'EUR')}
+          </span>
+          <span className="text-xs text-muted-foreground font-medium line-clamp-2">
+            {args.description}
+          </span>
+        </div>
+      </CompactActionCard>
     );
   }
 
   if (functionName === 'add_transport') {
     return (
-      <Card className="w-full border-2 border-sky-200 bg-sky-50/10 dark:bg-sky-950/10 overflow-hidden">
-        <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
-          <div className="p-2 rounded-full bg-sky-100 text-sky-600">
-            <TicketsPlane className="w-5 h-5" />
-          </div>
-          <CardTitle className="text-sm font-medium text-sky-700 uppercase">{args.type || 'Trasporto'}</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-center flex-1">
-              <div className="text-xs text-muted-foreground uppercase">Partenza</div>
-              <div className="font-bold">{args.departure_location}</div>
-            </div>
-            <div className="px-4 text-sky-400">→</div>
-            <div className="text-center flex-1">
-              <div className="text-xs text-muted-foreground uppercase">Arrivo</div>
-              <div className="font-bold">{args.arrival_location}</div>
+      <CompactActionCard title={args.type || "Trasporto"} icon={Plane} themeColor="indigo">
+        <div className="relative pl-3 border-l-2 border-indigo-100 dark:border-indigo-900/50 space-y-4 my-1">
+          <div className="relative">
+            <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full border-2 border-indigo-500 bg-background z-10" />
+            <div className="flex flex-col">
+              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Partenza</span>
+              <span className="font-bold text-xs leading-tight truncate">{args.departure_location}</span>
+              {args.departure_date && <span className="text-[10px] font-medium opacity-70">{args.departure_date}</span>}
             </div>
           </div>
-          <div className="text-xs text-center text-muted-foreground">
-            📅 {args.departure_date}
+          <div className="relative">
+            <div className="absolute -left-[19px] top-1 w-2.5 h-2.5 rounded-full bg-indigo-500 z-10" />
+            <div className="flex flex-col">
+              <span className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">Arrivo</span>
+              <span className="font-bold text-xs leading-tight truncate">{args.arrival_location}</span>
+              {args.arrival_date && <span className="text-[10px] font-medium opacity-70">{args.arrival_date}</span>}
+            </div>
           </div>
-        </CardContent>
-        <CardFooter className="p-2 bg-background/50 flex gap-2">
-          <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={onCancel} disabled={isExecuting}><X className="w-3 h-3 mr-1" /> Annulla</Button>
-          <Button size="sm" className="flex-1 h-8 text-xs bg-sky-600 hover:bg-sky-700 text-white" onClick={onConfirm} disabled={isExecuting}><Check className="w-3 h-3 mr-1" /> Conferma</Button>
-        </CardFooter>
-      </Card>
+        </div>
+        {args.price && (
+          <div className="mt-3 pt-2 border-t flex justify-end">
+            <span className="font-black text-indigo-600 text-sm">{formatCurrency(args.price, 'EUR')}</span>
+          </div>
+        )}
+      </CompactActionCard>
+    );
+  }
+
+  if (functionName === 'add_accommodation') {
+    return (
+      <CompactActionCard title="Hotel / Alloggio" icon={Building2} themeColor="indigo">
+        <div className="flex flex-col gap-2">
+          <div className="font-bold text-sm leading-tight truncate">{args.name}</div>
+          {args.address && (
+            <div className="flex items-start gap-1 text-[10px] text-muted-foreground font-medium">
+              <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+              <span className="line-clamp-2">{args.address}</span>
+            </div>
+          )}
+          <div className="flex gap-2 mt-1">
+            <div className="flex-1 bg-muted/50 p-1.5 rounded-md text-center border border-indigo-100/20">
+              <div className="text-[8px] text-muted-foreground uppercase font-black">In</div>
+              <div className="text-[10px] font-black text-indigo-700 dark:text-indigo-300">{args.check_in}</div>
+            </div>
+            <div className="flex-1 bg-muted/50 p-1.5 rounded-md text-center border border-rose-100/20">
+              <div className="text-[8px] text-muted-foreground uppercase font-black">Out</div>
+              <div className="text-[10px] font-black text-rose-700 dark:text-rose-300">{args.check_out}</div>
+            </div>
+          </div>
+          {args.price && <div className="text-right font-black text-indigo-600 text-xs mt-1">{formatCurrency(args.price, 'EUR')}</div>}
+        </div>
+      </CompactActionCard>
+    );
+  }
+
+  if (functionName === 'add_activity') {
+    return (
+      <CompactActionCard title="Attività" icon={Calendar} themeColor="purple">
+        <div className="flex flex-col gap-2">
+          <div className="font-bold text-sm">{args.title}</div>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium">
+            {args.date && <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {args.date}</div>}
+            {args.time && <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {args.time}</div>}
+          </div>
+        </div>
+      </CompactActionCard>
     );
   }
 
   if (functionName === 'add_idea') {
     return (
-      <Card className="w-full border-2 border-amber-200 bg-amber-50/10 dark:bg-amber-950/10 overflow-hidden">
-        <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
-          <div className="p-2 rounded-full bg-amber-100 text-amber-600">
-            <Lightbulb className="w-5 h-5" />
+      <CompactActionCard title="Salva Idea" icon={Lightbulb} themeColor="amber">
+        <div className="flex flex-col gap-1">
+          <span className="font-bold text-xs truncate">{args.title}</span>
+          <div className="bg-amber-50 dark:bg-amber-950/20 p-2 rounded text-[10px] text-muted-foreground italic border-l-2 border-amber-300 font-medium">
+            "{args.content}"
           </div>
-          <CardTitle className="text-sm font-medium text-amber-700">Salva Idea</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          <div className="text-lg font-bold">{args.title}</div>
-          <p className="text-sm text-muted-foreground line-clamp-2 italic">"{args.content}"</p>
-        </CardContent>
-        <CardFooter className="p-2 bg-background/50 flex gap-2">
-          <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={onCancel} disabled={isExecuting}><X className="w-3 h-3 mr-1" /> Annulla</Button>
-          <Button size="sm" className="flex-1 h-8 text-xs bg-amber-500 hover:bg-amber-600 text-white" onClick={onConfirm} disabled={isExecuting}><Check className="w-3 h-3 mr-1" /> Conferma</Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </CompactActionCard>
     );
   }
 
   if (functionName === 'create_checklist_items') {
     return (
-      <Card className="w-full border-2 border-violet-200 bg-violet-50/10 dark:bg-violet-950/10 overflow-hidden">
-        <CardHeader className="p-4 pb-2 flex flex-row items-center gap-3 space-y-0">
-          <div className="p-2 rounded-full bg-violet-100 text-violet-600">
-            <ListChecks className="w-5 h-5" />
-          </div>
-          <CardTitle className="text-sm font-medium text-violet-700">Checklist</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          <div className="text-sm font-bold mb-2">Aggiungi {(args.items || []).length} elementi:</div>
+      <CompactActionCard title="Checklist" icon={ListChecks} themeColor="violet">
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-medium text-foreground">Aggiungi <b>{(args.items || []).length}</b> elementi:</span>
           <div className="flex flex-wrap gap-1">
-            {(args.items || []).slice(0, 5).map((item: string, i: number) => (
-              <span key={i} className="text-[10px] bg-violet-100 dark:bg-violet-900/50 px-2 py-0.5 rounded-full">{item}</span>
+            {(args.items || []).slice(0, 4).map((item: string, i: number) => (
+              <span key={i} className="text-[9px] px-1.5 py-0.5 bg-muted rounded border border-violet-100/50 truncate max-w-[80px] font-bold">
+                {item}
+              </span>
             ))}
-            {(args.items || []).length > 5 && <span className="text-[10px] text-muted-foreground">+{args.items.length - 5} altri</span>}
+            {(args.items || []).length > 4 && <span className="text-[9px] text-muted-foreground font-bold">+{args.items.length - 4}</span>}
           </div>
-        </CardContent>
-        <CardFooter className="p-2 bg-background/50 flex gap-2">
-          <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={onCancel} disabled={isExecuting}><X className="w-3 h-3 mr-1" /> Annulla</Button>
-          <Button size="sm" className="flex-1 h-8 text-xs bg-violet-600 hover:bg-violet-700 text-white" onClick={onConfirm} disabled={isExecuting}><Check className="w-3 h-3 mr-1" /> Conferma</Button>
-        </CardFooter>
-      </Card>
+        </div>
+      </CompactActionCard>
     );
   }
 
   // Fallback
   return (
-    <Card className="w-full border border-border overflow-hidden">
-      <CardHeader className="p-3 bg-muted/30">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Azione Richiesta: {functionName}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-3 text-xs text-muted-foreground">
-        <div className="bg-slate-950 rounded p-2 overflow-x-auto">
-          <pre className="text-slate-300 font-mono">{JSON.stringify(args, null, 2)}</pre>
-        </div>
-      </CardContent>
-      <CardFooter className="p-2 bg-muted/10 flex gap-2">
-        <Button variant="ghost" size="sm" className="flex-1 h-8 text-xs" onClick={onCancel} disabled={isExecuting}><X className="w-3 h-3 mr-1" /> Annulla</Button>
-        <Button size="sm" className="flex-1 h-8 text-xs" onClick={onConfirm} disabled={isExecuting}><Check className="w-3 h-3 mr-1" /> Conferma</Button>
-      </CardFooter>
-    </Card>
+    <CompactActionCard title="Azione" icon={Plus} themeColor="primary">
+      <pre className="text-[9px] bg-muted p-2 rounded overflow-x-hidden whitespace-pre-wrap font-mono">
+        {JSON.stringify(args, null, 2)}
+      </pre>
+    </CompactActionCard>
   );
 }
-

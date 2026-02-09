@@ -161,9 +161,12 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
           </div>
         </div>
       </SheetTrigger>
-      <SheetContent className="w-[95%] sm:w-[540px] flex flex-col p-0 h-full border-l-2 border-indigo-100 dark:border-indigo-900 [&>button]:hidden">
+      <SheetContent 
+        side="right" 
+        className="w-full sm:max-w-[540px] lg:max-w-[1000px] lg:w-[90vw] right-0 flex flex-col p-0 h-full border-l-2 border-indigo-100 dark:border-indigo-900 [&>button]:hidden overflow-x-hidden"
+      >
         {/* Main Header */}
-        <div className="p-5 border-b bg-background/80 backdrop-blur-md sticky top-0 z-20">
+        <div className="p-5 border-b bg-background/80 backdrop-blur-md sticky top-0 z-20 w-full">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-600/20">
@@ -199,7 +202,7 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
 
         {/* Subscription Status Bar (Free Tier Only) */}
         {!isPro && (
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 px-5 py-3 border-b flex items-center justify-between gap-4">
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 px-5 py-3 border-b flex items-center justify-between gap-4 w-full">
             <div className="flex-1">
               <div className="flex justify-between text-[10px] font-medium text-indigo-600 dark:text-indigo-400 mb-1.5">
                 <span>Messaggi Gratuiti</span>
@@ -223,9 +226,9 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
           </div>
         )}
         
-        <div className="flex-1 overflow-hidden relative bg-slate-50 dark:bg-slate-950/50">
-          <ScrollArea className="h-full">
-            <div className="space-y-6 p-4 pb-4">
+        <div className="flex-1 overflow-hidden relative bg-slate-50 dark:bg-slate-950/50 w-full">
+          <ScrollArea className="h-full w-full">
+            <div className="space-y-6 p-4 md:px-10 pb-10 w-full overflow-x-hidden">
               {messages.length === 0 && (
                 <div className="text-center space-y-4 py-6 px-2">
                   <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border inline-block">
@@ -412,20 +415,23 @@ export function TripAIAssistant({ tripId, tripDetails, className }: TripAIAssist
               onChange={handleFileSelect} 
             />
             
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "rounded-full shrink-0 transition-colors", 
-                attachedFiles.length > 0 ? "text-indigo-600 bg-indigo-50" : "text-muted-foreground hover:bg-slate-100"
-              )}
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isLimitReached}
-              title="Allega immagine o PDF"
-            >
-              <Paperclip className="h-5 w-5" />
-            </Button>
+            <div className="flex flex-col items-center gap-0.5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "rounded-full shrink-0 transition-colors h-9 w-9", 
+                  attachedFiles.length > 0 ? "text-indigo-600 bg-indigo-50" : "text-muted-foreground hover:bg-slate-100"
+                )}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLimitReached}
+                title="Allega immagine o PDF"
+              >
+                <Paperclip className="h-5 w-5" />
+              </Button>
+              <span className="text-[7px] font-bold uppercase text-muted-foreground/60 leading-none">8MB</span>
+            </div>
 
             {isSpeechSupported && (
               <Button
