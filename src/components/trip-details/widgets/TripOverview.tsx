@@ -20,6 +20,7 @@ import { CurrencyWidget } from "@/components/trip-details/widgets/CurrencyWidget
 import { WorldClocksWidget } from "@/components/trip-details/widgets/WorldClocksWidget";
 import { TripMembersList } from "@/components/trips/TripMembersList";
 import { TripDocumentsHub } from "@/components/trip-details/wallet/TripDocumentsHub";
+import { SmartSuggestions } from "./SmartSuggestions";
 import { cn } from "@/lib/utils";
 
 interface TripOverviewProps {
@@ -52,7 +53,12 @@ export function TripOverview({ trip }: TripOverviewProps) {
       animate="show"
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
     >
-      {/* 0. NEXT ACTIVITY WIDGET (Prossima Tappa) - 2 Cols */}
+      {/* 0. SMART SUGGESTIONS (Wide, auto-height) */}
+      {!stats.isLoading && (
+        <SmartSuggestions trip={trip} stats={stats} />
+      )}
+
+      {/* 1. NEXT ACTIVITY WIDGET (Prossima Tappa) - 2 Cols */}
       <NextActivityWidget tripId={trip.id} />
 
       {/* 1. STATUS / COUNTDOWN - 2 Cols */}
