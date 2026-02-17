@@ -1,11 +1,20 @@
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
-import { CalendarDays, Sparkles, Plus } from "lucide-react";
+import { CalendarDays, Sparkles, Plus, Cloud, CloudRain, Sun, Thermometer } from "lucide-react";
 import { TimelineEventCard } from "./TimelineEventCard";
 import { AddActivityDialog } from "@/components/itinerary/AddActivityDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import type { TimelineDay } from "@/hooks/useTimelineEvents";
 import type { ItineraryActivity } from "@/hooks/useItinerary";
+
+const getWeatherIcon = (iconCode: string) => {
+  if (iconCode.startsWith('01')) return <Sun className="w-4 h-4 text-amber-500" />;
+  if (iconCode.startsWith('02') || iconCode.startsWith('03') || iconCode.startsWith('04')) return <Cloud className="w-4 h-4 text-slate-400" />;
+  if (iconCode.startsWith('09') || iconCode.startsWith('10')) return <CloudRain className="w-4 h-4 text-blue-400" />;
+  return <Cloud className="w-4 h-4 text-slate-400" />;
+};
 
 interface TimelineDaySectionProps {
   day: TimelineDay;
@@ -83,6 +92,35 @@ export function TimelineDaySection({
                   {format(day.date, "d MMMM yyyy", { locale: it })}
                 </p>
               </div>
+              
+              {/* Weather Widget */}
+              {day.weather && (
+                <div className="hidden md:flex items-center gap-3 px-3 py-2 rounded-xl bg-background/50 border border-white/20 backdrop-blur-sm shadow-sm transition-all hover:bg-background/80">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-center gap-2 cursor-help">
+                          <div className="p-1.5 rounded-lg bg-muted/50">
+                            {getWeatherIcon(day.weather.icon)}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-xs font-bold leading-none">{day.weather.temp}°C</span>
+                            <span className="text-[9px] text-muted-foreground capitalize leading-none mt-1 line-clamp-1 max-w-[60px]">
+                              {day.weather.description}
+                            </span>
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="text-xs space-y-1">
+                          <p className="font-bold capitalize">{day.weather.description}</p>
+                          <p className="text-muted-foreground">Min: {day.weather.temp_min}°C | Max: {day.weather.temp_max}°C</p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              )}
               
               {/* Right Section - Counter & Add Button */}
               <div className="flex items-center gap-2 md:gap-3 shrink-0">

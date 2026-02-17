@@ -59,42 +59,20 @@ Questo documento raccoglie le idee e le funzionalità pianificate per il futuro 
 
 ## 📅 Funzionalità Future (Backlog)
 
-### 1. Suggerimenti Proattivi (Meteo & AI) 🌤️
-*   **Stato:** Pianificato.
-*   **Priorità:** Alta.
-*   **Dettagli:** L'AI analizza meteo e orari liberi per proporre modifiche all'itinerario spontaneamente (es. "Domani piove, vuoi visitare un museo?").
-
-### 2. Integrazione Meteo Intelligente nell'Itinerario 🌦️
-*   **Stato:** Proposto.
+### 1. Integrazione Meteo Intelligente nell'Itinerario 🌦️
+*   **Stato:** In Corso 🛠️
+*   **Priorità:** Massima.
 *   **Dettagli:** Mostrare le previsioni meteo specifiche per ogni giorno e luogo direttamente nella timeline dell'itinerario.
 
-### 3. Mappa Interattiva delle Idee 🗺️
-*   **Stato:** Proposto.
-*   **Dettagli:** Visualizzazione su mappa di tutte le idee salvate nella bacheca che hanno un luogo specificato, per facilitare il clustering geografico.
-
-### 4. Limiti PRO per Upload Immagini & Documenti 🔒
-*   **Stato:** Proposto (Business).
-*   **Dettagli:** Implementare restrizioni sul numero di immagini/documenti caricabili dagli utenti Free per incentivare l'upgrade a PRO.
-
-### 5. Offline Mode & PWA 📶
+### 2. Dark Mode System 🌙
 *   **Stato:** Pianificato.
-*   **Dettagli:** Supporto per installazione mobile e cache intelligente per accesso ai dati offline.
+*   **Priorità:** Alta.
+*   **Dettagli:** Tema scuro completo per tutta l'app con switch automatico e persistenza della preferenza.
 
-### 3. Galleria Foto Condivisa 📸
+### 3. Notifiche Push 🔔
 *   **Stato:** Pianificato.
-*   **Dettagli:** Upload foto di gruppo, album automatici e tagging AI dei luoghi.
-
-### 4. Meteo Avanzato & Avvisi ☀️
-*   **Stato:** Pianificato.
-*   **Dettagli:** Previsioni orarie dettagliate e avvisi meteo in tempo reale.
-
-### 5. Dark Mode System 🌙
-*   **Stato:** Pianificato.
-*   **Dettagli:** Tema scuro completo per tutta l'app con switch automatico.
-
-### 6. Notifiche Push 🔔
-*   **Stato:** Pianificato.
-*   **Dettagli:** Notifiche native per attività imminenti, messaggi e inviti.
+*   **Priorità:** Alta.
+*   **Dettagli:** Notifiche native per attività imminenti, nuovi messaggi in chat e scadenze budget.
 
 ### 8. Monetizzazione & Abbonamenti (Stripe) 💳 (✅ Completato)
 *   **Stato:** Implementato.

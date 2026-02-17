@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, parseISO, isWithinInterval, isSameDay, eachDayOfInterval } from "date-fns";
+import { format, parseISO, isWithinInterval, isSameDay, eachDayOfInterval, addDays, isAfter, isBefore } from "date-fns";
+import { getWeatherForecast, WeatherData } from "@/lib/weather";
 
 export type TimelineEventType = "activity" | "transport" | "accommodation-checkin" | "accommodation-checkout" | "accommodation-stay";
 
@@ -29,6 +30,13 @@ export interface TimelineDay {
   date: Date;
   dateStr: string;
   events: TimelineEvent[];
+  weather?: {
+    temp: number;
+    description: string;
+    icon: string;
+    temp_min?: number;
+    temp_max?: number;
+  };
 }
 
 interface Trip {
@@ -37,11 +45,14 @@ interface Trip {
   destination: string;
   start_date: string;
   end_date: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export function useTimelineEvents(tripId: string | undefined) {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [events, setEvents] = useState<TimelineEvent[]>([]);
+  const [weatherForecast, setWeatherForecast] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const toastRef = useRef<any>(null);
 
@@ -58,14 +69,23 @@ export function useTimelineEvents(tripId: string | undefined) {
 
       // Fetch all data in parallel
       const [tripResult, activitiesResult, transportsResult, accommodationsResult] = await Promise.all([
-        supabase.from("trips").select("id, title, destination, start_date, end_date").eq("id", tripId).maybeSingle(),
+        supabase.from("trips").select("id, title, destination, start_date, end_date, latitude, longitude").eq("id", tripId).maybeSingle(),
         supabase.from("itinerary_activities").select("*").eq("trip_id", tripId).order("activity_date", { ascending: true }),
         supabase.from("transports").select("*").eq("trip_id", tripId).order("departure_datetime", { ascending: true }),
         supabase.from("accommodations").select("*").eq("trip_id", tripId).order("check_in", { ascending: true }),
       ]);
 
       if (tripResult.error) throw tripResult.error;
-      setTrip(tripResult.data);
+      const tripData = tripResult.data;
+      setTrip(tripData);
+
+      // Fetch weather if coordinates are available
+      if (tripData?.latitude && tripData?.longitude) {
+        const forecast = await getWeatherForecast(tripData.latitude, tripData.longitude);
+        if (forecast && forecast.list) {
+          setWeatherForecast(forecast.list);
+        }
+      }
 
       const allEvents: TimelineEvent[] = [];
 
@@ -218,13 +238,24 @@ export function useTimelineEvents(tripId: string | undefined) {
           return a.time.localeCompare(b.time);
         });
 
+      // Find weather for this day (take the one closest to 12:00 PM)
+      const dayWeather = weatherForecast.find(w => w.dt_txt.includes(dateStr) && w.dt_txt.includes("12:00:00")) 
+                       || weatherForecast.find(w => w.dt_txt.includes(dateStr));
+
       return {
         date,
         dateStr,
         events: dayEvents,
+        weather: dayWeather ? {
+          temp: Math.round(dayWeather.main.temp),
+          description: dayWeather.weather[0].description,
+          icon: dayWeather.weather[0].icon,
+          temp_min: Math.round(dayWeather.main.temp_min),
+          temp_max: Math.round(dayWeather.main.temp_max),
+        } : undefined
       };
     });
-  }, [trip, events]);
+  }, [trip, events, weatherForecast]);
 
   // Stats for the timeline
   const stats = useMemo(() => {
