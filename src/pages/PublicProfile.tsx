@@ -15,6 +15,8 @@ const getBadgeIcon = (iconName: string) => {
     case "Compass": return Compass;
     case "Zap": return Zap;
     case "Crown": return Crown;
+    case "Map": return MapPin; // Fallback to MapPin if Map icon is not imported or different
+    case "Calendar": return Calendar;
     default: return Trophy;
   }
 };
@@ -94,17 +96,21 @@ export default function PublicProfile() {
             </div>
 
             {/* STATS */}
-            <div className="flex gap-6 md:gap-8 bg-muted/30 p-4 rounded-xl border shrink-0">
-              <div className="text-center">
+            <div className="flex flex-wrap gap-4 md:gap-8 bg-muted/30 p-4 rounded-xl border shrink-0">
+              <div className="text-center min-w-[60px]">
                 <div className="text-2xl font-bold">{stats.totalTrips}</div>
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">Viaggi</div>
               </div>
-              <div className="text-center">
+              <div className="text-center min-w-[60px]">
                 <div className="text-2xl font-bold">{stats.totalCountries}</div>
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">Paesi</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold">{badges.length}</div>
+              <div className="text-center min-w-[60px]">
+                <div className="text-2xl font-bold">{stats.totalKm > 1000 ? `${(stats.totalKm / 1000).toFixed(1)}k` : stats.totalKm}</div>
+                <div className="text-xs text-muted-foreground uppercase tracking-wider">Km</div>
+              </div>
+              <div className="text-center min-w-[60px]">
+                <div className="text-2xl font-bold">{badges.filter(b => b.unlocked).length}</div>
                 <div className="text-xs text-muted-foreground uppercase tracking-wider">Badge</div>
               </div>
             </div>

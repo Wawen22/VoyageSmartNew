@@ -134,7 +134,10 @@ export default function Profile() {
     try {
       const { data, error } = await supabase
         .from("trips")
-        .select("*")
+        .select(`
+          *,
+          destinations:trip_destinations(id, name, latitude, longitude, order_index)
+        `)
         .order("start_date", { ascending: false });
 
       if (error) throw error;
@@ -153,7 +156,7 @@ export default function Profile() {
     fetchUserTrips();
   }, [user]);
 
-  const stats = useMemo(() => calculateUserStats(trips, userLocationCoords), [trips, userLocationCoords]);
+  const stats = useMemo(() => calculateUserStats(trips, { homeLocation: userLocationCoords }), [trips, userLocationCoords]);
   const badges = useMemo(() => getBadges(stats, trips), [stats, trips]);
 
   if (loading) {
@@ -288,22 +291,16 @@ export default function Profile() {
                             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Viaggi</p>
                           </div>
                           <div>
-                            <p className="text-2xl font-bold tracking-tighter tabular-nums text-primary">{stats.countriesVisited}</p>
+                            <p className="text-2xl font-bold tracking-tighter tabular-nums text-primary">{stats.totalCountries}</p>
                             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Paesi</p>
                           </div>
-                          <div className="col-span-2">
-                             <div className="flex items-center gap-2 mt-2">
-                               <div className="flex -space-x-2">
-                                 {badges.slice(0, 3).map((badge, i) => (
-                                   <div key={i} className={`p-1.5 rounded-full border-2 border-background shadow-sm ${badge.unlocked ? 'bg-amber-100' : 'bg-muted'}`}>
-                                      <Star className={`w-3 h-3 ${badge.unlocked ? 'text-amber-600 fill-amber-600' : 'text-muted-foreground'}`} />
-                                   </div>
-                                 ))}
-                               </div>
-                               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                                 {badges.filter(b => b.unlocked).length} Badge sbloccati
-                               </span>
-                             </div>
+                          <div>
+                            <p className="text-2xl font-bold tracking-tighter tabular-nums text-primary">{stats.totalKm > 1000 ? `${(stats.totalKm / 1000).toFixed(1)}k` : stats.totalKm}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Km Percorsi</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold tracking-tighter tabular-nums text-primary">{badges.filter(b => b.unlocked).length}</p>
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Badge</p>
                           </div>
                         </div>
                      </div>

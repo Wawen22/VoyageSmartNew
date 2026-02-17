@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { getBadges, UserStats, Badge as GameBadge } from "@/utils/gamification";
+import { getBadges, UserStats, Badge as GameBadge, calculateUserStats } from "@/utils/gamification";
 
 export interface PublicProfile {
   id: string;
@@ -25,6 +25,7 @@ export interface PublicTrip {
   country_code: string | null;
   latitude: number | null;
   longitude: number | null;
+  destinations?: any[];
 }
 
 export const usePublicProfile = (username: string | undefined) => {
@@ -43,15 +44,18 @@ export const usePublicProfile = (username: string | undefined) => {
       if (profileError) throw profileError;
       if (!profile) return null;
 
-      // 2. Get Public Trips
+      // 2. Get Public Trips with destinations
       const { data: trips } = await supabase
         .from('trips')
-        .select('id, title, destination, cover_image, start_date, end_date, status, country_code, latitude, longitude')
+        .select(`
+          id, title, destination, cover_image, start_date, end_date, status, country_code, latitude, longitude,
+          destinations:trip_destinations(id, name, latitude, longitude, order_index)
+        `)
         .eq('user_id', profile.user_id)
         .eq('is_public_shared', true)
         .order('start_date', { ascending: false });
 
-      // 3. Get Real Stats via RPC (Counts all trips, private included, bypassing RLS safely)
+      // 3. Get Real Stats via RPC (Counts all trips, private included)
       const { data: rpcStats, error: rpcError } = await supabase
         .rpc('get_profile_stats', { target_username: username });
 
@@ -61,16 +65,18 @@ export const usePublicProfile = (username: string | undefined) => {
 
       const publicTrips = (trips || []) as PublicTrip[];
       
-      // Construct Stats Object
+      // Calculate dynamic stats from all visible trips
+      const computedStats = calculateUserStats(publicTrips);
+
+      // Merge RPC stats with computed stats
       const stats: UserStats = {
         totalTrips: rpcStats?.total_trips || publicTrips.length,
-        totalCountries: rpcStats?.countries_visited || new Set(publicTrips.map(t => t.country_code).filter(Boolean)).size,
-        totalKm: 0, 
-        visitedCountries: [] 
+        totalCountries: rpcStats?.countries_visited || computedStats.totalCountries,
+        totalKm: computedStats.totalKm,
+        visitedCountries: computedStats.visitedCountries
       };
 
       // Calculate Badges dynamically
-      // Note: We use publicTrips for detailed logic (duration) but stats for counts
       const computedBadges = getBadges(stats, publicTrips);
 
       return {
