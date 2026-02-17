@@ -32,6 +32,7 @@ import { AddExpenseDialog } from "@/components/expenses/AddExpenseDialog";
 import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { useTripDetails } from "@/hooks/useTripDetails";
 import { TripNavBar } from "@/components/trip-details/navigation/TripNavBar";
+import { TripUXManager } from "@/components/layout/TripUXManager";
 
 interface Trip {
   id: string;
@@ -202,6 +203,23 @@ export default function Expenses() {
     );
   }
 
+  if (trips.length === 0 || !selectedTripId) {
+    return (
+      <AppLayout>
+        <main className="pt-24 pb-24 min-h-screen bg-background relative z-10">
+          <TripUXManager 
+            title="Gestione Spese" 
+            description="Seleziona un viaggio per visualizzare, aggiungere e dividere le spese con i tuoi compagni."
+            onTripSelected={(id) => {
+              setSelectedTripId(id);
+              setSearchParams({ trip: id });
+            }}
+          />
+        </main>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       {selectedTripId && <TripNavBar tripId={selectedTripId} />}
@@ -275,19 +293,9 @@ export default function Expenses() {
               </div>
             </div>
 
-            {trips.length === 0 ? (
-              <div className="text-center py-16 bg-muted/20 rounded-lg border border-dashed">
-                <p className="text-muted-foreground mb-4">
-                  Non fai parte di nessun viaggio ancora.
-                </p>
-                <Button variant="outline" onClick={() => navigate("/trips")}>
-                  Vai ai Viaggi
-                </Button>
-              </div>
-            ) : (
-              <>
-                {/* Stats Cards */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {/* Content removed: the TripUXManager handles the empty trips case now */}
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-lg bg-muted/40 border">
                     <div className="flex items-center justify-between mb-2">
                       <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -395,8 +403,6 @@ export default function Expenses() {
                     />
                   </div>
                 </div>
-              </>
-            )}
           </div>
         </div>
       </main>

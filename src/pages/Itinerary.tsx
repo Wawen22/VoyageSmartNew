@@ -18,6 +18,7 @@ import { TripAIAssistant } from "@/components/ai-assistant/TripAIAssistant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TripNavBar } from "@/components/trip-details/navigation/TripNavBar";
+import { TripUXManager } from "@/components/layout/TripUXManager";
 
 export default function Itinerary() {
   const [searchParams] = useSearchParams();
@@ -135,12 +136,13 @@ export default function Itinerary() {
   if (!loading && !trip) {
     return (
       <AppLayout>
-        <div className="container mx-auto px-4 pt-24 text-center relative z-10">
-          <h1 className="text-2xl font-semibold mb-4">Viaggio non trovato</h1>
-          <Button asChild>
-            <Link to="/trips">Torna ai viaggi</Link>
-          </Button>
-        </div>
+        <main className="pt-24 pb-24 min-h-screen bg-background relative z-10">
+          <TripUXManager 
+            title="Seleziona un Viaggio" 
+            description="Scegli il viaggio per visualizzare il suo itinerario dettagliato."
+            onTripSelected={(id) => navigate(`/itinerary?trip=${id}`)}
+          />
+        </main>
       </AppLayout>
     );
   }
