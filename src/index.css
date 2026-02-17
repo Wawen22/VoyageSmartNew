@@ -10,14 +10,14 @@
 
 @layer base {
   html {
-    font-size: 13px; /* Reduced base size for "zoomed out" feel (approx 81% of 16px) */
+    font-size: 13px;
     @screen md {
-      font-size: 14px; /* Slightly larger on tablet/desktop but still compact */
+      font-size: 14px;
     }
   }
 
   :root {
-    /* Core Brand Colors - Ocean to Sunset Journey */
+    /* LIGHT MODE - Neutral & Elegant */
     --background: 40 33% 98%;
     --foreground: 220 25% 10%;
 
@@ -27,19 +27,15 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 25% 10%;
 
-    /* Primary - Deep Ocean Blue */
     --primary: 200 80% 35%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Warm Coral Sunset */
     --secondary: 12 85% 62%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Muted - Soft Sand */
     --muted: 40 20% 94%;
     --muted-foreground: 220 10% 45%;
 
-    /* Accent - Fresh Teal */
     --accent: 174 60% 45%;
     --accent-foreground: 0 0% 100%;
 
@@ -50,122 +46,61 @@
     --input: 220 15% 90%;
     --ring: 200 80% 35%;
 
-    --radius: 0.5rem; /* Reduced from 0.75rem for a tighter, more modern look */
-
-    /* Extended Palette */
-    --ocean-deep: 200 85% 25%;
-    --ocean-light: 200 70% 50%;
-    --sunset-warm: 25 95% 55%;
-    --sunset-glow: 35 100% 70%;
-    --forest: 160 50% 40%;
-    --sky: 200 60% 75%;
-    --sand: 40 30% 90%;
-
-    /* Gradients */
-    --gradient-ocean: linear-gradient(135deg, hsl(200 80% 35%) 0%, hsl(200 70% 50%) 100%);
-    --gradient-sunset: linear-gradient(135deg, hsl(12 85% 62%) 0%, hsl(35 100% 70%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(200 85% 25%) 0%, hsl(200 80% 35%) 50%, hsl(174 60% 45%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+    --radius: 0.75rem;
 
     /* Shadows */
-    --shadow-sm: 0 2px 8px -2px rgba(10, 50, 80, 0.08);
-    --shadow-md: 0 8px 24px -8px rgba(10, 50, 80, 0.12);
-    --shadow-lg: 0 16px 48px -12px rgba(10, 50, 80, 0.16);
-    --shadow-glow: 0 0 40px -10px hsl(200 80% 35% / 0.3);
     --shadow-card: 0 4px 20px -4px rgba(10, 50, 80, 0.1);
-
-    /* Sidebar - keeping for compatibility */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --shadow-soft: 0 10px 30px -10px rgba(10, 50, 80, 0.15);
+    
+    /* App Specific */
+    --gradient-app: linear-gradient(135deg, hsl(210 30% 98%) 0%, hsl(214 35% 96%) 50%, hsl(210 30% 97%) 100%);
   }
 
   .dark {
-    --background: 220 25% 8%;
-    --foreground: 40 20% 95%;
+    /* DARK MODE - Deep & Sophisticated */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 220 25% 12%;
-    --card-foreground: 40 20% 95%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 40 20% 95%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 200 70% 55%;
-    --primary-foreground: 220 25% 8%;
+    --primary: 200 90% 60%;
+    --primary-foreground: 240 10% 3.9%;
 
-    --secondary: 12 75% 55%;
+    --secondary: 12 90% 65%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 20% 18%;
-    --muted-foreground: 220 15% 60%;
+    --muted: 240 5% 12%;
+    --muted-foreground: 240 5% 65%;
 
-    --accent: 174 55% 50%;
-    --accent-foreground: 220 25% 8%;
-
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 20% 20%;
-    --input: 220 20% 20%;
-    --ring: 200 70% 55%;
-
-    --ocean-deep: 200 75% 40%;
-    --ocean-light: 200 65% 55%;
-    --sunset-warm: 25 85% 50%;
-    --sunset-glow: 35 90% 60%;
-
-    --gradient-ocean: linear-gradient(135deg, hsl(200 75% 40%) 0%, hsl(200 65% 55%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(220 25% 12%) 0%, hsl(200 75% 40%) 50%, hsl(174 55% 50%) 100%);
-
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  /* App-only theme overrides (keeps landing unchanged) */
-  .app-theme {
-    --background: 210 30% 98%;
-    --foreground: 222 28% 12%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222 28% 12%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 28% 12%;
-
-    --primary: 212 78% 42%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 35% 92%;
-    --secondary-foreground: 222 28% 16%;
-
-    --muted: 214 30% 94%;
-    --muted-foreground: 220 10% 42%;
-
-    --accent: 168 55% 36%;
+    --accent: 174 70% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --border: 214 24% 86%;
-    --input: 214 24% 86%;
-    --ring: 212 78% 42%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --radius: 1rem;
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 200 90% 60%;
 
-    --shadow-card: 0 18px 42px -26px rgba(15, 23, 42, 0.32);
-    --shadow-soft: 0 28px 70px -40px rgba(15, 23, 42, 0.38);
+    /* Shadows */
+    --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --shadow-soft: 0 20px 60px -20px rgba(0, 0, 0, 0.7);
+    
+    /* App Specific */
+    --gradient-app: none;
+  }
 
-    --gradient-app: linear-gradient(135deg, hsl(210 30% 98%) 0%, hsl(214 35% 96%) 50%, hsl(210 30% 97%) 100%);
-    --gradient-hero: linear-gradient(120deg, hsl(212 78% 42%) 0%, hsl(188 60% 35%) 55%, hsl(212 78% 42%) 100%);
+  /* Force Dark Colors inside .dark for any specific layout class if needed */
+  .dark .app-theme {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 6%;
+    --border: 240 5% 15%;
+    --muted: 240 5% 12%;
   }
 }
 
@@ -174,191 +109,84 @@
     @apply border-border;
   }
 
+  body {
+    @apply bg-background text-foreground font-sans antialiased transition-colors duration-300;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+  
   html {
     scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 }
 
 @layer utilities {
-  .text-gradient-ocean {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-ocean);
+  .app-shell {
+    background-image: var(--gradient-app);
+    min-height: 100vh;
+  }
+  
+  .dark .app-shell {
+    background-image: none;
+    background-color: hsl(var(--background));
   }
 
-  .text-gradient-sunset {
-    @apply bg-clip-text text-transparent;
-    background-image: var(--gradient-sunset);
-  }
-
-  .bg-gradient-ocean {
-    background-image: var(--gradient-ocean);
-  }
-
-  .bg-gradient-sunset {
-    background-image: var(--gradient-sunset);
-  }
-
-  .bg-gradient-hero {
-    background-image: var(--gradient-hero);
+  .glass {
+    @apply backdrop-blur-xl bg-white/70 border border-white/20 dark:bg-zinc-900/60 dark:border-white/10;
   }
 
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
 
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .glass {
-    @apply backdrop-blur-xl bg-white/80 border border-white/20;
-  }
-
-  .glass-dark {
-    @apply backdrop-blur-xl bg-black/20 border border-white/10;
-  }
-
-  .app-shell {
-    background-image: var(--gradient-app);
-  }
-
-  .app-surface {
-    @apply rounded-2xl border border-border/60 bg-card/85 backdrop-blur;
-    box-shadow: var(--shadow-card);
-  }
-
-  .app-surface-strong {
-    @apply rounded-3xl border border-border/70 bg-card;
+  .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
 
-  .app-section {
-    @apply rounded-2xl border border-border/60 bg-muted/40;
+  .text-3d-modern {
+    text-shadow: 
+      1px 1px 0 rgba(0,0,0,0.1),
+      2px 2px 0 rgba(0,0,0,0.05);
+  }
+  
+  .dark .text-3d-modern {
+    text-shadow: 0 0 20px rgba(255,255,255,0.1);
   }
 
-  .app-pill {
-    @apply inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold;
+  /* Scrollbar hide utility */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
-
-  .app-grid {
-    background-image:
-      linear-gradient(to right, hsl(var(--foreground) / 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, hsl(var(--foreground) / 0.05) 1px, transparent 1px);
-    background-size: 32px 32px;
-    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
-    opacity: 0.35;
-  }
-
-  .app-orb {
-    position: absolute;
-    border-radius: 9999px;
-    filter: blur(50px);
-    opacity: 0.7;
-  }
-
-  .app-orb-1 {
-    width: 320px;
-    height: 320px;
-    top: -140px;
-    right: -90px;
-    background: hsl(var(--primary) / 0.16);
-  }
-
-  .app-orb-2 {
-    width: 260px;
-    height: 260px;
-    bottom: 12%;
-    left: -120px;
-    background: hsl(var(--accent) / 0.14);
-  }
-
-  .app-orb-3 {
-    width: 220px;
-    height: 220px;
-    top: 38%;
-    left: 58%;
-    background: hsl(var(--secondary) / 0.45);
-  }
-
-  /* Scrollbar Utilities */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar-track {
-    display: none;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar-thumb {
-    display: none;
-  }
 }
 
 /* Custom Animations */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px -5px hsl(200 80% 35% / 0.3); }
-  50% { box-shadow: 0 0 40px -5px hsl(200 80% 35% / 0.5); }
+/* Background Orbs for AppLayout */
+.app-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+.dark .app-orb {
+  opacity: 0.08;
+  filter: blur(120px);
 }
 
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-/* Mapbox Custom Popup Overrides */
-.mapboxgl-popup {
-  z-index: 50;
-}
-
-.mapboxgl-popup-content {
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-
-.mapboxgl-popup-tip {
-  display: none !important;
-}
-
-.mapboxgl-popup-close-button {
-  display: none !important;
-}
-@layer utilities {
-  .text-3d-modern {
-    text-shadow: 
-      1px 1px 0 rgba(0,0,0,0.1),
-      2px 2px 0 rgba(0,0,0,0.05),
-      3px 3px 0 rgba(0,0,0,0.05),
-      4px 4px 5px rgba(0,0,0,0.1);
-  }
-}
+.app-orb-1 { width: 400px; height: 400px; top: -100px; right: -100px; background: hsl(var(--primary)); }
+.app-orb-2 { width: 350px; height: 350px; bottom: 10%; left: -150px; background: hsl(var(--accent)); }
+.app-orb-3 { width: 300px; height: 300px; top: 40%; right: 20%; background: hsl(var(--secondary)); }

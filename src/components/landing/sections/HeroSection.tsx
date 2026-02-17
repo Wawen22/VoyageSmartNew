@@ -25,7 +25,7 @@ const floatingBadges = [
     label: "Chat-to-Plan",
     desc: "Da messaggio a itinerario",
     icon: MessageSquareText,
-    className: "bg-white/80 text-slate-900",
+    className: "bg-primary/10 text-primary",
   },
   {
     label: "Wallet + Cassaforte",
@@ -144,7 +144,7 @@ export function HeroSection() {
               {floatingBadges.map((badge) => (
                 <div
                   key={badge.label}
-                  className="rounded-2xl border border-white/60 bg-white/70 p-4 shadow-card backdrop-blur-sm"
+                  className="rounded-2xl border border-border/60 bg-card/70 p-4 shadow-card backdrop-blur-sm"
                 >
                   <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${badge.className}`}>
                     <badge.icon className="h-4 w-4" />
@@ -163,7 +163,7 @@ export function HeroSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="relative hidden lg:block"
           >
-            <div className="relative rounded-[2rem] border border-white/40 bg-white/70 p-4 shadow-2xl backdrop-blur-md">
+            <div className="relative rounded-[2rem] border border-border/40 bg-card/70 p-4 shadow-2xl backdrop-blur-md">
               <button
                 type="button"
                 onClick={() => setDemoOpen(true)}
@@ -186,7 +186,7 @@ export function HeroSection() {
               </button>
             </div>
 
-            <div className="absolute -right-8 top-10 hidden w-36 rounded-[1.25rem] border border-white/50 bg-white/80 p-2 shadow-card backdrop-blur-sm lg:block">
+            <div className="absolute -right-8 top-10 hidden w-36 rounded-[1.25rem] border border-border/50 bg-card/80 p-2 shadow-card backdrop-blur-sm lg:block">
               <div className="aspect-[9/16] overflow-hidden rounded-[1rem] bg-slate-900">
                 <video
                   className="h-full w-full object-cover"
@@ -203,9 +203,9 @@ export function HeroSection() {
               </p>
             </div>
 
-            <div className="absolute -left-10 top-8 hidden rounded-2xl border border-white/60 bg-white/80 p-4 shadow-card backdrop-blur-sm lg:block">
+            <div className="absolute -left-10 top-8 hidden rounded-2xl border border-border/60 bg-card/80 p-4 shadow-card backdrop-blur-sm lg:block">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 text-amber-600">
                   <Wallet className="h-5 w-5" />
                 </div>
                 <div>
@@ -215,9 +215,9 @@ export function HeroSection() {
               </div>
             </div>
 
-            <div className="absolute -right-8 bottom-10 hidden rounded-2xl border border-white/60 bg-white/80 p-4 shadow-card backdrop-blur-sm lg:block">
+            <div className="absolute -right-8 bottom-10 hidden rounded-2xl border border-border/60 bg-card/80 p-4 shadow-card backdrop-blur-sm lg:block">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-500/10 text-indigo-600">
                   <MessageSquareText className="h-5 w-5" />
                 </div>
                 <div>

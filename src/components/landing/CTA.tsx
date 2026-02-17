@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Globe, Shield, CreditCard } from "lucide-react";
+import { ArrowRight, Sparkles, Globe, Shield, CreditCard, Moon } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export function CTA() {
   return (
-    <section className="py-24 lg:py-32 relative overflow-hidden bg-white dark:bg-slate-950">
+    <section className="py-24 lg:py-32 relative overflow-hidden bg-background">
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="relative rounded-[2.5rem] overflow-hidden bg-slate-900 px-8 py-16 md:px-16 md:py-24 text-center">
+          <div className="relative rounded-[2.5rem] overflow-hidden bg-slate-900 px-8 py-16 md:px-16 md:py-24 text-center border border-white/5 shadow-soft">
             
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-10">
@@ -87,6 +87,10 @@ export function CTA() {
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4" />
                   <span>Sicuro e Privato</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Moon className="w-4 h-4" />
+                  <span>Dark Mode Pro</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4" />

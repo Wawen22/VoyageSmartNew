@@ -175,7 +175,7 @@ export function TripStatusWidget({ trip }: TripStatusWidgetProps) {
       {/* HEADER */}
       <div className="flex justify-between items-start relative z-10 mb-6">
         <div className="flex items-center gap-2.5">
-            <div className={cn("p-2.5 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-md shadow-sm ring-1 ring-inset ring-black/5", theme.iconColor)}>
+            <div className={cn("p-2.5 rounded-xl bg-white/50 dark:bg-white/10 backdrop-blur-md shadow-sm ring-1 ring-inset ring-black/5 dark:ring-white/10", theme.iconColor)}>
                 <Icon className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
@@ -186,7 +186,7 @@ export function TripStatusWidget({ trip }: TripStatusWidgetProps) {
             </div>
         </div>
         
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/40 dark:bg-black/10 border border-white/20 dark:border-white/5 text-xs font-medium text-foreground/80 backdrop-blur-sm shadow-sm">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/40 dark:bg-white/5 border border-white/20 dark:border-white/10 text-xs font-medium text-foreground/80 backdrop-blur-sm shadow-sm">
             <CalendarIcon className="w-3.5 h-3.5 text-muted-foreground" />
             <span>{format(startDate, "d MMM", { locale: it })}</span>
             <ArrowRight className="w-3 h-3 opacity-30" />
@@ -212,7 +212,7 @@ export function TripStatusWidget({ trip }: TripStatusWidgetProps) {
                 <div key={dest.id || index} className="flex items-center group/dest">
                     <div className={cn(
                       "flex items-center gap-1.5 px-2.5 py-1 rounded-lg border transition-colors",
-                      "bg-white/40 dark:bg-white/5 border-black/5 dark:border-white/5",
+                      "bg-white/40 dark:bg-white/5 border-black/5 dark:border-white/10",
                       "group-hover/dest:bg-white/60 dark:group-hover/dest:bg-white/10"
                     )}>
                         <MapPin className="w-3 h-3 text-muted-foreground group-hover/dest:text-foreground transition-colors" />

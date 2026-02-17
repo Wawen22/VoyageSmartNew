@@ -61,7 +61,7 @@ export function CurrencyWidget({ tripCurrency, userCurrency = "EUR" }: CurrencyW
             </span>
         </div>
         {rate && (
-           <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-white/40 dark:bg-black/10 px-2 py-1 rounded-full border border-white/20">
+           <div className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground bg-white/20 dark:bg-white/5 px-2 py-1 rounded-full border border-white/10 dark:border-white/5">
               <TrendingUp className="w-3 h-3 text-amber-500" />
               1 {from} = {rate.toFixed(2)} {to}
            </div>
@@ -71,7 +71,7 @@ export function CurrencyWidget({ tripCurrency, userCurrency = "EUR" }: CurrencyW
       {/* Converter Content */}
       <div className="mt-4 relative z-10 space-y-3">
          {/* Input Row (FROM) */}
-         <div className="flex items-center gap-2 bg-white/50 dark:bg-black/20 rounded-2xl p-2 border border-black/5 focus-within:ring-1 focus-within:ring-amber-500/50 transition-all">
+         <div className="flex items-center gap-2 bg-background/50 dark:bg-black/20 rounded-2xl p-2 border border-black/5 dark:border-white/5 focus-within:ring-1 focus-within:ring-amber-500/50 transition-all">
             <span className="text-sm font-bold text-muted-foreground pl-2">{from}</span>
             <Input 
               type="number" 

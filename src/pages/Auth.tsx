@@ -282,10 +282,10 @@ export default function Auth() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="hidden lg:block"
           >
-            <div className="relative h-[600px] overflow-hidden rounded-[2.5rem] border border-white/40 bg-white/70 shadow-2xl backdrop-blur-md">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-sky-200/40 via-background to-background" />
-              <div className="absolute -top-16 -right-10 h-56 w-56 rounded-full bg-emerald-400/25 blur-[120px]" />
-              <div className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-amber-400/20 blur-[140px]" />
+            <div className="relative h-[600px] overflow-hidden rounded-[2.5rem] border border-border/40 bg-card/70 shadow-2xl backdrop-blur-md">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
+              <div className="absolute -top-16 -right-10 h-56 w-56 rounded-full bg-emerald-400/20 blur-[120px]" />
+              <div className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-amber-400/15 blur-[140px]" />
               <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,rgba(15,23,42,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.08)_1px,transparent_1px)] [background-size:40px_40px]" />
 
               <div className="relative z-10 flex h-full flex-col justify-between p-10">
@@ -304,12 +304,12 @@ export default function Auth() {
                 </div>
 
                 <div className="grid gap-4">
-                  <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 p-5 shadow-card backdrop-blur-sm">
+                  <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-5 shadow-card backdrop-blur-sm">
                     <div className="absolute -right-6 -top-6 text-emerald-500/10">
                       <MapPin className="h-20 w-20" />
                     </div>
                     <div className="relative z-10 flex items-start gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-700">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                         <MapPin className="h-5 w-5" />
                       </div>
                       <div>
@@ -319,12 +319,12 @@ export default function Auth() {
                     </div>
                   </div>
 
-                  <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 p-5 shadow-card backdrop-blur-sm">
+                  <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-5 shadow-card backdrop-blur-sm">
                     <div className="absolute -right-6 -top-6 text-indigo-500/10">
                       <Wallet className="h-20 w-20" />
                     </div>
                     <div className="relative z-10 flex items-start gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-700">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                         <Wallet className="h-5 w-5" />
                       </div>
                       <div>
@@ -334,12 +334,12 @@ export default function Auth() {
                     </div>
                   </div>
 
-                  <div className="relative overflow-hidden rounded-3xl border border-white/60 bg-white/80 p-5 shadow-card backdrop-blur-sm">
+                  <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/80 p-5 shadow-card backdrop-blur-sm">
                     <div className="absolute -right-6 -top-6 text-amber-500/10">
                       <Sparkles className="h-20 w-20" />
                     </div>
                     <div className="relative z-10 flex items-start gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-700">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
                         <Sparkles className="h-5 w-5" />
                       </div>
                       <div>
@@ -351,11 +351,11 @@ export default function Auth() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Dati Protetti
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-700">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
                     <User className="h-3.5 w-3.5" />
                     Collaborazione real-time
                   </div>

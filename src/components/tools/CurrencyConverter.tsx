@@ -120,7 +120,7 @@ export function CurrencyConverter() {
                     )}
                 </div>
                 <Select value={toCurrency} onValueChange={setToCurrency}>
-                    <SelectTrigger className="w-full h-12 bg-white/50 dark:bg-black/20 border-0 rounded-xl font-bold text-lg hover:bg-white/80 dark:hover:bg-black/30 transition-colors text-amber-800 dark:text-amber-300">
+                    <SelectTrigger className="w-full h-12 bg-white/50 dark:bg-white/5 border-0 rounded-xl font-bold text-lg hover:bg-white/80 dark:hover:bg-white/10 transition-colors text-amber-800 dark:text-amber-300">
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">

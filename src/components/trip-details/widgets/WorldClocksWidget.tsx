@@ -91,7 +91,7 @@ export function WorldClocksWidget({ latitude, longitude, destinationName }: Worl
                       "text-[10px] font-bold px-2 py-1 rounded-full border backdrop-blur-md",
                       destTheme === 'night' 
                         ? "bg-white/10 border-white/10 text-white/70" 
-                        : "bg-white/40 border-black/5 text-black/60 dark:bg-white/10 dark:text-white/70"
+                        : "bg-white/20 border-black/5 dark:bg-white/10 dark:border-white/10 text-black/60 dark:text-white/70"
                   )}>
                     {offset}
                   </span>

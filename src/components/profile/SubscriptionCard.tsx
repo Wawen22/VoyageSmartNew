@@ -139,6 +139,9 @@ export function SubscriptionCard() {
               <CheckCircle2 className="w-4 h-4 text-green-500" /> AI Assistant Illimitato
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4 text-green-500" /> Dark Mode Pro 🌙
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="w-4 h-4 text-green-500" /> Export PDF & Calendario
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -176,6 +179,9 @@ export function SubscriptionCard() {
           <div className="grid gap-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="w-4 h-4 text-green-500" /> AI Assistant Illimitato
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4 text-green-500" /> Dark Mode Pro 🌙
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="w-4 h-4 text-green-500" /> Export PDF & Calendario

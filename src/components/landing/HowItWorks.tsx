@@ -94,7 +94,7 @@ export function HowItWorks() {
 
                 <div className="relative z-10 flex flex-col h-full">
                   <div className="mb-8 flex items-center justify-between">
-                    <div className={`w-14 h-14 rounded-2xl bg-white dark:bg-black/20 flex items-center justify-center shadow-sm border ${step.border}`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-card dark:bg-zinc-900 flex items-center justify-center shadow-sm border ${step.border}`}>
                       <step.icon className={`w-7 h-7 ${step.accent}`} />
                     </div>
                     <span className={`text-4xl font-black opacity-10 ${step.accent}`}>

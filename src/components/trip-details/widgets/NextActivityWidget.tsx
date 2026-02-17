@@ -220,7 +220,7 @@ function TransportContent({ event, onMapClick }: { event: NextEvent, onMapClick:
 
        {/* Journey Grid */}
        <div className="grid grid-cols-2 gap-3 relative z-10">
-          <div className="bg-white/40 dark:bg-black/20 rounded-xl p-3 border border-white/20 dark:border-white/5 relative overflow-hidden">
+          <div className="bg-white/40 dark:bg-card/40 backdrop-blur-md rounded-xl p-3 border border-white/20 dark:border-white/10 relative overflow-hidden shadow-sm">
              <div className={cn("absolute top-0 left-0 w-1 h-full", theme.accentBarColor)}></div>
              <div className="pl-1.5">
                <span className="text-[10px] font-bold uppercase opacity-60">Partenza</span>
@@ -229,7 +229,7 @@ function TransportContent({ event, onMapClick }: { event: NextEvent, onMapClick:
              </div>
           </div>
 
-          <div className="bg-white/40 dark:bg-black/20 rounded-xl p-3 border border-white/20 dark:border-white/5 relative overflow-hidden">
+          <div className="bg-white/40 dark:bg-card/40 backdrop-blur-md rounded-xl p-3 border border-white/20 dark:border-white/10 relative overflow-hidden shadow-sm">
              <div className={cn("absolute top-0 left-0 w-1 h-full opacity-60", theme.accentBarColor)}></div>
              <div className="pl-1.5">
                <span className="text-[10px] font-bold uppercase opacity-60">Arrivo</span>
@@ -245,16 +245,16 @@ function TransportContent({ event, onMapClick }: { event: NextEvent, onMapClick:
        <div className="flex items-center justify-between mt-4 pt-3 border-t border-black/5 dark:border-white/5">
           <div className="flex items-center gap-2">
              {durationStr && (
-               <Badge variant="secondary" className="bg-white/50 dark:bg-white/10 text-xs font-normal gap-1">
+               <Badge variant="secondary" className="bg-white/50 dark:bg-white/10 text-xs font-normal gap-1 hover:bg-white/60 dark:hover:bg-white/20 transition-colors">
                   <Timer className="w-3 h-3" /> {durationStr}
                </Badge>
              )}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/50" onClick={onMapClick}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/50 dark:hover:bg-white/10 rounded-full" onClick={onMapClick}>
                <MapIcon className="w-4 h-4 text-muted-foreground" />
             </Button>
-            <div className="bg-white/50 dark:bg-white/10 rounded-full p-1.5">
+            <div className="bg-white/50 dark:bg-white/10 rounded-full p-1.5 transition-transform hover:scale-110">
                <ArrowRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </div>
@@ -305,7 +305,7 @@ function AccommodationContent({ event, onMapClick }: { event: NextEvent, onMapCl
 
        {/* Dates Grid */}
        <div className="grid grid-cols-2 gap-3 relative z-10">
-          <div className="bg-white/40 dark:bg-black/20 rounded-xl p-3 border border-white/20 dark:border-white/5 relative overflow-hidden">
+          <div className="bg-white/40 dark:bg-card/40 backdrop-blur-md rounded-xl p-3 border border-white/20 dark:border-white/10 relative overflow-hidden shadow-sm">
              <div className="absolute top-0 left-0 w-1 h-full bg-rose-500/50"></div>
              <div className="pl-1.5">
                <span className="text-[10px] font-bold uppercase opacity-60 text-rose-600">Check-in</span>
@@ -314,7 +314,7 @@ function AccommodationContent({ event, onMapClick }: { event: NextEvent, onMapCl
              </div>
           </div>
 
-          <div className="bg-white/40 dark:bg-black/20 rounded-xl p-3 border border-white/20 dark:border-white/5 relative overflow-hidden">
+          <div className="bg-white/40 dark:bg-card/40 backdrop-blur-md rounded-xl p-3 border border-white/20 dark:border-white/10 relative overflow-hidden shadow-sm">
              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/50"></div>
              <div className="pl-1.5">
                <span className="text-[10px] font-bold uppercase opacity-60 text-indigo-600">Check-out</span>
@@ -325,14 +325,14 @@ function AccommodationContent({ event, onMapClick }: { event: NextEvent, onMapCl
        </div>
 
        <div className="flex items-center justify-between mt-4 pt-3 border-t border-black/5 dark:border-white/5">
-          <Badge variant="secondary" className="bg-white/50 dark:bg-white/10 text-xs font-normal gap-1">
+          <Badge variant="secondary" className="bg-white/50 dark:bg-white/10 text-xs font-normal gap-1 hover:bg-white/60 dark:hover:bg-white/20 transition-colors">
              <Moon className="w-3 h-3" /> {nights} {nights === 1 ? "notte" : "notti"}
           </Badge>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/50" onClick={onMapClick}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/50 dark:hover:bg-white/10 rounded-full" onClick={onMapClick}>
                <MapIcon className="w-4 h-4 text-muted-foreground" />
             </Button>
-            <div className="bg-white/50 dark:bg-white/10 rounded-full p-1.5">
+            <div className="bg-white/50 dark:bg-white/10 rounded-full p-1.5 transition-transform hover:scale-110">
                <ArrowRight className="w-4 h-4 text-muted-foreground" />
             </div>
           </div>
@@ -384,7 +384,7 @@ function ActivityContent({ event, onMapClick }: { event: NextEvent, onMapClick: 
        </div>
 
        {/* Time & Location */}
-       <div className="space-y-2 relative z-10 bg-white/40 dark:bg-black/20 rounded-xl p-3 border border-white/20 dark:border-white/5">
+       <div className="space-y-2 relative z-10 bg-white/40 dark:bg-card/40 backdrop-blur-md rounded-xl p-3 border border-white/20 dark:border-white/10 shadow-sm">
           <div className="flex items-center gap-2">
              <CalendarIcon className="w-4 h-4 text-violet-500" />
              <span className="text-sm font-medium capitalize">{getDayLabel()}</span>
@@ -404,10 +404,10 @@ function ActivityContent({ event, onMapClick }: { event: NextEvent, onMapClick: 
        </div>
 
        <div className="flex items-center justify-end mt-4 pt-3 border-t border-black/5 dark:border-white/5 gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/50" onClick={onMapClick}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/50 dark:hover:bg-white/10 rounded-full" onClick={onMapClick}>
                <MapIcon className="w-4 h-4 text-muted-foreground" />
           </Button>
-          <div className="bg-white/50 dark:bg-white/10 rounded-full p-1.5">
+          <div className="bg-white/50 dark:bg-white/10 rounded-full p-1.5 transition-transform hover:scale-110">
              <ArrowRight className="w-4 h-4 text-muted-foreground" />
           </div>
        </div>

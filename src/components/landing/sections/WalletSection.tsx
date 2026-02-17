@@ -59,9 +59,9 @@ export function WalletSection() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ y: -5 }}
-                  className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/5 to-white/10 dark:from-white/5 dark:to-white/[0.02] p-6 shadow-sm backdrop-blur-sm"
+                  className="relative overflow-hidden rounded-3xl border border-border/40 bg-card/50 p-6 shadow-sm backdrop-blur-sm"
                 >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl mb-4 shadow-sm border border-white/20 bg-white dark:bg-black/20 ${item.color.split(' ')[1]}`}>
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl mb-4 shadow-sm border border-border/40 bg-card ${item.color.split(' ')[1]}`}>
                     <item.icon className="h-6 w-6" />
                   </div>
                   <h3 className="text-lg font-bold text-foreground mb-2">{item.title}</h3>
@@ -79,8 +79,8 @@ export function WalletSection() {
             className="relative"
           >
             {/* Main Video Container with Glassmorphism */}
-            <div className="relative rounded-[2.5rem] border border-white/20 bg-gradient-to-br from-emerald-500/10 via-white/5 to-sky-500/10 p-4 shadow-2xl backdrop-blur-sm">
-              <div className="relative rounded-[2rem] overflow-hidden border border-white/20 bg-slate-950 shadow-inner">
+            <div className="relative rounded-[2.5rem] border border-border/40 bg-card/50 p-4 shadow-2xl backdrop-blur-sm">
+              <div className="relative rounded-[2rem] overflow-hidden border border-border/40 bg-slate-950 shadow-inner">
                 {/* Pro Badge - Refined */}
                 <div className="absolute right-6 top-6 z-20 rounded-full border border-amber-400/30 bg-amber-400/10 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-amber-500 shadow-lg">
                   <span className="flex items-center gap-1.5">

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ToolsDialog } from "@/components/tools/ToolsDialog";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { 
   Menu, 
   Plane,
@@ -380,6 +381,7 @@ export function Navbar() {
             <div className="hidden lg:flex items-center gap-3 shrink-0">
               {user ? (
                 <>
+                  <ThemeToggle />
                   <ChecklistButton />
                   
                   <button
@@ -477,8 +479,10 @@ export function Navbar() {
             <div className="flex lg:hidden items-center gap-1 ml-auto">
               {user && (
                 <>
+                   {/* Theme Toggle */}
+                   <ThemeToggle />
+                   
                    {/* Checklist */}
-                   {activeTripId && <ChecklistButton />}
                    
                    {/* Chat */}
                    <Link to={chatHref} className="p-2 rounded-xl transition-colors relative text-foreground hover:bg-muted/70">

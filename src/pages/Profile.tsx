@@ -534,6 +534,7 @@ export default function Profile() {
                          <h4 className="text-xl font-bold">Perché Premium?</h4>
                          <ul className="space-y-3">
                            {[
+                             "Dark Mode Pro per un'esperienza riposante",
                              "Pianifica viaggi senza limiti di destinazioni",
                              "Consigli AI personalizzati in tempo reale",
                              "Accesso esclusivo alle nuove funzionalità",

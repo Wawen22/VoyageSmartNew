@@ -125,7 +125,7 @@ export function AIShowcase() {
             <motion.div
               animate={{ y: [0, 10, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-6 -left-6 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl shadow-xl z-20 hidden sm:block"
+              className="absolute -bottom-6 -left-6 bg-card dark:bg-zinc-900 border border-border dark:border-white/10 p-4 rounded-2xl shadow-xl z-20 hidden sm:block"
             >
               <MessageSquare className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </motion.div>

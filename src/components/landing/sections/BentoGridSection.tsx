@@ -109,13 +109,13 @@ export function BentoGridSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: index * 0.05 }}
-              className={`group relative overflow-hidden rounded-[2rem] border border-white/10 dark:border-white/5 bg-gradient-to-br ${feature.gradient} p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5`}
+              className={`group relative overflow-hidden rounded-[2rem] border border-border/40 bg-gradient-to-br ${feature.gradient} p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5`}
             >
               <div className="absolute -right-8 -top-8 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6 opacity-[0.06]">
                 <feature.icon className={`h-32 w-32 ${feature.iconColor}`} />
               </div>
               <div className="relative z-10">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white dark:bg-black/20 shadow-sm border border-white/20 transition-transform duration-300 group-hover:scale-110 ${feature.iconColor}`}>
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-card shadow-sm border border-border/40 transition-transform duration-300 group-hover:scale-110 ${feature.iconColor}`}>
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <h3 className="mt-6 text-xl font-bold text-foreground tracking-tight">{feature.title}</h3>

@@ -61,13 +61,13 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
 
         <div className="flex items-center gap-2 pl-2">
           {accommodation.price && (
-            <div className="hidden sm:block font-semibold text-sm bg-white/40 dark:bg-black/20 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/20 dark:border-white/5 shadow-sm whitespace-nowrap">
+            <div className="hidden sm:block font-semibold text-sm bg-white/40 dark:bg-card/40 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-white/20 dark:border-white/10 shadow-sm whitespace-nowrap">
               €{accommodation.price.toFixed(2)}
             </div>
           )}
           <div className="flex items-center gap-0.5">
              {accommodation.booking_url && (
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-white/40 dark:hover:bg-black/20" asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-white/40 dark:hover:bg-white/10" asChild>
                   <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="h-4 w-4" />
                   </a>
@@ -77,7 +77,7 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive transition-colors hover:bg-white/40 dark:hover:bg-black/20"
+              className="h-8 w-8 text-muted-foreground hover:text-destructive transition-colors hover:bg-white/40 dark:hover:bg-white/10"
               onClick={handleDelete}
             >
               <Trash2 className="h-4 w-4" />
@@ -89,7 +89,7 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
       <CardContent className="p-4 pt-2 relative z-10">
          {/* Mobile Price */}
          {accommodation.price && (
-           <div className="sm:hidden mb-4 font-semibold text-sm bg-white/40 dark:bg-black/20 px-2 py-1 rounded-md inline-block">
+           <div className="sm:hidden mb-4 font-semibold text-sm bg-white/40 dark:bg-card/40 px-2 py-1 rounded-md inline-block">
              €{accommodation.price.toFixed(2)}
            </div>
          )}
@@ -97,12 +97,12 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
         {/* Stay Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 py-3">
             {/* Check-in Section */}
-            <div className="bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-xl p-3 border border-white/20 dark:border-white/5 relative overflow-hidden shadow-sm">
+            <div className="bg-white/40 dark:bg-card/40 backdrop-blur-sm rounded-xl p-3 border border-white/20 dark:border-white/10 relative overflow-hidden shadow-sm">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500/50 rounded-l-xl"></div>
                 <div className="flex justify-between items-start mb-2 pl-1">
                     <span className="text-[10px] font-bold text-rose-600/70 dark:text-rose-400/70 uppercase tracking-widest">Check-in</span>
                     {accommodation.check_in_time && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 h-5 font-normal flex gap-1 items-center border-rose-200/50 bg-white/50 dark:bg-black/20">
+                        <Badge variant="outline" className="text-[10px] px-1.5 h-5 font-normal flex gap-1 items-center border-rose-200/50 bg-white/50 dark:bg-white/10">
                             <Clock className="h-3 w-3 text-rose-500" />
                             {accommodation.check_in_time}
                         </Badge>
@@ -117,12 +117,12 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
             </div>
 
             {/* Check-out Section */}
-            <div className="bg-white/40 dark:bg-black/20 backdrop-blur-sm rounded-xl p-3 border border-white/20 dark:border-white/5 relative overflow-hidden shadow-sm">
+            <div className="bg-white/40 dark:bg-card/40 backdrop-blur-sm rounded-xl p-3 border border-white/20 dark:border-white/10 relative overflow-hidden shadow-sm">
                 <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500/50 rounded-l-xl"></div>
                 <div className="flex justify-between items-start mb-2 pl-1">
                     <span className="text-[10px] font-bold text-indigo-600/70 dark:text-indigo-400/70 uppercase tracking-widest">Check-out</span>
                     {accommodation.check_out_time && (
-                        <Badge variant="outline" className="text-[10px] px-1.5 h-5 font-normal flex gap-1 items-center border-indigo-200/50 bg-white/50 dark:bg-black/20">
+                        <Badge variant="outline" className="text-[10px] px-1.5 h-5 font-normal flex gap-1 items-center border-indigo-200/50 bg-white/50 dark:bg-white/10">
                             <Clock className="h-3 w-3 text-indigo-500" />
                             {accommodation.check_out_time}
                         </Badge>
@@ -160,7 +160,7 @@ export function AccommodationCard({ accommodation, onDelete, onUpdate }: Accommo
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 text-xs bg-white/40 dark:bg-black/20 border-black/5 dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10 w-full sm:w-auto justify-start shrink-0 backdrop-blur-sm"
+                  className="h-8 text-xs bg-white/40 dark:bg-card/40 border-black/5 dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10 w-full sm:w-auto justify-start shrink-0 backdrop-blur-sm"
                   onClick={() => window.open(accommodation.document_url!, "_blank")}
                 >
                   <Paperclip className="h-3.5 w-3.5 mr-2 text-rose-500" />

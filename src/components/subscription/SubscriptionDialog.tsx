@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, Sparkles, Zap, Loader2, Star, X, Crown, ShieldCheck, Globe, Trophy, CreditCard, ChevronRight } from "lucide-react";
+import { Check, Sparkles, Zap, Loader2, Star, X, Crown, ShieldCheck, Globe, Trophy, CreditCard, ChevronRight, Moon } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -36,8 +36,8 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95%] sm:max-w-[500px] p-0 border-0 overflow-hidden shadow-2xl bg-background/80 backdrop-blur-2xl rounded-[2rem] sm:rounded-[2.5rem] max-h-[92vh] overflow-y-auto">
-        <DialogClose className="absolute right-3 top-3 z-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center bg-white/10 backdrop-blur-xl border border-white/20 text-white/70 hover:text-white hover:bg-white/20 transition-all">
+      <DialogContent className="w-[95%] sm:max-w-[500px] p-0 border-0 overflow-hidden shadow-2xl bg-background/80 dark:bg-zinc-900/90 backdrop-blur-2xl rounded-[2rem] sm:rounded-[2.5rem] max-h-[92vh] overflow-y-auto">
+        <DialogClose className="absolute right-3 top-3 z-50 rounded-full h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-all">
           <X className="h-4 w-4 sm:h-5 sm:w-5" />
           <span className="sr-only">Chiudi</span>
         </DialogClose>
@@ -59,7 +59,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl"
+              className="mb-4 sm:mb-6 p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-white/20 dark:border-white/10 shadow-2xl"
             >
               <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 fill-amber-400/20" />
             </motion.div>
@@ -79,7 +79,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
           {/* Toggle Mensile/Annuale */}
           {hasAnnualPlan && (
             <div className="flex justify-center">
-              <div className="flex items-center p-1 bg-muted/50 backdrop-blur-sm rounded-[1rem] border border-white/5">
+              <div className="flex items-center p-1 bg-muted/50 dark:bg-muted/30 backdrop-blur-sm rounded-[1rem] border border-white/5 dark:border-white/5">
                 <button
                   onClick={() => setIsAnnual(false)}
                   className={cn(
@@ -93,7 +93,7 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
                   onClick={() => setIsAnnual(true)}
                   className={cn(
                     "px-4 py-1.5 sm:px-6 sm:py-2 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2",
-                    isAnnual ? "bg-background shadow-lg text-primary" : "text-muted-foreground hover:text-foreground"
+                    isAnnual ? "bg-background shadow-lg text-primary dark:text-white" : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   Annuale
@@ -123,25 +123,27 @@ export function SubscriptionDialog({ open, onOpenChange }: SubscriptionDialogPro
             </div>
           </div>
 
-          {/* Features Grid - Always 2 columns */}
+          {/* Features Grid - 2 or 3 columns depending on space */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
             {[
               { icon: Zap, text: "AI Illimitata", color: "text-amber-500", bg: "bg-amber-500/10" },
+              { icon: Moon, text: "Dark Mode Pro", color: "text-indigo-400", bg: "bg-indigo-400/10" },
               { icon: ShieldCheck, text: "Vault Cifrato", color: "text-emerald-500", bg: "bg-emerald-500/10" },
               { icon: Globe, text: "Export HD", color: "text-indigo-500", bg: "bg-indigo-500/10" },
-              { icon: Trophy, text: "Badge Pro", color: "text-rose-500", bg: "bg-rose-500/10" }
+              { icon: Trophy, text: "Badge Pro", color: "text-rose-500", bg: "bg-rose-500/10" },
+              { icon: Sparkles, text: "Early Access", color: "text-purple-500", bg: "bg-purple-500/10" }
             ].map((feature, i) => (
               <motion.div 
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 border border-white/5 hover:border-primary/20 transition-all group"
+                className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/5 dark:bg-white/5 border border-white/5 dark:border-white/5 hover:border-primary/20 dark:hover:border-primary/20 transition-all group"
               >
                 <div className={cn("p-1.5 sm:p-2 rounded-lg sm:rounded-xl transition-all group-hover:scale-110 shrink-0", feature.bg)}>
                   <feature.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", feature.color)} />
                 </div>
-                <span className="font-bold text-[10px] sm:text-sm text-foreground/80 leading-tight">{feature.text}</span>
+                <span className="font-bold text-[10px] sm:text-sm text-foreground/80 dark:text-foreground/90 leading-tight">{feature.text}</span>
               </motion.div>
             ))}
           </div>

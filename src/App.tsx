@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Index from "./pages/Index";
 import Trips from "./pages/Trips";
 import CreateTrip from "./pages/CreateTrip";
@@ -31,26 +32,28 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/trips" element={<Trips />} />
-            <Route path="/trips/new" element={<CreateTrip />} />
-            <Route path="/trips/:id" element={<TripDetail />} />
-            <Route path="/share/:token" element={<PublicTripView />} />
-            <Route path="/u/:username" element={<PublicProfile />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/accommodations" element={<Accommodations />} />
-            <Route path="/transports" element={<Transports />} />
-            <Route path="/itinerary" element={<Itinerary />} />
-            <Route path="/checklist" element={<Checklist />} />
-            <Route path="/ideas" element={<TripIdeas />} />
-            <Route path="/chat" element={<TripChat />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/admin/promo-codes" element={<AdminPromoCodes />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <ThemeProvider defaultTheme="system" storageKey="voyage-smart-theme">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/trips" element={<Trips />} />
+              <Route path="/trips/new" element={<CreateTrip />} />
+              <Route path="/trips/:id" element={<TripDetail />} />
+              <Route path="/share/:token" element={<PublicTripView />} />
+              <Route path="/u/:username" element={<PublicProfile />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/accommodations" element={<Accommodations />} />
+              <Route path="/transports" element={<Transports />} />
+              <Route path="/itinerary" element={<Itinerary />} />
+              <Route path="/checklist" element={<Checklist />} />
+              <Route path="/ideas" element={<TripIdeas />} />
+              <Route path="/chat" element={<TripChat />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/admin/promo-codes" element={<AdminPromoCodes />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
