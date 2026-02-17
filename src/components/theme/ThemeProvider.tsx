@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useLocation } from "react-router-dom";
 
 type Theme = "dark" | "light" | "system";
 
@@ -31,14 +32,20 @@ export function ThemeProvider({
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
   const { isPro } = useSubscription();
+  const location = useLocation();
 
   useEffect(() => {
     const root = window.document.documentElement;
 
     root.classList.remove("light", "dark");
 
-    // Force light if not Pro
-    if (!isPro) {
+    // Check if we are on a page that MUST be light (Landing or Auth)
+    const isAlwaysLightRoute = 
+      location.pathname === "/" || 
+      location.pathname === "/auth";
+
+    // Force light if not Pro OR if on an always-light route
+    if (!isPro || isAlwaysLightRoute) {
       root.classList.add("light");
       return;
     }
