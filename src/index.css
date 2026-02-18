@@ -169,6 +169,14 @@
     background-image: var(--gradient-hero) !important;
   }
 
+  .app-surface {
+    @apply rounded-xl border border-border/60 bg-card/95 backdrop-blur-md shadow-card;
+  }
+
+  .app-surface-strong {
+    @apply rounded-3xl border border-border/70 bg-card shadow-soft;
+  }
+
   /* Scrollbar hide utility */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;

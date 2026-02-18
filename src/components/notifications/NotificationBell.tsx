@@ -1,6 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
   Bell, 
   Check, 
@@ -11,13 +10,21 @@ import {
   Car, 
   Calendar, 
   UserPlus,
-  X 
+  X,
+  BellOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications, Notification } from "@/hooks/useNotifications";
 import { formatDistanceToNow } from "date-fns";
 import { it } from "date-fns/locale";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -36,11 +43,8 @@ const getNotificationIcon = (type: string) => {
   }
 };
 
-interface NotificationBellProps {}
-
-export function NotificationBell({}: NotificationBellProps) {
+export function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
   const {
@@ -53,18 +57,6 @@ export function NotificationBell({}: NotificationBellProps) {
     clearAllNotifications,
   } = useNotifications();
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
       markAsRead(notification.id);
@@ -76,147 +68,173 @@ export function NotificationBell({}: NotificationBellProps) {
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-lg transition-colors text-foreground hover:bg-muted"
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <button
+          className="relative p-2 rounded-full transition-all duration-200 text-foreground hover:bg-muted active:scale-95"
+          aria-label="Notifiche"
+        >
+          <Bell className="w-5 h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center ring-2 ring-background animate-in zoom-in duration-300">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </button>
+      </PopoverTrigger>
+
+      <PopoverContent 
+        align="end" 
+        className="w-80 sm:w-96 p-0 bg-card border border-border shadow-2xl rounded-2xl overflow-hidden z-50"
+        sideOffset={8}
       >
-        <Bell className="w-5 h-5" />
-        {unreadCount > 0 && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
-          >
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </motion.span>
-        )}
-      </button>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-sm text-foreground">Notifiche</h3>
+            {unreadCount > 0 && (
+              <Badge variant="secondary" className="h-5 px-1.5 text-[10px] bg-primary/10 text-primary border-none">
+                {unreadCount} nuove
+              </Badge>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => markAllAsRead()}
+                className="h-8 px-2 text-xs hover:bg-primary/5 hover:text-primary transition-colors"
+              >
+                <CheckCheck className="w-3.5 h-3.5 mr-1" />
+                Leggi tutte
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (window.confirm("Vuoi eliminare tutte le notifiche?")) {
+                    clearAllNotifications();
+                  }
+                }}
+                className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            )}
+          </div>
+        </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-80 sm:w-96 app-surface z-50 overflow-hidden"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border/60 bg-muted/40">
-              <h3 className="font-semibold text-foreground">Notifiche</h3>
-              <div className="flex items-center gap-1">
-                {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => markAllAsRead()}
-                    className="h-8 px-2 text-xs"
-                  >
-                    <CheckCheck className="w-4 h-4 mr-1" />
-                    Leggi tutte
-                  </Button>
-                )}
-                {notifications.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => clearAllNotifications()}
-                    className="h-8 px-2 text-xs text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
+        {/* Notifications List */}
+        <ScrollArea className="max-h-[450px]">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center p-12 text-center">
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-sm text-muted-foreground">Caricamento...</p>
             </div>
-
-            {/* Notifications List */}
-            <ScrollArea className="max-h-96">
-              {isLoading ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  Caricamento...
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="p-8 text-center">
-                  <Bell className="w-12 h-12 mx-auto text-muted-foreground/50 mb-3" />
-                  <p className="text-muted-foreground">Nessuna notifica</p>
-                </div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {notifications.map((notification) => (
-                    <motion.div
-                      key={notification.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className={`relative group px-4 py-3 cursor-pointer transition-colors ${
-                        notification.is_read
-                          ? "bg-card/70 hover:bg-card"
-                          : "bg-primary/5 hover:bg-primary/10"
-                      }`}
-                      onClick={() => handleNotificationClick(notification)}
-                    >
-                      <div className="flex gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted/70 flex items-center justify-center">
-                          {getNotificationIcon(notification.type)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <p className={`text-sm font-medium truncate ${
-                              notification.is_read ? "text-foreground" : "text-foreground"
-                            }`}>
-                              {notification.title}
-                            </p>
-                            {!notification.is_read && (
-                              <span className="flex-shrink-0 w-2 h-2 mt-1.5 rounded-full bg-primary" />
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-muted-foreground/70 mt-1">
-                            {formatDistanceToNow(new Date(notification.created_at), {
-                              addSuffix: true,
-                              locale: it,
-                            })}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Actions on hover */}
-                      <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 text-center animate-in fade-in zoom-in duration-500">
+              <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
+                <BellOff className="w-8 h-8 text-muted-foreground/40" />
+              </div>
+              <h4 className="font-semibold text-foreground mb-1">Nessuna notifica</h4>
+              <p className="text-xs text-muted-foreground max-w-[200px]">
+                Ti avviseremo quando ci saranno novità sui tuoi viaggi.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/40">
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={cn(
+                    "relative group px-4 py-4 cursor-pointer transition-all duration-200",
+                    notification.is_read
+                      ? "bg-card hover:bg-muted/30"
+                      : "bg-primary/[0.03] hover:bg-primary/[0.06] border-l-2 border-primary"
+                  )}
+                  onClick={() => handleNotificationClick(notification)}
+                >
+                  <div className="flex gap-3">
+                    <div className={cn(
+                      "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
+                      notification.is_read ? "bg-muted/50" : "bg-white dark:bg-slate-900 ring-1 ring-border"
+                    )}>
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className={cn(
+                          "text-sm font-bold truncate leading-tight",
+                          notification.is_read ? "text-foreground/70" : "text-foreground"
+                        )}>
+                          {notification.title}
+                        </p>
                         {!notification.is_read && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              markAsRead(notification.id);
-                            }}
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                          </Button>
+                          <span className="flex-shrink-0 w-2 h-2 mt-1 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
                         )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive hover:text-destructive"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            deleteNotification(notification.id);
-                          }}
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </Button>
                       </div>
-                    </motion.div>
-                  ))}
+                      <p className={cn(
+                        "text-xs mt-1 leading-relaxed line-clamp-2",
+                        notification.is_read ? "text-muted-foreground" : "text-foreground/80"
+                      )}>
+                        {notification.message}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/60 mt-2 font-medium">
+                        {formatDistanceToNow(new Date(notification.created_at), {
+                          addSuffix: true,
+                          locale: it,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                    {!notification.is_read && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-lg bg-background/80 backdrop-blur-sm shadow-sm hover:text-primary hover:bg-background"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          markAsRead(notification.id);
+                        }}
+                      >
+                        <Check className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 rounded-lg bg-background/80 backdrop-blur-sm shadow-sm hover:text-destructive hover:bg-background"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification(notification.id);
+                      }}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </div>
-              )}
-            </ScrollArea>
-          </motion.div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+        {notifications.length > 0 && (
+          <div className="p-2 border-t border-border/40 bg-muted/10">
+            <Button 
+              variant="link" 
+              className="w-full h-8 text-[10px] text-muted-foreground hover:text-foreground no-underline"
+              onClick={() => setIsOpen(false)}
+            >
+              Chiudi pannello
+            </Button>
+          </div>
         )}
-      </AnimatePresence>
-    </div>
+      </PopoverContent>
+    </Popover>
   );
 }

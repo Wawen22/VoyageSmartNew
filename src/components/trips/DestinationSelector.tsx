@@ -20,8 +20,15 @@ interface DestinationSelectorProps {
 }
 
 export function DestinationSelector({ destinations, onChange, disabled }: DestinationSelectorProps) {
+  const createDestinationId = () => {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+      return crypto.randomUUID();
+    }
+    return `dest-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  };
+
   const handleAdd = () => {
-    const newId = Math.random().toString(36).substring(7);
+    const newId = createDestinationId();
     const isFirst = destinations.length === 0;
     onChange([
       ...destinations, 
@@ -72,7 +79,7 @@ export function DestinationSelector({ destinations, onChange, disabled }: Destin
         <AnimatePresence initial={false}>
           {destinations.map((dest, index) => (
             <motion.div
-              key={dest.id}
+              key={dest.id || `dest-${index}`}
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}

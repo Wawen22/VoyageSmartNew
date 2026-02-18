@@ -1,9 +1,37 @@
 // Service Worker for VoyageSmart Push Notifications
 
-self.addEventListener('push', function (event) {
-  if (!event.data) return;
+// Install: activate immediately without waiting
+self.addEventListener('install', function (event) {
+  console.log('[VoyageSmart SW] Installing...');
+  self.skipWaiting();
+});
 
-  const data = event.data.json();
+// Activate: claim all clients immediately
+self.addEventListener('activate', function (event) {
+  console.log('[VoyageSmart SW] Activating...');
+  event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('push', function (event) {
+  console.log('[VoyageSmart SW] Push event received');
+
+  let data = {};
+
+  if (event.data) {
+    try {
+      data = event.data.json();
+      console.log('[VoyageSmart SW] Push payload:', data);
+    } catch (e) {
+      // Fallback: prova come testo
+      const text = event.data.text();
+      console.log('[VoyageSmart SW] Push text payload:', text);
+      data = { title: 'VoyageSmart', message: text || 'Hai una nuova notifica' };
+    }
+  } else {
+    console.log('[VoyageSmart SW] Push without payload (tickle)');
+    data = { title: 'VoyageSmart', message: 'Hai una nuova notifica' };
+  }
+
   const title = data.title || 'VoyageSmart';
   const options = {
     body: data.message || 'Hai una nuova notifica',

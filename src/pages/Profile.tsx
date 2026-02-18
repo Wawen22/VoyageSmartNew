@@ -342,8 +342,12 @@ export default function Profile() {
               </TabsList>
             </div>
             
-            <AnimatePresence mode="wait">
-              <TabsContent value="passport" className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none">
+            <AnimatePresence initial={false}>
+              <TabsContent
+                key="passport"
+                value="passport"
+                className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none"
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -353,70 +357,74 @@ export default function Profile() {
                 </motion.div>
               </TabsContent>
 
-              <TabsContent value="trips" className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none space-y-6">
+              <TabsContent
+                key="trips"
+                value="trips"
+                className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none space-y-6"
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   className="space-y-6"
                 >
-                  <div className="flex items-center justify-between bg-card/30 backdrop-blur-sm p-4 rounded-[2rem] border border-white/5">
-                    <h3 className="text-xl font-bold flex items-center gap-3 ml-2">
-                      <div className="p-2 rounded-xl bg-primary/10">
-                        <Globe className="w-5 h-5 text-primary" />
+                    <div className="flex items-center justify-between bg-card/30 backdrop-blur-sm p-4 rounded-[2rem] border border-white/5">
+                      <h3 className="text-xl font-bold flex items-center gap-3 ml-2">
+                        <div className="p-2 rounded-xl bg-primary/10">
+                          <Globe className="w-5 h-5 text-primary" />
+                        </div>
+                        I tuoi viaggi
+                      </h3>
+                      <div className="flex items-center bg-muted/50 p-1.5 rounded-xl border border-white/5">
+                        <Button 
+                          variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
+                          size="sm"
+                          className="h-10 px-4 rounded-lg gap-2"
+                          onClick={() => setViewMode('grid')}
+                        >
+                          <LayoutGrid className="w-4 h-4" />
+                          <span className="hidden sm:inline">Griglia</span>
+                        </Button>
+                        <Button 
+                          variant={viewMode === 'map' ? 'secondary' : 'ghost'} 
+                          size="sm"
+                          className="h-10 px-4 rounded-lg gap-2"
+                          onClick={() => setViewMode('map')}
+                        >
+                          <MapIcon className="w-4 h-4" />
+                          <span className="hidden sm:inline">Mappa</span>
+                        </Button>
                       </div>
-                      I tuoi viaggi
-                    </h3>
-                    <div className="flex items-center bg-muted/50 p-1.5 rounded-xl border border-white/5">
-                      <Button 
-                        variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
-                        size="sm"
-                        className="h-10 px-4 rounded-lg gap-2"
-                        onClick={() => setViewMode('grid')}
-                      >
-                        <LayoutGrid className="w-4 h-4" />
-                        <span className="hidden sm:inline">Griglia</span>
-                      </Button>
-                      <Button 
-                        variant={viewMode === 'map' ? 'secondary' : 'ghost'} 
-                        size="sm"
-                        className="h-10 px-4 rounded-lg gap-2"
-                        onClick={() => setViewMode('map')}
-                      >
-                        <MapIcon className="w-4 h-4" />
-                        <span className="hidden sm:inline">Mappa</span>
-                      </Button>
                     </div>
-                  </div>
 
-                  {tripsLoading ? (
-                    <div className="flex justify-center py-24">
-                      <Loader2 className="w-10 h-10 animate-spin text-primary opacity-50" />
-                    </div>
-                  ) : trips.length > 0 ? (
-                    <div className="min-h-[400px]">
-                      {viewMode === 'map' ? (
-                        <Card className="overflow-hidden rounded-[2.5rem] border-white/10 shadow-2xl h-[650px]">
-                          <ProfileMap trips={trips} />
-                        </Card>
-                      ) : (
-                        <div className="grid gap-6 sm:grid-cols-2">
-                          {trips.map((trip, index) => (
-                            <motion.div
-                               key={trip.id}
-                               initial={{ opacity: 0, scale: 0.95 }}
-                               animate={{ opacity: 1, scale: 1 }}
-                               transition={{ delay: index * 0.05 }}
-                            >
-                              <Link to={`/trips/${trip.id}`}>
-                                <Card className="group relative overflow-hidden rounded-[2rem] border-white/10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 bg-card/40 backdrop-blur-sm">
-                                  <div className="aspect-[16/10] relative overflow-hidden">
-                                    <img 
-                                      src={trip.cover_image || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800"} 
-                                      alt={trip.title}
-                                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+                    {tripsLoading ? (
+                      <div className="flex justify-center py-24">
+                        <Loader2 className="w-10 h-10 animate-spin text-primary opacity-50" />
+                      </div>
+                    ) : trips.length > 0 ? (
+                      <div className="min-h-[400px]">
+                        {viewMode === 'map' ? (
+                          <Card className="overflow-hidden rounded-[2.5rem] border-white/10 shadow-2xl h-[650px]">
+                            <ProfileMap trips={trips} />
+                          </Card>
+                        ) : (
+                          <div className="grid gap-6 sm:grid-cols-2">
+                            {trips.map((trip, index) => (
+                              <motion.div
+                                key={trip.id}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: index * 0.05 }}
+                              >
+                                <Link to={`/trips/${trip.id}`}>
+                                  <Card className="group relative overflow-hidden rounded-[2rem] border-white/10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 bg-card/40 backdrop-blur-sm">
+                                    <div className="aspect-[16/10] relative overflow-hidden">
+                                      <img 
+                                        src={trip.cover_image || "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800"} 
+                                        alt={trip.title}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                      />
+                                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
                                     
                                     <div className="absolute top-4 right-4">
                                       <div className="bg-white/20 backdrop-blur-md border border-white/30 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
@@ -456,7 +464,12 @@ export default function Profile() {
                 </motion.div>
               </TabsContent>
 
-              <TabsContent value="subscription" id="subscription-section" className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none">
+              <TabsContent
+                key="subscription"
+                value="subscription"
+                id="subscription-section"
+                className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none"
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -552,10 +565,14 @@ export default function Profile() {
                        </CardContent>
                     </Card>
                   </div>
-                </motion.div>
+                  </motion.div>
               </TabsContent>
               
-              <TabsContent value="about" className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none">
+              <TabsContent
+                key="about"
+                value="about"
+                className="mt-0 focus-visible:outline-none focus-visible:ring-0 outline-none"
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -598,7 +615,7 @@ export default function Profile() {
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                  </motion.div>
               </TabsContent>
             </AnimatePresence>
           </Tabs>

@@ -5,10 +5,13 @@ import { useToast } from "./use-toast";
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
+export type UnsupportedReason = "https_required" | "browser_unsupported" | "sw_failed" | null;
+
 export function usePushNotifications() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isSupported, setIsSupported] = useState(false);
+  const [unsupportedReason, setUnsupportedReason] = useState<UnsupportedReason>(null);
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
   const [loading, setLoading] = useState(true);
@@ -16,20 +19,86 @@ export function usePushNotifications() {
   // Check support and current status
   useEffect(() => {
     const checkSupport = async () => {
-      const supported = "serviceWorker" in navigator && "PushManager" in window;
-      setIsSupported(supported);
+      // 1. Check for secure context first (HTTPS or localhost)
+      const isSecureContext = window.isSecureContext;
+      const hasServiceWorker = "serviceWorker" in navigator;
+      const hasPushManager = "PushManager" in window;
+      const hasNotification = "Notification" in window;
 
-      if (supported) {
-        setPermission(Notification.permission);
-        
-        try {
-          const registration = await navigator.serviceWorker.ready;
-          const sub = await registration.pushManager.getSubscription();
-          setSubscription(sub);
-        } catch (error) {
-          console.error("Error checking push subscription:", error);
-        }
+      console.log("[VoyageSmart Push] Support check:", {
+        isSecureContext,
+        hasServiceWorker,
+        hasPushManager,
+        hasNotification,
+        protocol: location.protocol,
+        hostname: location.hostname,
+      });
+
+      // Non-secure context (HTTP on non-localhost) — APIs won't be available
+      if (!isSecureContext) {
+        console.warn("[VoyageSmart Push] Not a secure context. Push requires HTTPS or localhost.");
+        setUnsupportedReason("https_required");
+        setIsSupported(false);
+        setLoading(false);
+        return;
       }
+
+      // Browser doesn't support required APIs
+      if (!hasServiceWorker || !hasPushManager || !hasNotification) {
+        console.warn("[VoyageSmart Push] Browser missing APIs:", {
+          hasServiceWorker,
+          hasPushManager,
+          hasNotification,
+        });
+        setUnsupportedReason("browser_unsupported");
+        setIsSupported(false);
+        setLoading(false);
+        return;
+      }
+
+      // 2. Ensure service worker is registered
+      try {
+        let registration = await navigator.serviceWorker.getRegistration("/");
+        if (!registration) {
+          console.log("[VoyageSmart Push] Registering service worker...");
+          registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" });
+          console.log("[VoyageSmart Push] SW registered:", registration);
+        }
+      } catch (error) {
+        console.error("[VoyageSmart Push] SW registration failed:", error);
+        setUnsupportedReason("sw_failed");
+        setIsSupported(false);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Wait for SW to be ready (with timeout to avoid hanging forever)
+      try {
+        const readyPromise = navigator.serviceWorker.ready;
+        const timeoutPromise = new Promise<null>((resolve) =>
+          setTimeout(() => resolve(null), 8000)
+        );
+        const readyRegistration = await Promise.race([readyPromise, timeoutPromise]);
+
+        if (!readyRegistration) {
+          console.warn("[VoyageSmart Push] SW ready timed out after 8s");
+          // Still mark as supported — SW might activate later
+        }
+
+        setIsSupported(true);
+        setPermission(Notification.permission);
+
+        if (readyRegistration) {
+          const sub = await (readyRegistration as ServiceWorkerRegistration).pushManager.getSubscription();
+          setSubscription(sub);
+        }
+      } catch (error) {
+        console.error("[VoyageSmart Push] Error checking push subscription:", error);
+        // APIs exist, so still mark as supported
+        setIsSupported(true);
+        setPermission(Notification.permission);
+      }
+
       setLoading(false);
     };
 
@@ -136,6 +205,7 @@ export function usePushNotifications() {
 
   return {
     isSupported,
+    unsupportedReason,
     permission,
     subscription,
     loading,

@@ -1,19 +1,56 @@
-import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { usePushNotifications, UnsupportedReason } from "@/hooks/usePushNotifications";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { BellRing, BellOff, Loader2, ShieldCheck } from "lucide-react";
+import { BellRing, BellOff, Loader2, ShieldCheck, WifiOff, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 
+function getUnsupportedMessage(reason: UnsupportedReason): { title: string; description: string } {
+  switch (reason) {
+    case "https_required":
+      return {
+        title: "Connessione sicura richiesta",
+        description: "Le notifiche push richiedono HTTPS. Accedi al sito tramite una connessione sicura.",
+      };
+    case "sw_failed":
+      return {
+        title: "Errore Service Worker",
+        description: "Impossibile registrare il service worker. Prova a ricaricare la pagina.",
+      };
+    case "browser_unsupported":
+    default:
+      return {
+        title: "Notifiche Push non supportate",
+        description: "Il tuo browser non supporta le notifiche push. Prova con Chrome, Firefox o Edge aggiornati.",
+      };
+  }
+}
+
 export function PushNotificationToggle() {
-  const { isSupported, permission, subscription, loading, subscribe, unsubscribe } = usePushNotifications();
+  const { isSupported, unsupportedReason, permission, subscription, loading, subscribe, unsubscribe } = usePushNotifications();
+
+  // Show loading while checking support
+  if (loading && !isSupported) {
+    return (
+      <div className="flex items-center gap-3 p-4 rounded-2xl bg-muted/30 border border-border/50">
+        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        <div className="flex-1">
+          <p className="text-sm font-medium">Verifica supporto notifiche...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isSupported) {
+    const msg = getUnsupportedMessage(unsupportedReason);
+    const Icon = unsupportedReason === "https_required" ? WifiOff 
+      : unsupportedReason === "sw_failed" ? AlertTriangle 
+      : BellOff;
     return (
       <div className="flex items-center gap-3 p-4 rounded-2xl bg-muted/30 border border-border/50 opacity-60">
-        <BellOff className="w-5 h-5 text-muted-foreground" />
+        <Icon className="w-5 h-5 text-muted-foreground" />
         <div className="flex-1">
-          <p className="text-sm font-medium">Notifiche Push non supportate</p>
-          <p className="text-xs text-muted-foreground">Il tuo browser non supporta le notifiche push.</p>
+          <p className="text-sm font-medium">{msg.title}</p>
+          <p className="text-xs text-muted-foreground">{msg.description}</p>
         </div>
       </div>
     );
