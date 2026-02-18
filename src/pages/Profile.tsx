@@ -35,6 +35,7 @@ import { searchPlace } from "@/lib/mapbox";
 import { DigitalPassport } from "@/components/profile/DigitalPassport";
 import { SubscriptionCard } from "@/components/profile/SubscriptionCard";
 import { RedeemCodeCard } from "@/components/subscription/RedeemCodeCard";
+import { PushNotificationToggle } from "@/components/profile/PushNotificationToggle";
 import { calculateUserStats, getBadges, UserStats, Badge } from "@/utils/gamification";
 import { useSubscription } from "@/hooks/useSubscription";
 import { Badge as UIBadge } from "@/components/ui/badge";
@@ -559,8 +560,10 @@ export default function Profile() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="max-w-2xl mx-auto"
+                  className="max-w-2xl mx-auto space-y-8"
                 >
+                  <PushNotificationToggle />
+
                   <Card className="rounded-[2.5rem] bg-card/30 backdrop-blur-xl border-white/10 overflow-hidden">
                     <CardContent className="p-10 space-y-8">
                       <div>

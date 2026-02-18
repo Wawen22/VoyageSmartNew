@@ -28,11 +28,11 @@ interface TripCardProps {
   index?: number;
 }
 
-const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline", className?: string }> = {
-  planning: { label: "In Pianificazione", variant: "secondary", className: "bg-blue-100 text-blue-700 hover:bg-blue-100/80" },
-  upcoming: { label: "In Arrivo", variant: "default", className: "bg-emerald-500 hover:bg-emerald-600" },
-  active: { label: "In Corso", variant: "default", className: "bg-indigo-500 hover:bg-indigo-600 animate-pulse" },
-  completed: { label: "Completato", variant: "outline", className: "bg-gray-100 text-gray-600 border-gray-200" },
+const statusConfig: Record<string, { label: string; variant: "secondary" | "default" | "outline" | "destructive"; className?: string }> = {
+  planning: { label: "In Pianificazione", variant: "secondary", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200/50 dark:border-blue-800/50" },
+  upcoming: { label: "In Arrivo", variant: "default", className: "bg-emerald-500 text-white" },
+  active: { label: "In Corso", variant: "default", className: "bg-indigo-500 text-white animate-pulse" },
+  completed: { label: "Completato", variant: "outline", className: "bg-muted/50 text-muted-foreground" },
 };
 
 const defaultImages = [
@@ -102,7 +102,7 @@ export function TripCard({ trip, index = 0 }: TripCardProps) {
               </span>
             </div>
             {trip.member_count !== undefined && (
-              <div className="flex items-center gap-1 text-muted-foreground bg-secondary/50 px-1.5 py-0.5 rounded-md text-[9px] sm:text-[10px] md:text-xs font-medium">
+              <div className="flex items-center gap-1 text-muted-foreground bg-muted px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] md:text-xs font-bold border border-border/50">
                 <Users className="w-2.5 h-2.5 md:w-3.5 md:h-3.5" />
                 {trip.member_count}
               </div>

@@ -13,7 +13,7 @@ export function TripsHeader({ tripCount }: TripsHeaderProps) {
         <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent leading-[3rem] py-1">
           I Miei Viaggi
         </h1>
-        <span className="px-3 py-1 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium text-muted-foreground self-center">
+        <span className="px-3 py-1 rounded-full bg-muted border border-border/50 text-sm font-medium text-muted-foreground self-center">
           {tripCount} {tripCount === 1 ? 'viaggio' : 'viaggi'}
         </span>
       </div>

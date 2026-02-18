@@ -26,11 +26,11 @@ export function TripsFilterBar({
           placeholder="Cerca viaggi..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-9 h-10 bg-secondary/30 border-border/50 focus:bg-background transition-all"
+          className="pl-9 h-10 bg-muted/50 border-border/50 focus:bg-background transition-all"
         />
       </div>
       
-      <div className="flex items-center shrink-0 bg-secondary/30 border border-border/50 p-1 rounded-lg">
+      <div className="flex items-center shrink-0 bg-muted/50 border border-border/50 p-1 rounded-lg">
           <Button
             variant={viewMode === 'grid' ? 'default' : 'ghost'}
             size="sm"
