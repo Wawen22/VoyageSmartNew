@@ -121,6 +121,11 @@ export function usePushNotifications() {
 
     try {
       setLoading(true);
+
+      if (!VAPID_PUBLIC_KEY) {
+        throw new Error("Chiave VAPID non configurata. Contatta il supporto.");
+      }
+
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
 
